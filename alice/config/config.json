@@ -1,0 +1,90 @@
+{
+    "organisation": "moengage",
+    "tokens":{
+        "github": "",
+        "slack": "",
+        "jenkins": ""
+    },
+    "repo" :{
+      "MoEngage": {
+        "sensitive_branches": [
+          "dev",
+          "qa",
+          "master"
+        ],
+        "cc_members": "@satya @pooja",
+        "code_channel": "#code-merged",
+        "alert_channel": "#weekly-releases",
+        "product_team": "@riteshg @nalin",
+        "dev_ops_team": "<@pruthvi> <@adithya>",
+        "notify_direct" : {
+          "event_to_be_notified_on": "opened",
+          "branch_list_to_be_notified": ["dev", "qa"],
+          "person_to_be_notified": "<@yashwanth>"
+        },
+        "special_comment_branch" : "master",
+        "whitelisted_git_members": [
+          "shahp00ja",
+          "satyamoengage",
+          "snehsagar",
+          "vandanamoriwal",
+          "geetima12"
+        ]
+      },
+      "segmentation": {
+        "sensitive_branches": [
+          "develop",
+          "release",
+          "qa",
+          "master"
+        ],
+        "cc_members": "@akshay @pooja",
+        "code_channel": "#segmentation-code",
+        "alert_channel": "#weekly-releases",
+        "product_team": "@riteshg @nalin",
+        "dev_ops_team": "<@pruthvi> <@adithya>",
+        "lead_to_be_notified": "<@yashwanth>",
+        "whitelisted_git_members": [
+          "akgoel-mo",
+          "shahp00ja"
+        ]
+      },
+      "commons": {
+        "sensitive_branches": [
+          "develop",
+          "release",
+          "qa",
+          "master"
+        ],
+        "cc_members": "@akshay @mshekher @pooja",
+        "code_channel": "#commons-code",
+        "alert_channel": "#weekly-releases",
+        "product_team": "@riteshg @nalin",
+        "dev_ops_team": "<@pruthvi> <@adithya>",
+        "lead_to_be_notified": "<@yashwanth>",
+        "whitelisted_git_members": [
+          "akgoel-mo",
+          "shahp00ja",
+          "pruthvintss"
+        ]
+      },
+      "debug_alice": {
+		"sensitive_branches": [],
+		"cc_members": "@pooja",
+        "code_channel": "#tmp",
+        "alert_channel": "#tmp",
+        "product_team":  "@pooja",
+        "dev_ops_team": "@pooja",
+        "lead_to_be_notified": "@pooja",
+        "whitelisted_git_members": ["akgoel-mo", "shahp00ja"]
+	  }
+    },
+
+  "dev_ops_team": "<@pruthvi> <@adithya>",
+  "lead_to_be_notified": "<@yashwanth>",
+  "JENKINS_BASE": "http://ci.moengage.com/",
+  "repo_list": ["MoEngage", "MoeDataScience", "mongoengine", "inapp-rest-service", "mongo", "segmentation",
+                "commons", "moengcache", "MoeAbTesting", "apns_client", "Bugsy_Backend", "product-management",
+                "product-recommendation"],
+  "debug": true
+}
