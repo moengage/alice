@@ -11,38 +11,54 @@ class ConfigProvider(object):
     def __str__(self):
         return "Alice - Common Config Provider"
 
-    def getGithubToken(self):
+    @property
+    def githubToken(self):
         return self.config.get('tokens').get("github")
 
-    def getAlertChannelName(self):
+    @property
+    def alertChannelName(self):
         if self.config.get("debug"):
             return self.config.get("repo").get('debug_alice', {}).get('alert_channel')
         return self.config.get("repo").get(self.repo, {}).get('alert_channel')
 
-    def getRepo(self):
+    @property
+    def repo(self):
         return self.config.get("repo").get(self.repo, {})
 
-    def getCodeChannelName(self):
-        return self.getRepo().get('code_channel')
+    @property
+    def codeChannelName(self):
+        return self.repo().get('code_channel')
 
-    def getSensitiveBranches(self):
-        return self.getRepo().get('sensitive_branches')
+    @property
+    def sensitiveBranches(self):
+        return self.repo().get('sensitive_branches')
 
-    def getPersonToBeNotified(self):
-        return self.getRepo().get('notify_direct', {}).get('person_to_be_notified')
+    @property
+    def branchListToBeNotifiedFor(self):
+        return self.repo().get('notify_direct', {}).get('branch_list_to_be_notified')
 
-    def getBranchListToBeNotifiedFor(self):
-        return self.getRepo().get('notify_direct', {}).get('branch_list_to_be_notified')
+    @property
+    def actionToBeNotifiedFor(self):
+        return self.repo().get('notify_direct', {}).get('action_to_be_notified_on')
 
-    def getEventToBeNotifiedFor(self):
-        return self.getRepo().get('notify_direct', {}).get('event_to_be_notified_on')
+    @property
+    def whiteListedMembers(self):
+        return self.repo().get('whitelisted_git_members')
 
-    def getWhiteListedMembers(self):
-        return self.getRepo().get('whitelisted_git_members')
-
-    def getOrganisation(self):
+    @property
+    def organisation(self):
         return self.config.get('organisation')
 
-    def getSpecialBranchNameToAddComment(self):
-        return self.config.get(self.repo, {}).get('special_comment_branch')
+    @property
+    def mainBranch(self):
+        return self.config.get(self.repo, {}).get('main_branch')
+
+    @property
+    def personToBeNotified(self):
+        return self.repo().get('notify_direct', {}).get('person_to_be_notified')
+
+    @property
+    def techLeadsToBeNotified(self):
+        return self.repo().get('notify_direct', {}).get('tech_leads_to_be_notified')
+
 

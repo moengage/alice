@@ -18,11 +18,13 @@
         "product_team": "@riteshg @nalin",
         "dev_ops_team": "<@pruthvi> <@adithya>",
         "notify_direct" : {
-          "event_to_be_notified_on": "opened",
+          "action_to_be_notified_on": "opened",
           "branch_list_to_be_notified": ["dev", "qa"],
-          "person_to_be_notified": "<@yashwanth>"
+          "person_to_be_notified": "<@yashwanth>",
+          "tech_leads_to_be_notified": ["@yashwanth", "@pooja", "@satya", "@naveenkumarkokku", "@pruthvi", "@nishant",
+                                      "@shubhanshu", "@sarang", "@geetima", "@vandana", "@sneh"]
         },
-        "special_comment_branch" : "master",
+        "main_branch" : "master",
         "whitelisted_git_members": [
           "shahp00ja",
           "satyamoengage",

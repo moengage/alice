@@ -19,7 +19,11 @@ class PushPayloadParser(Base):
         self.request = request
         self.payload = payload
         self.pr = payload["pull_request"]
-        self.config = ConfigProvider(self.pr.repo)
+        self.config = ConfigProvider(self.repo)
+
+    @property
+    def repo(self):
+        return self.payload["repository"]["name"]#self.data["head"]["repo"]["name"]
 
     @property
     def merged_by(self):
@@ -54,10 +58,6 @@ class PushPayloadParser(Base):
         return self.payload["action"]
 
     @property
-    def repo(self):
-        return self.payload["repository"]["name"]#self.data["head"]["repo"]["name"]
-
-    @property
     def base_branch(self):
         return self.pr["base"]["ref"]
 
@@ -71,7 +71,7 @@ class PushPayloadParser(Base):
 
     @property
     def is_sensitive_branch(self):
-        return self.base_branch in self.config.getSensitiveBranches()
+        return self.base_branch in self.config.sensitiveBranches()
 
     @property
     def merged_by_slack_nick(self):
