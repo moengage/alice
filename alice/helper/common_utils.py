@@ -17,7 +17,6 @@ class CommonUtils(object):
             return CommonUtils.git_mappings[key]
         return key
 
-
     @staticmethod
     def readResourceJson(module, path):
         json_string = CommonUtils.readResourceString(module, path)

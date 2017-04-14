@@ -4,7 +4,7 @@ from alice.helper.constants  import *
 import requests
 #from flask import app as application
 import simplejson as json
-from alice.helper.message_template import *
+from alice.config.message_template import *
 from alice.commons.base import Base, PushPayloadParser
 application = Flask(__name__)
 
@@ -19,9 +19,10 @@ class Actor(Base):
             is_bad_pr = self.is_reviewed(self.pr.created_by_slack_nick)
             return "Bad PR={msg} repo:{repo}".format(repo=self.pr.repo, msg=is_bad_pr)
 
+
     def is_reviewed(self, created_by_slack_nick):
         reviews = requests.get(self.pr.link + "/" + PushPayloadParser.EP_REVIEWS, headers={
-            "Authorization": "token "+self.pr.config.getGithubToken(), "Accept":GITHUB_REVIEW_ACCEPT_KEY})
+            "Authorization": "token "+self.pr.config.githubToken(), "Accept":GITHUB_REVIEW_ACCEPT_KEY})
         if 200 != reviews.status_code:
             return reviews.content
 
@@ -48,17 +49,18 @@ class Actor(Base):
         bad_name_str = "Very Bad @" + created_by_slack_nick
         if bad_pr:
             msg = MSG_NO_TECH_REVIEW.format(name=bad_name_str, pr=self.pr.link_pretty, branch= self.pr.base_branch,
-                                            team=self.pr.config.getAlertChannelName())
+                                            team=self.pr.config.alertChannelName())
             print msg
             #postToSlack(channel_name, msg, data={"username": bot_name})
         return bad_pr
 
+
     def add_comment(self):
-        if self.pr.base_branch == self.pr.config.getSpecialBranchNameToAddComment():
+        if self.pr.base_branch == self.pr.config.mainBranch():
             guideline_comment = special_comment
         else:
             guideline_comment = general_comment
-        res = requests.post(self.pr.comments_section, headers={"Authorization": "token " + self.pr.config.getGithubToken()}
+        res = requests.post(self.pr.comments_section, headers={"Authorization": "token " + self.pr.config.githubToken()}
                             , data=json.dumps(guideline_comment))
         print "**** Added Comment of dev guidelines ***"
 
@@ -66,18 +68,24 @@ class Actor(Base):
     def record_merged_to_channel(self):
         if self.pr.is_merged and self.pr.is_sensitive_branch:
             #print "**** Repo=" + repo + ", new merge came to " + base_branch + " set trace to " + code_merge_channel + " channel"
-            msg = "Title=\"{0}\",  Description=\"{1}\" \nPR: {2}\n from {3} into `{4}` By: *{5}*, mergedBy: {6}\n".format(
-                title_pr, body_pr, link_pr, head_branch, base_branch, by_slack, self.pr.merged_by_slack_nick)
+            msg = MSG_CODE_CHANNEL.format(title=title_pr, desc=body_pr, pr=self.pr.link,
+                                          head_branch=self.pr.head_branch, base_branch=self.pr.base_branch,
+                                          pr_by=self.pr.by_slack, merge_by=self.pr.merged_by_slack_nick)
             return msg
             #postToSlack(code_merge_channel, msg, data={"username": bot_name})  # code-merged
 
-    def notify_direct_on_open(self):
+    def slack_direct_on_open(self):
+        desired_action = self.pr.config.actionToBeNotifiedFor
+        if self.pr.action == desired_action:
+            if self.pr.base_branch == self.pr.config.mainBranch:
+                for person in self.pr.config.techLeadsToBeNotified:
+                    postToSlack(person, msg + MSG_RELEASE_PREPARATION, data={"username": bot_name}, parseFull=False)
+            else:
+                postToSlack('@' + self.pr.config.personToBeNotified, msg, data={"username": bot_name}, parseFull=False)
+
+
+    def personal_msg_for_release_guidelines(self):
         pass
-
-
-    def personal_msg_for_release_guidlines(self):
-        pass
-
 
     def close_dangerous_pr(self):
         pass
@@ -88,9 +96,8 @@ class Actor(Base):
     def personal_msgs_on_release_freeze(self):
         pass
 
-    def announce_code_freez(self):
+    def announce_code_freeze(self):
         pass
-
 
     def ci_lint_checker(self):
         pass
