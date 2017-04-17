@@ -85,7 +85,10 @@ class Actor(Base):
 
 
     def personal_msg_for_release_guidelines(self):
-        pass
+        msg = MSG_GUIDELINE_ON_MERGE.format(person=self.pr.by_slack, pr_link= self.pr.link,
+                                            base_branch=self.pr.base_branch)
+        postToSlack('@'+ self.pr.created_by_slack_nick, msg)
+
 
     def close_dangerous_pr(self):
         pass
