@@ -12,8 +12,16 @@ class ConfigProvider(object):
         return "Alice - Common Config Provider"
 
     @property
+    def organisation(self):
+        return self.config.get('organisation')
+
+    @property
     def githubToken(self):
         return self.config.get('tokens').get("github")
+
+    @property
+    def slackToken(self):
+        return self.config.get('tokens').get("slack")
 
     @property
     def alertChannelName(self):
@@ -34,6 +42,10 @@ class ConfigProvider(object):
         return self.repo().get('sensitive_branches')
 
     @property
+    def sensitiveFiles(self):
+        return self.repo().get("sensitive_files")
+
+    @property
     def branchListToBeNotifiedFor(self):
         return self.repo().get('notify_direct', {}).get('branch_list_to_be_notified')
 
@@ -46,12 +58,12 @@ class ConfigProvider(object):
         return self.repo().get('whitelisted_git_members')
 
     @property
-    def organisation(self):
-        return self.config.get('organisation')
+    def mainBranch(self):
+        return self.repo().get('main_branch')
 
     @property
-    def mainBranch(self):
-        return self.config.get(self.repo, {}).get('main_branch')
+    def testBranch(self):
+        return self.repo().get('test_branch')
 
     @property
     def personToBeNotified(self):
@@ -60,5 +72,9 @@ class ConfigProvider(object):
     @property
     def techLeadsToBeNotified(self):
         return self.repo().get('notify_direct', {}).get('tech_leads_to_be_notified')
+
+    @property
+    def productPlusRequiredDirPattern(self):
+        return self.repo().get('product_plus_required_dir_pattern')
 
 

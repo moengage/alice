@@ -12,6 +12,9 @@
           "qa",
           "master"
         ],
+        "sensitive_files": ["moengage_pull_production_latest" , "moengage_production"],
+        "sensitive_file_pattern": "",
+        "product_plus_required_dir_pattern": "dashboard",
         "cc_members": "@satya @pooja",
         "code_channel": "#code-merged",
         "alert_channel": "#weekly-releases",
@@ -25,6 +28,7 @@
                                       "@shubhanshu", "@sarang", "@geetima", "@vandana", "@sneh"]
         },
         "main_branch" : "master",
+        "test_branch" : "qa",
         "whitelisted_git_members": [
           "shahp00ja",
           "satyamoengage",

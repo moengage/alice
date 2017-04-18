@@ -4,7 +4,8 @@ from alice.helper.message_template import *
 from slacker import Slacker
 
 class SlackHelper(object):
-    def __init__(self):
+
+    def __init__(self, SLACK_API_TOKEN):
         self.slack = Slacker(SLACK_API_TOKEN)
         self.icon = SLACK_ICON
 

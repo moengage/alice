@@ -5,10 +5,6 @@ from alice.helper.common_utils import CommonUtils
 class Base(object):
     API_START_PR = "https://api.github.com/repos/moengage/MoEngage/pulls/"
     API_START_ISSUES = "https://api.github.com/repos/moengage/MoEngage/issues/"
-    EP_REVIEWS = "reviews"
-    EP_COMMENTS = "comments"
-    STATE_OPEN = "open"
-    STATE_CLOSED = "closed"
 
 
 class PushPayloadParser(Base):
