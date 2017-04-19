@@ -15,7 +15,7 @@ class Actor(Base):
     
     def __init__(self, pr_payload):
         self.pr = pr_payload
-        self.github = GithubHelper(self.pr.config.githubToken)
+        self.github = GithubHelper(self.pr.config.organisation, self.pr.config.githubToken, self.pr.link)
         self.slack = SlackHelper(self.pr.config.slackToken)
         self.change_requires_product_plus1 = False
         self.is_product_plus1 = False
@@ -31,7 +31,7 @@ class Actor(Base):
 
 
     def is_reviewed(self, created_by_slack_nick):
-        reviews = self.github.get_reviews(self.pr.link)
+        reviews = self.github.get_reviews()
         if 200 != reviews.status_code:
             return reviews.content
 
@@ -62,14 +62,19 @@ class Actor(Base):
         return bad_pr
 
     def parse_files_and_set_flags(self):
-        try:
-            self.github.get_reviews(self.pr.link)
-            files_contents = self.github.get_files(self.pr.link)
-        except PRFilesNotFoundException, e:
-            files_contents = e.pr_response
-
-        if "message" in files_contents:
-            return files_contents  # STOP as files not found
+        files_contents = self.github.get_files()
+        print "FILE CONTENTS ***************"
+        print files_contents
+        # files_contents = ""
+        # try:
+        #     self.github.get_reviews(self.pr.link)
+        #     files_contents = self.github.get_files(self.pr.link)
+        # except PRFilesNotFoundException, e:
+        #     files_contents = e.pr_response
+        #     raise e
+        #
+        # if "message" in files_contents:
+        #     return files_contents  # STOP as files not found
 
         self.change_requires_product_plus1 = False
         self.is_product_plus1 = False

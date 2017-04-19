@@ -25,7 +25,7 @@ class Retry(object):
                     if i == self.max_retries - 1 and self.default_value is None:
                         raise sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2]
                     time.sleep(self.after)
-                    logger.info(task=func.__name__, message="retrying function")
+                    #self.logger.info(task=func.__name__, message="retrying function")
                     # logger.debug(task=func.__name__, message="retrying function",
                     #                retry_cause=CommonUtils.view_traceback())
             return return_value
