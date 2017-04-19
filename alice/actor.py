@@ -56,7 +56,7 @@ class Actor(Base):
         bad_name_str = MSG_BAD_START + "@" + created_by_slack_nick
         if bad_pr:
             msg = MSG_NO_TECH_REVIEW.format(name=bad_name_str, pr=self.pr.link_pretty, branch= self.pr.base_branch,
-                                            team=self.pr.config.alertChannelName())
+                                            team=self.pr.config.alertChannelName)
             print msg
             self.slack.postToSlack(channel_name, msg, data={"username": bot_name})
         return bad_pr
@@ -77,7 +77,7 @@ class Actor(Base):
         for item in files_contents:
             file_path = item["filename"]
             print file_path
-            if any(x in str(file_path) for x in self.pr.config.sensitive_files):
+            if any(x in str(file_path) for x in self.pr.config.sensitiveFiles):
                 self.sensitive_file_touched["is_found"] = True
                 self.sensitive_file_touched["file_name"] = str(file_path)
             if item["filename"].find(self.pr.config.productPlusRequiredDirPattern) != -1:
@@ -86,12 +86,12 @@ class Actor(Base):
                 # break
 
     def add_comment(self):
-        if self.pr.base_branch == self.pr.config.mainBranch():
+        if self.pr.base_branch == self.pr.config.mainBranch:
             guideline_comment = special_comment
         else:
             guideline_comment = general_comment
 
-        github_helper.comment_pr(self.pr.config.githubToken(), self.pr.comments_section, guideline_comment)
+        github_helper.comment_pr(self.pr.config.githubToken, self.pr.comments_section, guideline_comment)
         print "**** Added Comment of dev guidelines ***"
 
 

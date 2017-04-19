@@ -35,46 +35,46 @@ class ConfigProvider(object):
 
     @property
     def codeChannelName(self):
-        return self.repo().get('code_channel')
+        return self.repo.get('code_channel')
 
     @property
     def sensitiveBranches(self):
-        return self.repo().get('sensitive_branches')
+        return self.repo.get('sensitive_branches')
 
     @property
     def sensitiveFiles(self):
-        return self.repo().get("sensitive_files")
+        return self.repo.get("sensitive_files")
 
     @property
     def branchListToBeNotifiedFor(self):
-        return self.repo().get('notify_direct', {}).get('branch_list_to_be_notified')
+        return self.repo.get('notify_direct', {}).get('branch_list_to_be_notified')
 
     @property
     def actionToBeNotifiedFor(self):
-        return self.repo().get('notify_direct', {}).get('action_to_be_notified_on')
+        return self.repo.get('notify_direct', {}).get('action_to_be_notified_on')
 
     @property
     def whiteListedMembers(self):
-        return self.repo().get('whitelisted_git_members')
+        return self.repo.get('whitelisted_git_members')
 
     @property
     def mainBranch(self):
-        return self.repo().get('main_branch')
+        return self.repo.get('main_branch')
 
     @property
     def testBranch(self):
-        return self.repo().get('test_branch')
+        return self.repo.get('test_branch')
 
     @property
     def personToBeNotified(self):
-        return self.repo().get('notify_direct', {}).get('person_to_be_notified')
+        return self.repo.get('notify_direct', {}).get('person_to_be_notified')
 
     @property
     def techLeadsToBeNotified(self):
-        return self.repo().get('notify_direct', {}).get('tech_leads_to_be_notified')
+        return self.repo.get('notify_direct', {}).get('tech_leads_to_be_notified')
 
     @property
     def productPlusRequiredDirPattern(self):
-        return self.repo().get('product_plus_required_dir_pattern')
+        return self.repo.get('product_plus_required_dir_pattern')
 
 
