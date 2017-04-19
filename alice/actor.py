@@ -58,7 +58,7 @@ class Actor(Base):
             msg = MSG_NO_TECH_REVIEW.format(name=bad_name_str, pr=self.pr.link_pretty, branch= self.pr.base_branch,
                                             team=self.pr.config.alertChannelName)
             print msg
-            self.slack.postToSlack(channel_name, msg, data={"username": bot_name})
+            self.slack.postToSlack(self.pr.config.alertChannelName, msg)
         return bad_pr
 
     def parse_files_and_set_flags(self):
@@ -110,9 +110,9 @@ class Actor(Base):
         if self.pr.action == desired_action:
             if self.pr.base_branch == self.pr.config.mainBranch:
                 for person in self.pr.config.techLeadsToBeNotified:
-                    self.slack.postToSlack(person, msg + MSG_RELEASE_PREPARATION, data={"username": bot_name}, parseFull=False)
+                    self.slack.postToSlack(person, msg + MSG_RELEASE_PREPARATION, parseFull=False)
             else:
-                self.slack.postToSlack('@' + self.pr.config.personToBeNotified, msg, data={"username": bot_name},
+                self.slack.postToSlack('@' + self.pr.config.personToBeNotified, msg,
                                        parseFull=False)
 
 
@@ -129,8 +129,8 @@ class Actor(Base):
 
     def notify_on_sensitive_files_touched(self):
         if sensitive_file_touched.get("is_found"):
-            self.slack.postToSlack(channel_name, dev_ops_team + " " + sensitive_file_touched["file_name"]
-                                   + " is modified in PR=" + pr_link + " by @" + pr_by_slack, data={"username": bot_name},
+            self.slack.postToSlack(self.pr.config.alertChannelName, dev_ops_team + " " + sensitive_file_touched["file_name"]
+                                   + " is modified in PR=" + pr_link + " by @" + pr_by_slack,
                                    parseFull=False)
 
 

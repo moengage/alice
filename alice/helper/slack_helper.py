@@ -11,4 +11,4 @@ class SlackHelper(object):
         self.icon = SLACK_ICON
 
     def postToSlack(self, channel, msg=None, **kwargs):
-        self.slack.chat.post_message(channel=channel, text="#"+msg, icon_url=self.icon, username="alice", **kwargs)
+        self.slack.chat.post_message(channel=channel, text=msg, icon_url=self.icon, username="Alice", **kwargs)
