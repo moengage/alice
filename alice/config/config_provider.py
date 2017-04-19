@@ -4,9 +4,9 @@ class ConfigProvider(object):
     # __metaclass__ = SingletonMetaClass
 
     def __init__(self, repo):
-        self.repo = repo
         config_file = 'config.json'
         self.config = CommonUtils.readResourceJson(__name__, config_file)
+        self.repo_name = repo
 
     def __str__(self):
         return "Alice - Common Config Provider"
@@ -27,11 +27,11 @@ class ConfigProvider(object):
     def alertChannelName(self):
         if self.config.get("debug"):
             return self.config.get("repo").get('debug_alice', {}).get('alert_channel')
-        return self.config.get("repo").get(self.repo, {}).get('alert_channel')
+        return self.config.get("repo").get(self.repo_name, {}).get('alert_channel')
 
     @property
     def repo(self):
-        return self.config.get("repo").get(self.repo, {})
+        return self.config.get("repo").get(self.repo_name, {})
 
     @property
     def codeChannelName(self):

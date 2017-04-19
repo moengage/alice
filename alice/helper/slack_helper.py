@@ -1,6 +1,7 @@
 import json
 import requests
-from alice.helper.message_template import *
+from alice.config.message_template import *
+from alice.helper.constants import SLACK_ICON
 from slacker import Slacker
 
 class SlackHelper(object):

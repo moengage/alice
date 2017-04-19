@@ -15,6 +15,7 @@ class PushPayloadParser(Base):
         self.request = request
         self.payload = payload
         self.pr = payload["pull_request"]
+        print "****** REPO= ******",self.repo
         self.config = ConfigProvider(self.repo)
 
     @property

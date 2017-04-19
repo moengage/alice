@@ -6,7 +6,7 @@ import requests
 import simplejson as json
 from alice.config.message_template import *
 from alice.commons.base import Base, PushPayloadParser
-from alice.helper.github_helper import GithubHelper
+from alice.helper.github_helper import GithubHelper, PRFilesNotFoundException
 from alice.helper.slack_helper import SlackHelper
 application = Flask(__name__)
 
@@ -15,8 +15,8 @@ class Actor(Base):
     
     def __init__(self, pr_payload):
         self.pr = pr_payload
-        self.github_helper = GithubHelper(self.pr.config.githubToken)
-        self.slack_helper = SlackHelper(self.pr.config.slackToken)
+        self.github = GithubHelper(self.pr.config.githubToken)
+        self.slack = SlackHelper(self.pr.config.slackToken)
         self.change_requires_product_plus1 = False
         self.is_product_plus1 = False
         self.sensitive_file_touched = {}
@@ -31,7 +31,7 @@ class Actor(Base):
 
 
     def is_reviewed(self, created_by_slack_nick):
-        reviews = self.github_helper.get_reviews()
+        reviews = self.github.get_reviews(self.pr.link)
         if 200 != reviews.status_code:
             return reviews.content
 
@@ -58,12 +58,13 @@ class Actor(Base):
             msg = MSG_NO_TECH_REVIEW.format(name=bad_name_str, pr=self.pr.link_pretty, branch= self.pr.base_branch,
                                             team=self.pr.config.alertChannelName())
             print msg
-            self.slack_helper.postToSlack(channel_name, msg, data={"username": bot_name})
+            self.slack.postToSlack(channel_name, msg, data={"username": bot_name})
         return bad_pr
 
     def parse_files_and_set_flags(self):
         try:
-            files_contents = get_files(self.pr.link)
+            self.github.get_reviews(self.pr.link)
+            files_contents = self.github.get_files(self.pr.link)
         except PRFilesNotFoundException, e:
             files_contents = e.pr_response
 
@@ -109,10 +110,10 @@ class Actor(Base):
         if self.pr.action == desired_action:
             if self.pr.base_branch == self.pr.config.mainBranch:
                 for person in self.pr.config.techLeadsToBeNotified:
-                    slack_helper.postToSlack(person, msg + MSG_RELEASE_PREPARATION, data={"username": bot_name}, parseFull=False)
+                    self.slack.postToSlack(person, msg + MSG_RELEASE_PREPARATION, data={"username": bot_name}, parseFull=False)
             else:
-                slack_helper.postToSlack('@' + self.pr.config.personToBeNotified, msg, data={"username": bot_name},
-                                         parseFull=False)
+                self.slack.postToSlack('@' + self.pr.config.personToBeNotified, msg, data={"username": bot_name},
+                                       parseFull=False)
 
 
     def slack_personally_for_release_guidelines(self):
@@ -123,17 +124,17 @@ class Actor(Base):
 
     def close_dangerous_pr(self):
         msg = MSG_AUTO_CLOSE.format(tested_branch=self.pr.config.testBranch, main_branch=self.pr.config.mainBranch)
-        self.github_helper.modify_pr(msg, "closed")
-        self.slack_helper.postToSlack(self.pr.config.alertChannelName, "@"+self.pr.by_slack +": "+ msg)
+        self.github.modify_pr(msg, "closed")
+        self.slack.postToSlack(self.pr.config.alertChannelName, "@" + self.pr.by_slack + ": " + msg)
 
     def notify_on_sensitive_files_touched(self):
         if sensitive_file_touched.get("is_found"):
-            self.slack_helper.postToSlack(channel_name, dev_ops_team + " " + sensitive_file_touched["file_name"]
-                        + " is modified in PR=" + pr_link + " by @" + pr_by_slack, data={"username": bot_name},
-                        parseFull=False)
+            self.slack.postToSlack(channel_name, dev_ops_team + " " + sensitive_file_touched["file_name"]
+                                   + " is modified in PR=" + pr_link + " by @" + pr_by_slack, data={"username": bot_name},
+                                   parseFull=False)
 
 
-    def personal_msgs_on_release_freeze(self):
+    def personal_msgs_to_leads_on_release_freeze(self):
         pass
 
     def announce_code_freeze(self):
@@ -175,29 +176,6 @@ if __name__ == "__main__":
         port=int("5005")
     )
 
-
-class PRFilesNotFoundException(Exception):
-    def __init__(self, pr_response):
-        self.pr_response = pr_response
-        super(PRFilesNotFoundException, self).__init__(str(self.pr_response))
-
-
-def is_pr_file_content_available(response):
-    return not (isinstance(response, dict) and 'message' in response and response['message'] == "Not Found")
-
-
-def get_files_requests(gitlink_pr):
-    files = requests.get(gitlink_pr + "/files", headers={"Authorization": "token " + GIT_TOKEN})
-    return json.loads(files.content)
-
-
-@Retry(PRFilesNotFoundException, max_retries=40,
-       default_value={"message": "Not Found", "documentation_url": "https://developer.github.com/v3"})
-def get_files(gitlink_pr):
-    files_content = get_files_requests(gitlink_pr)
-    if not is_pr_file_content_available(files_content):
-        raise PRFilesNotFoundException(files_content)
-    return files_content
 
 
 
