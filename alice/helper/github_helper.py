@@ -54,7 +54,7 @@ class GithubHelper:
         return not (isinstance(response, dict) and 'message' in response and response['message'] == "Not Found")
 
 
-    @Retry(PRFilesNotFoundException, max_retries=10,
+    @Retry(PRFilesNotFoundException, max_retries=20,
            default_value={"message": "Not Found", "documentation_url": "https://developer.github.com/v3"})
     def get_files(self):
         #import pdb; pdb.set_trace()

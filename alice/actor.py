@@ -8,6 +8,8 @@ from alice.config.message_template import *
 from alice.commons.base import Base, PushPayloadParser
 from alice.helper.github_helper import GithubHelper, PRFilesNotFoundException
 from alice.helper.slack_helper import SlackHelper
+from alice.helper.file_utlis import write_to_file_from_top, clear_file
+from enum import Enum
 application = Flask(__name__)
 
 
@@ -22,6 +24,9 @@ class Actor(Base):
         self.sensitive_file_touched = {}
         if self.pr.is_merged:
             self.parse_files_and_set_flags()
+
+        self.base_branch = self.pr.base_branch
+        self.head_branch = self.pr.head_branch
 
 
     def was_eligible_to_merge(self):
@@ -63,19 +68,6 @@ class Actor(Base):
 
     def parse_files_and_set_flags(self):
         files_contents = self.github.get_files()
-        print "FILE CONTENTS ***************"
-        print files_contents
-        # files_contents = ""
-        # try:
-        #     self.github.get_reviews(self.pr.link)
-        #     files_contents = self.github.get_files(self.pr.link)
-        # except PRFilesNotFoundException, e:
-        #     files_contents = e.pr_response
-        #     raise e
-        #
-        # if "message" in files_contents:
-        #     return files_contents  # STOP as files not found
-
         self.change_requires_product_plus1 = False
         self.is_product_plus1 = False
         print "changed files-"
@@ -91,14 +83,13 @@ class Actor(Base):
                 # break
 
     def add_comment(self):
-        if self.pr.base_branch == self.pr.config.mainBranch:
-            guideline_comment = special_comment
-        else:
-            guideline_comment = general_comment
-
-        github_helper.comment_pr(self.pr.config.githubToken, self.pr.comments_section, guideline_comment)
-        print "**** Added Comment of dev guidelines ***"
-
+        if self.pr.is_opened:
+            if self.pr.base_branch == self.pr.config.mainBranch:
+                guideline_comment = special_comment
+            else:
+                guideline_comment = general_comment
+            self.github.comment_pr(self.pr.config.githubToken, self.pr.comments_section, guideline_comment)
+            print "**** Added Comment of dev guidelines ***"
 
     def slack_merged_to_channel(self):
         if self.pr.is_merged and self.pr.is_sensitive_branch:
@@ -109,37 +100,61 @@ class Actor(Base):
             return msg
             #slack_helper.postToSlack(code_merge_channel, msg, data={"username": bot_name})  # code-merged
 
-
     def slack_direct_on_open(self):
-        desired_action = self.pr.config.actionToBeNotifiedFor
-        if self.pr.action == desired_action:
-            if self.pr.base_branch == self.pr.config.mainBranch:
-                for person in self.pr.config.techLeadsToBeNotified:
-                    self.slack.postToSlack(person, msg + MSG_RELEASE_PREPARATION, parseFull=False)
-            else:
-                self.slack.postToSlack('@' + self.pr.config.personToBeNotified, msg,
-                                       parseFull=False)
+        if self.pr.is_opened:
+            desired_action = self.pr.config.actionToBeNotifiedFor
+            if self.pr.action == desired_action:
+                if self.pr.base_branch == self.pr.config.mainBranch:
+                    for person in self.pr.config.techLeadsToBeNotified:
+                        self.slack.postToSlack(person, msg + MSG_RELEASE_PREPARATION, parseFull=False)
+                else:
+                    self.slack.postToSlack('@' + self.pr.config.personToBeNotified, msg,
+                                           parseFull=False)
 
 
     def slack_personally_for_release_guidelines(self):
-        msg = MSG_GUIDELINE_ON_MERGE.format(person=self.pr.by_slack, pr_link= self.pr.link,
-                                            base_branch=self.pr.base_branch)
-        slack_helper.postToSlack('@'+ self.pr.created_by_slack_nick, msg)
-
+        if self.pr.is_merged:
+            if self.base_branch in self.pr.config.sensitiveBranches:
+                msg = MSG_GUIDELINE_ON_MERGE.format(person=self.pr.by_slack, pr_link= self.pr.link,
+                                                    base_branch=self.pr.base_branch)
+                slack_helper.postToSlack('@'+ self.pr.created_by_slack_nick, msg)
 
     def close_dangerous_pr(self):
-        msg = MSG_AUTO_CLOSE.format(tested_branch=self.pr.config.testBranch, main_branch=self.pr.config.mainBranch)
-        self.github.modify_pr(msg, "closed")
-        self.slack.postToSlack(self.pr.config.alertChannelName, "@" + self.pr.by_slack + ": " + msg)
+        if self.pr.is_opened:
+            master_branch = self.pr.config.mainBranch
+            qa_branch =  self.pr.config.testBranch
+            if self.base_branch == master_branch and self.head_branch != qa_branch:
+                msg = MSG_AUTO_CLOSE.format(tested_branch=qa_branch, main_branch=master_branch)
+                self.github.modify_pr(msg, "closed")
+                self.slack.postToSlack(self.pr.config.alertChannelName, "@" + self.pr.by_slack + ": " + msg)
 
     def notify_on_sensitive_files_touched(self):
-        if sensitive_file_touched.get("is_found"):
-            self.slack.postToSlack(self.pr.config.alertChannelName, dev_ops_team + " " + sensitive_file_touched["file_name"]
-                                   + " is modified in PR=" + pr_link + " by @" + pr_by_slack,
-                                   parseFull=False)
+        if self.pr.is_merged:
+            if sensitive_file_touched.get("is_found"):
+                self.slack.postToSlack(self.pr.config.alertChannelName, dev_ops_team + " " + sensitive_file_touched["file_name"]
+                                       + " is modified in PR=" + pr_link + " by @" + pr_by_slack,
+                                       parseFull=False)
 
 
     def personal_msgs_to_leads_on_release_freeze(self):
+        if self.pr.is_opened:
+            pass
+
+    def notify_QA_signOff(self):
+        msg = "<@{0}>  QA passed :+1: `master` is updated <{1}|Details here>  Awaiting your go ahead. \n cc: {2} {3} ".\
+            format(self.pr.config.personToBeNotified, data["pull_request"][
+                "html_url"], self.pr.config.devOpsTeam, self.pr.config.techLeadsToBeNotified)
+
+        self.slack.postToSlack(self.pr.config.alertChannelName, msg,
+                               data=self.slack.getBot(channel_name, merged_by_slack), parseFull=False)
+        """ for bot """
+        write_to_file_from_top(release_freeze_details_path, ":clubs:" +
+                               str(datetime.now(pytz.timezone('Asia/Calcutta')).strftime(
+                                   '%B %d,%Y at %I.%M %p')) + " with <" + pr_link + "|master> code")  # on:" + str(datetime.datetime.now().strftime('%B %d, %Y @ %I.%M%p'))
+        clear_file(code_freeze_details_path)
+
+
+    def notify_to_add_release_notes_for_next_release(self):
         pass
 
     def announce_code_freeze(self):
@@ -160,7 +175,30 @@ def merge():
     payload = request.get_data()
     data = json.loads(unicode(payload, errors='replace'), strict=False)
     pull_request = Actor(PushPayloadParser(request, payload=data))
-    merge_correctness = pull_request.was_eligible_to_merge()
+    steps = pull_request.pr.config.checks
+    merge_correctness = {}
+    #import pdb; pdb.set_trace()
+    if len(steps) == 0:
+            pull_request.close_dangerous_pr()
+            pull_request.add_comment()
+            pull_request.slack_direct_on_open()
+            pull_request.personal_msgs_to_leads_on_release_freeze()
+
+            merge_correctness = pull_request.was_eligible_to_merge()
+            pull_request.slack_merged_to_channel()
+            pull_request.slack_personally_for_release_guidelines()
+            pull_request.notify_on_sensitive_files_touched()
+    else:
+        for item in steps:
+            if item == Action.TECH_REVIEW.value:
+                merge_correctness = pull_request.was_eligible_to_merge()
+            elif item == Action.PRODUCT_REVIEW.value:
+                pass
+            elif item == Action.GUIDELINES.value:
+                pull_request.add_comment()
+            elif item == Action.DIRECT_ON_OPEN.value:
+                pull_request.slack_direct_on_open()
+
 
     return jsonify(merge_correctness)
 
@@ -180,6 +218,14 @@ if __name__ == "__main__":
         host="0.0.0.0",
         port=int("5005")
     )
+
+
+class Action(Enum):
+
+    TECH_REVIEW = "tech_review"
+    PRODUCT_REVIEW = "product_review"
+    GUIDELINES = "comment_guidelines"
+    DIRECT_ON_OPEN = "slack_direct_on_pr_open"
 
 
 

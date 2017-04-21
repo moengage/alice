@@ -43,16 +43,16 @@ class PushPayloadParser(Base):
         return self.pr["merged"]
 
     @property
+    def action(self):
+        return self.payload["action"]
+
+    @property
     def is_opened(self):
-        return self.pr["action"] == "opened"
+        return self.action == "opened"
 
     @property
     def is_reopened(self):
-        return self.pr["action"] == "reopened"
-
-    @property
-    def action(self):
-        return self.payload["action"]
+        return self.action == "reopened"
 
     @property
     def base_branch(self):

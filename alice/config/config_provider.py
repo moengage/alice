@@ -77,4 +77,12 @@ class ConfigProvider(object):
     def productPlusRequiredDirPattern(self):
         return self.repo.get('product_plus_required_dir_pattern')
 
+    @property
+    def devOpsTeam(self):
+        return self.repo.get("dev_ops_team", [])
+
+    @property
+    def checks(self):
+        return self.repo.get("checks",[])
+
 

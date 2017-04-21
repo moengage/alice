@@ -35,7 +35,9 @@
           "snehsagar",
           "vandanamoriwal",
           "geetima12"
-        ]
+        ],
+        "checks": [ "tech_review", "product_review", "comment_guidelines", "slack_direct_on_pr_open",
+          "slack_channel_on_pr_merge", "close_dangerous_pr", "notify_on_sensitive_files_touched"]
       },
       "segmentation": {
         "sensitive_branches": [

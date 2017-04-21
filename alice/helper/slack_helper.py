@@ -12,3 +12,8 @@ class SlackHelper(object):
 
     def postToSlack(self, channel, msg=None, **kwargs):
         self.slack.chat.post_message(channel=channel, text=msg, icon_url=self.icon, username="Alice", **kwargs)
+
+
+    def getBot(self, channel, user):
+        icon_url = "https://cloud.githubusercontent.com/assets/12966925/25274594/528675da-26ae-11e7-8331-25f25c41b75d.png"
+        return {"username": user, "icon_url": icon_url}
