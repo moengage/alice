@@ -1,9 +1,9 @@
 import requests
 import json
 import time
-from alice.helper.constants  import GITHUB_REVIEW_ACCEPT_KEY, EP_REVIEWS
+from alice.helper.constants  import GITHUB_REVIEW_ACCEPT_KEY, EP_REVIEWS, GITHUB_REPO_MEMBER
 from alice.helper.decorators.retry import Retry
-from alice.helper.constants import GITHUB_MEMBERS
+from alice.helper.api_manager import ApiManager
 
 class PRFilesNotFoundException(Exception):
     def __init__(self, pr_response):
@@ -13,18 +13,16 @@ class PRFilesNotFoundException(Exception):
 
 class GithubHelper:
 
-    def __init__(self, org, github_token, pr_api_link):
-        self.GITHUB_TOKEN = github_token
+    def __init__(self, org, repo, github_token, pr_api_link):
         self.pr_api_link = pr_api_link
+        self.GITHUB_TOKEN = github_token
+        self.headers = {"Authorization": "token " + self.GITHUB_TOKEN}
 
-        #response = requests.get("https://api.github.com/user?access_token="+self.GITHUB_TOKEN)
-        response = requests.get(GITHUB_MEMBERS.format(org=org),
-                                headers={"Authorization": "token "+ self.GITHUB_TOKEN}).content
-        resp = json.loads(response)
-        if isinstance(resp, dict) and "bad" in resp.get("message",""):
-            raise Exception(response)
-        elif isinstance(resp, list) and len(resp) <= 0:
-            raise Exception("Please check the Github Token, user doesn't have permission to the organisation or the repository")
+        url = GITHUB_REPO_MEMBER.format(org=org, repo=repo)
+        response = ApiManager.get(url=url, headers=self.headers)
+        if response["status_code"] != 200:
+            raise Exception(response["content"], "Please check the provided Github Token, "
+                               "either user doesn't have permission to the organisation or the repository")
 
 
     def comment_pr(self, comment_section, comment):
@@ -41,14 +39,16 @@ class GithubHelper:
         print resp.content
 
     def get_reviews(self):
-        reviews = requests.get(self.pr_api_link + "/" + EP_REVIEWS, headers={
-            "Authorization": "token " + self.GITHUB_TOKEN, "Accept": GITHUB_REVIEW_ACCEPT_KEY})
+        url = self.pr_api_link + "/" + EP_REVIEWS
+        self.headers["Accept"] = GITHUB_REVIEW_ACCEPT_KEY
+        reviews = requests.get(url, headers=self.headers)
         print "********** REVIEW ********************"
         return reviews
 
     def get_files_requests(self):
-        files = requests.get(self.pr_api_link + "/files", headers={"Authorization": "token " + self.GITHUB_TOKEN})
-        return json.loads(files.content)
+        url = self.pr_api_link + "/files"
+        files = ApiManager.get(url, headers=self.headers)
+        return files["response"].json()
 
     def is_pr_file_content_available(self, response):
         return not (isinstance(response, dict) and 'message' in response and response['message'] == "Not Found")

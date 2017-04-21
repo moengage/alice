@@ -15,7 +15,7 @@ class Actor(Base):
     
     def __init__(self, pr_payload):
         self.pr = pr_payload
-        self.github = GithubHelper(self.pr.config.organisation, self.pr.config.githubToken, self.pr.link)
+        self.github = GithubHelper(self.pr.config.organisation, self.pr.repo, self.pr.config.githubToken, self.pr.link)
         self.slack = SlackHelper(self.pr.config.slackToken)
         self.change_requires_product_plus1 = False
         self.is_product_plus1 = False
@@ -33,7 +33,7 @@ class Actor(Base):
     def is_reviewed(self, created_by_slack_nick):
         reviews = self.github.get_reviews()
         if 200 != reviews.status_code:
-            return reviews.content
+            raise Exception(reviews.content)
 
         print "************ My REVIEWS ***********", reviews.content
         bad_pr = True
