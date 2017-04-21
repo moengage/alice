@@ -22,6 +22,11 @@ general_comment = { "body": "Did you remember to?\n"
             "- [ ] P0 Tests Executed EndToEnd? [what is it](https://github.com/moengage/MoEngage/wiki/p0%20list)?\n"
 }
 
+MSG_OPENED_TO_MAIN_BRANCH = "{repo} repo:: <{pr_link}|{title_pr}> is opened to `{main_branch}` by:*{pr_by}* " \
+                            "\n Please review and approve with +1, Release preparation starts..."
+MSG_OPENED_TO_PREVENTED_BRANCH = "{repo} repo:: <{pr_link}|{title_pr}> is opened to `{base_branch}` by:*{pr_by}* "
+
+
 special_comment = {
     "body": "**Attention!** \n Release Checklist\n"
             "- [ ] JS version Update? check index.html\n"

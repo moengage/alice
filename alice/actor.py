@@ -31,7 +31,7 @@ class Actor(Base):
 
     def was_eligible_to_merge(self):
         if self.pr.is_merged: #and self.head_branch in PushPayload.PROTECTED_BRANCH_LIST:  TO ENABLE
-            is_bad_pr = self.is_reviewed(self.pr.created_by_slack_nick)
+            is_bad_pr = self.is_reviewed(self.pr.opened_by_slack)
             return "Bad PR={msg} repo:{repo}".format(repo=self.pr.repo, msg=is_bad_pr)
 
 
@@ -88,7 +88,7 @@ class Actor(Base):
                 guideline_comment = special_comment
             else:
                 guideline_comment = general_comment
-            self.github.comment_pr(self.pr.config.githubToken, self.pr.comments_section, guideline_comment)
+            self.github.comment_pr(self.pr.comments_section, guideline_comment)
             print "**** Added Comment of dev guidelines ***"
 
     def slack_merged_to_channel(self):
@@ -96,7 +96,7 @@ class Actor(Base):
             #print "**** Repo=" + repo + ", new merge came to " + base_branch + " set trace to " + code_merge_channel + " channel"
             msg = MSG_CODE_CHANNEL.format(title=title_pr, desc=body_pr, pr=self.pr.link,
                                           head_branch=self.pr.head_branch, base_branch=self.pr.base_branch,
-                                          pr_by=self.pr.by_slack, merge_by=self.pr.merged_by_slack_nick)
+                                          pr_by=self.pr.opened_by_slack, merge_by=self.pr.merged_by_slack)
             return msg
             #slack_helper.postToSlack(code_merge_channel, msg, data={"username": bot_name})  # code-merged
 
@@ -105,19 +105,25 @@ class Actor(Base):
             desired_action = self.pr.config.actionToBeNotifiedFor
             if self.pr.action == desired_action:
                 if self.pr.base_branch == self.pr.config.mainBranch:
+                    msg = MSG_OPENED_TO_MAIN_BRANCH.format(repo=self.pr.repo, pr_by=self.pr.opened_by_slack,
+                                                           main_branch=self.pr.config.mainBranch,
+                                                           title_pr=self.pr.title, pr_link=self.pr.link_pretty)
                     for person in self.pr.config.techLeadsToBeNotified:
-                        self.slack.postToSlack(person, msg + MSG_RELEASE_PREPARATION, parseFull=False)
+                        self.slack.postToSlack(person, msg + MSG_RELEASE_PREPARATION, parse=False)
                 else:
+                    msg = MSG_OPENED_TO_PREVENTED_BRANCH.format(repo=self.pr.repo, pr_by=self.pr.opened_by_slack,
+                                                                base_branch=self.pr.base_branch,
+                                                                title_pr=self.pr.title, pr_link=self.pr.link_pretty)
                     self.slack.postToSlack('@' + self.pr.config.personToBeNotified, msg,
-                                           parseFull=False)
+                                           parse=False)
 
 
     def slack_personally_for_release_guidelines(self):
         if self.pr.is_merged:
             if self.base_branch in self.pr.config.sensitiveBranches:
-                msg = MSG_GUIDELINE_ON_MERGE.format(person=self.pr.by_slack, pr_link= self.pr.link,
+                msg = MSG_GUIDELINE_ON_MERGE.format(person=self.pr.merged_by_slack, pr_link= self.pr.link_pretty,
                                                     base_branch=self.pr.base_branch)
-                slack_helper.postToSlack('@'+ self.pr.created_by_slack_nick, msg)
+                slack_helper.postToSlack('@' + self.pr.opened_by_slack, msg)
 
     def close_dangerous_pr(self):
         if self.pr.is_opened:
@@ -126,14 +132,14 @@ class Actor(Base):
             if self.base_branch == master_branch and self.head_branch != qa_branch:
                 msg = MSG_AUTO_CLOSE.format(tested_branch=qa_branch, main_branch=master_branch)
                 self.github.modify_pr(msg, "closed")
-                self.slack.postToSlack(self.pr.config.alertChannelName, "@" + self.pr.by_slack + ": " + msg)
+                self.slack.postToSlack(self.pr.config.alertChannelName, "@" + self.pr.opened_by_slack + ": " + msg)
 
     def notify_on_sensitive_files_touched(self):
         if self.pr.is_merged:
             if sensitive_file_touched.get("is_found"):
                 self.slack.postToSlack(self.pr.config.alertChannelName, dev_ops_team + " " + sensitive_file_touched["file_name"]
                                        + " is modified in PR=" + pr_link + " by @" + pr_by_slack,
-                                       parseFull=False)
+                                       {"parse":False})
 
 
     def personal_msgs_to_leads_on_release_freeze(self):
@@ -146,7 +152,7 @@ class Actor(Base):
                 "html_url"], self.pr.config.devOpsTeam, self.pr.config.techLeadsToBeNotified)
 
         self.slack.postToSlack(self.pr.config.alertChannelName, msg,
-                               data=self.slack.getBot(channel_name, merged_by_slack), parseFull=False)
+                               data=self.slack.getBot(channel_name, merged_by_slack), parse=False)
         """ for bot """
         write_to_file_from_top(release_freeze_details_path, ":clubs:" +
                                str(datetime.now(pytz.timezone('Asia/Calcutta')).strftime(

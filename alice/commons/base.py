@@ -23,6 +23,10 @@ class PushPayloadParser(Base):
         return self.payload["repository"]["name"]#self.data["head"]["repo"]["name"]
 
     @property
+    def created_by(self):
+        return self.pr["user"]["login"]
+
+    @property
     def merged_by(self):
         return self.pr["merged_by"]["login"]
 
@@ -33,10 +37,6 @@ class PushPayloadParser(Base):
     @property
     def link(self):
         return self.pr["url"]
-
-    @property
-    def by(self):
-        return self.pr["user"]["login"]
 
     @property
     def is_merged(self):
@@ -71,11 +71,18 @@ class PushPayloadParser(Base):
         return self.base_branch in self.config.sensitiveBranches()
 
     @property
-    def merged_by_slack_nick(self):
+    def merged_by_slack(self):
         return CommonUtils.getSlackNicksFromGitNicks(self.merged_by)
 
     @property
-    def created_by_slack_nick(self):
-        return CommonUtils.getSlackNicksFromGitNicks(self.by)
+    def opened_by_slack(self):
+        return CommonUtils.getSlackNicksFromGitNicks(self.created_by)
 
+    @property
+    def title(self):
+        return self.pr["title"]
+
+    @property
+    def description(self):
+        return self.pr["description"]
 

@@ -26,7 +26,7 @@ class ConfigProvider(object):
     @property
     def alertChannelName(self):
         if self.config.get("debug"):
-            return self.config.get("repo").get('debug_alice', {}).get('alert_channel')
+            return self.config.get('debug_alice', {}).get('debug_channel')
         return self.config.get("repo").get(self.repo_name, {}).get('alert_channel')
 
     @property
@@ -35,6 +35,8 @@ class ConfigProvider(object):
 
     @property
     def codeChannelName(self):
+        if self.config.get("debug"):
+            return self.config.get('debug_alice', {}).get('debug_channel')
         return self.repo.get('code_channel')
 
     @property
@@ -67,10 +69,14 @@ class ConfigProvider(object):
 
     @property
     def personToBeNotified(self):
+        if self.config.get("debug"):
+            return self.config.get('debug_alice', {}).get('debug_folks')
         return self.repo.get('notify_direct', {}).get('person_to_be_notified')
 
     @property
     def techLeadsToBeNotified(self):
+        if self.config.get("debug"):
+            return self.config.get('debug_alice', {}).get('debug_folks')
         return self.repo.get('notify_direct', {}).get('tech_leads_to_be_notified')
 
     @property
@@ -79,6 +85,8 @@ class ConfigProvider(object):
 
     @property
     def devOpsTeam(self):
+        if self.config.get("debug"):
+            return self.config.get('debug_alice', {}).get('debug_folks')
         return self.repo.get("dev_ops_team", [])
 
     @property

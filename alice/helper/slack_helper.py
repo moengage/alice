@@ -10,8 +10,11 @@ class SlackHelper(object):
         self.slack = Slacker(SLACK_API_TOKEN)
         self.icon = SLACK_ICON
 
-    def postToSlack(self, channel, msg=None, **kwargs):
-        self.slack.chat.post_message(channel=channel, text=msg, icon_url=self.icon, username="Alice", **kwargs)
+    def postToSlack(self, channel, msg=None, *args, **kwargs):
+        print "*****************"
+        print channel
+        channel="@pooja"
+        self.slack.chat.post_message(channel=channel, text=msg, icon_url=self.icon, username="Alice", *args, **kwargs)
 
 
     def getBot(self, channel, user):
