@@ -28,8 +28,12 @@ class ConfigProvider(object):
         return self.config.get('tokens').get("slack")
 
     @property
+    def is_debug(self):
+        return  self.config.get("debug", False)
+
+    @property
     def alertChannelName(self):
-        if self.config.get("debug"):
+        if is_debug:
             return self.config.get('debug_alice', {}).get('debug_channel')
         return self.config.get("repo").get(self.repo_name, {}).get('alert_channel')
 
@@ -39,7 +43,7 @@ class ConfigProvider(object):
 
     @property
     def codeChannelName(self):
-        if self.config.get("debug"):
+        if is_debug:
             return self.config.get('debug_alice', {}).get('debug_channel')
         return self.repo.get('code_channel')
 
@@ -62,6 +66,10 @@ class ConfigProvider(object):
     @property
     def whiteListedMembers(self):
         return self.repo.get('whitelisted_git_members')
+
+    @property
+    def superMembers(self):
+        return self.repo.get('super_git_members')
 
     @property
     def mainBranch(self):
@@ -96,5 +104,7 @@ class ConfigProvider(object):
     @property
     def checks(self):
         return self.repo.get("checks",[])
+
+
 
 

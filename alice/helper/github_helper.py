@@ -28,7 +28,7 @@ class GithubHelper:
     def comment_pr(self, comment_section, comment):
         resp = requests.post(comment_section, headers={"Authorization": "token " + self.GITHUB_TOKEN},
                              data=json.dumps(comment))
-        print resp.content
+        logger.debug(resp.content)
 
     def modify_pr(self, msg, state):
         data = {
@@ -36,14 +36,12 @@ class GithubHelper:
             "state": state
         }
         resp = requests.post(pr_api_link, json.dumps(data), headers={"Authorization": "token " + self.GITHUB_TOKEN})
-        print resp.content
+        logger.debug(resp.content)
 
     def get_reviews(self):
         url = self.pr_api_link + "/" + EP_REVIEWS
         self.headers["Accept"] = GITHUB_REVIEW_ACCEPT_KEY
-        reviews = requests.get(url, headers=self.headers)
-        print "********** REVIEW ********************"
-        return reviews
+        return requests.get(url, headers=self.headers)
 
     def get_files_requests(self):
         url = self.pr_api_link + "/files"
@@ -61,7 +59,6 @@ class GithubHelper:
         files_content = self.get_files_requests()
         if not self.is_pr_file_content_available(files_content):
             raise PRFilesNotFoundException(files_content)
-        print "********** FILE CONTENT ********************"
         #print files_content
         return files_content
 

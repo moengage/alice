@@ -1,6 +1,7 @@
-import logging
 from alice.config.config_provider import ConfigProvider
 from alice.helper.common_utils import CommonUtils
+from alice.helper.log_utils import logger
+# from alice.helper.log_utils import Logger
 
 class Base(object):
     API_START_PR = "https://api.github.com/repos/moengage/MoEngage/pulls/"
@@ -8,23 +9,20 @@ class Base(object):
 
 
 class PushPayloadParser(Base):
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
 
     def __init__(self, request, payload):
         self.request = request
         self.payload = payload
         self.pr = payload["pull_request"]
-        print "****** REPO= ******",self.repo
+        logger.debug("Repo="+self.repo)
         self.config = ConfigProvider(self.repo)
-
 
     @property
     def repo(self):
         return self.payload["repository"]["name"]#self.data["head"]["repo"]["name"]
 
     @property
-    def created_by(self):
+    def opened_by(self):
         return self.pr["user"]["login"]
 
     @property
@@ -32,7 +30,7 @@ class PushPayloadParser(Base):
         return self.pr["merged_by"]["login"]
 
     @property
-    def link_pretty(self):
+    def link_preety(self):
         return self.pr["html_url"]
 
     @property
@@ -77,7 +75,7 @@ class PushPayloadParser(Base):
 
     @property
     def opened_by_slack(self):
-        return CommonUtils.getSlackNicksFromGitNicks(self.created_by)
+        return CommonUtils.getSlackNicksFromGitNicks(self.opened_by)
 
     @property
     def title(self):
