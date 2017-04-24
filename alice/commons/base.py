@@ -18,6 +18,7 @@ class PushPayloadParser(Base):
         print "****** REPO= ******",self.repo
         self.config = ConfigProvider(self.repo)
 
+
     @property
     def repo(self):
         return self.payload["repository"]["name"]#self.data["head"]["repo"]["name"]

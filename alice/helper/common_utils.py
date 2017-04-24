@@ -25,3 +25,7 @@ class CommonUtils(object):
     @staticmethod
     def readResourceString(module, path):
         return pkg_resources.resource_string(module, path)
+
+    @staticmethod
+    def getDictFromJson(json_path):
+        return json.load(open(json_path))

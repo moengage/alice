@@ -10,6 +10,8 @@ from alice.helper.github_helper import GithubHelper, PRFilesNotFoundException
 from alice.helper.slack_helper import SlackHelper
 from alice.helper.file_utlis import write_to_file_from_top, clear_file
 from enum import Enum
+#import argparse
+import optparse
 application = Flask(__name__)
 
 
@@ -109,13 +111,12 @@ class Actor(Base):
                                                            main_branch=self.pr.config.mainBranch,
                                                            title_pr=self.pr.title, pr_link=self.pr.link_pretty)
                     for person in self.pr.config.techLeadsToBeNotified:
-                        self.slack.postToSlack(person, msg + MSG_RELEASE_PREPARATION, parse=False)
+                        self.slack.postToSlack(person, msg + MSG_RELEASE_PREPARATION)
                 else:
                     msg = MSG_OPENED_TO_PREVENTED_BRANCH.format(repo=self.pr.repo, pr_by=self.pr.opened_by_slack,
                                                                 base_branch=self.pr.base_branch,
                                                                 title_pr=self.pr.title, pr_link=self.pr.link_pretty)
-                    self.slack.postToSlack('@' + self.pr.config.personToBeNotified, msg,
-                                           parse=False)
+                    self.slack.postToSlack('@' + self.pr.config.personToBeNotified, msg)
 
 
     def slack_personally_for_release_guidelines(self):
@@ -152,7 +153,7 @@ class Actor(Base):
                 "html_url"], self.pr.config.devOpsTeam, self.pr.config.techLeadsToBeNotified)
 
         self.slack.postToSlack(self.pr.config.alertChannelName, msg,
-                               data=self.slack.getBot(channel_name, merged_by_slack), parse=False)
+                               data=self.slack.getBot(channel_name, merged_by_slack))
         """ for bot """
         write_to_file_from_top(release_freeze_details_path, ":clubs:" +
                                str(datetime.now(pytz.timezone('Asia/Calcutta')).strftime(
@@ -181,6 +182,7 @@ def merge():
     payload = request.get_data()
     data = json.loads(unicode(payload, errors='replace'), strict=False)
     pull_request = Actor(PushPayloadParser(request, payload=data))
+
     steps = pull_request.pr.config.checks
     merge_correctness = {}
     #import pdb; pdb.set_trace()
@@ -211,19 +213,20 @@ def merge():
 
 @application.route("/", methods=['GET','POST'])
 def hello():
-    return "Welcome to the world of Alice"
+    return "Welcome to the world of Alice "
 
 
-if __name__ == "__main__":
-    #application.run()
-    handler = RotatingFileHandler('app.log', maxBytes=100000, backupCount=3)
-    logger = logging.getLogger('tdm')
-    logger.setLevel(logging.DEBUG)
-    logger.addHandler(handler)
-    application.run(debug=True,
-        host="0.0.0.0",
-        port=int("5005")
-    )
+# if __name__ == "__main__":
+#     #application.run()
+#     handler = RotatingFileHandler('app.log', maxBytes=100000, backupCount=3)
+#     logger = logging.getLogger('tdm')
+#     logger.setLevel(logging.DEBUG)
+#     logger.addHandler(handler)
+#
+#     application.run(debug=True,
+#         host="0.0.0.0",
+#         port=int("5006")
+#     )
 
 
 class Action(Enum):

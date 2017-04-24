@@ -1,11 +1,15 @@
 from alice.helper.common_utils import CommonUtils
+import argparse
+import os
 
 class ConfigProvider(object):
     # __metaclass__ = SingletonMetaClass
 
     def __init__(self, repo):
-        config_file = 'config.json'
-        self.config = CommonUtils.readResourceJson(__name__, config_file)
+        config_file = os.environ["config"]
+        print "***** config=" + config_file
+        #self.config = CommonUtils.readResourceJson(__name__, config_file) #relative package path
+        self.config = CommonUtils.getDictFromJson(config_file) #absolute path to keep file anywhere
         self.repo_name = repo
 
     def __str__(self):
