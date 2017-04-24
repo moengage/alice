@@ -61,7 +61,7 @@ class ConfigProvider(object):
 
     @property
     def actionToBeNotifiedFor(self):
-        return self.repo.get('notify_direct', {}).get('action_to_be_notified_on')
+        return self.repo.get('notify_direct', {}).get('action_to_be_notified_on', "opened")
 
     @property
     def whiteListedMembers(self):
