@@ -29,11 +29,11 @@ class ConfigProvider(object):
 
     @property
     def is_debug(self):
-        return  self.config.get("debug", False)
+        return self.config.get("debug", False)
 
     @property
     def alertChannelName(self):
-        if is_debug:
+        if self.is_debug:
             return self.config.get('debug_alice', {}).get('debug_channel')
         return self.config.get("repo").get(self.repo_name, {}).get('alert_channel')
 
@@ -104,6 +104,9 @@ class ConfigProvider(object):
     @property
     def checks(self):
         return self.repo.get("checks",[])
+
+    def getSlackName(self, github_name):
+        return self.config.get('user_map',{}).get(github_name, "")
 
 
 

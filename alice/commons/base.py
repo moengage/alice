@@ -1,12 +1,9 @@
 from alice.config.config_provider import ConfigProvider
 from alice.helper.common_utils import CommonUtils
 from alice.helper.log_utils import logger
-# from alice.helper.log_utils import Logger
 
 class Base(object):
-    API_START_PR = "https://api.github.com/repos/moengage/MoEngage/pulls/"
-    API_START_ISSUES = "https://api.github.com/repos/moengage/MoEngage/issues/"
-
+    pass
 
 class PushPayloadParser(Base):
 
@@ -30,7 +27,7 @@ class PushPayloadParser(Base):
         return self.pr["merged_by"]["login"]
 
     @property
-    def link_preety(self):
+    def link_pretty(self):
         return self.pr["html_url"]
 
     @property

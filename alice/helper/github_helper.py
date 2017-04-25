@@ -24,7 +24,6 @@ class GithubHelper:
             raise Exception(response["content"], "Please check the provided Github Token, "
                                "either user doesn't have permission to the organisation or the repository")
 
-
     def comment_pr(self, comment_section, comment):
         resp = requests.post(comment_section, headers={"Authorization": "token " + self.GITHUB_TOKEN},
                              data=json.dumps(comment))
