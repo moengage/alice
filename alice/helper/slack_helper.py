@@ -6,15 +6,26 @@ from slacker import Slacker
 
 class SlackHelper(object):
 
-    def __init__(self, SLACK_API_TOKEN):
-        self.slack = Slacker(SLACK_API_TOKEN)
+
+    def __init__(self, config):
+        self.config = config
+        self.slack = Slacker(self.config.slackToken)
         self.icon = SLACK_ICON
+
 
     def postToSlack(self, channel, msg=None, *args, **kwargs):
         print "************** NOTIFYING *******************"
         print "**************    %s      ******************" %channel
         print "********************************************"
         self.slack.chat.post_message(channel=channel, text=msg, icon_url=self.icon, username="Alice", *args, **kwargs)
+
+    def directSlack(self, person, msg=None, *args, **kwargs):
+        if self.config.is_debug:
+            person = self.config.debug_folks
+        print "************** NOTIFYING *******************"
+        print "**************    %s      ******************" % person
+        print "********************************************"
+        self.slack.chat.post_message(channel=person, text=msg, icon_url=self.icon, username="Alice", *args, **kwargs)
 
 
     def getBot(self, channel, user):

@@ -19,6 +19,10 @@ class PushPayloadParser(Base):
         return self.payload["repository"]["name"]#self.data["head"]["repo"]["name"]
 
     @property
+    def number(self):
+        return self.payload["number"]
+
+    @property
     def opened_by(self):
         return self.pr["user"]["login"]
 
@@ -64,7 +68,7 @@ class PushPayloadParser(Base):
 
     @property
     def is_sensitive_branch(self):
-        return self.base_branch in self.config.sensitiveBranches()
+        return self.base_branch in self.config.sensitiveBranches
 
     @property
     def merged_by_slack(self):
@@ -80,5 +84,5 @@ class PushPayloadParser(Base):
 
     @property
     def description(self):
-        return self.pr["description"]
+        return self.pr["body"]
 
