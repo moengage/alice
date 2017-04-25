@@ -71,7 +71,7 @@ class Actor(Base):
         store merged PR data to respective channel
         :return:
         """
-        if self.pr.is_merged and self.pr.is_sensitive_branch:
+        if self.pr.is_merged:
             #print "**** Repo=" + repo + ", new merge came to " + base_branch + " set trace to " + code_merge_channel + " channel"
             msg = MSG_CODE_CHANNEL.format(title=self.pr.title, desc=self.pr.description, pr=self.pr.link,
                                           head_branch=self.pr.head_branch, base_branch=self.pr.base_branch,
@@ -237,7 +237,7 @@ def merge():
 
 def run_checks(actor, steps):
     merge_correctness = {}
-    if actor.is_sensitive_branch:
+    if actor.pr.is_sensitive_branch:
         if len(steps) == 0:
             actor.close_dangerous_pr()
             actor.add_comment()
@@ -271,7 +271,6 @@ def run_checks(actor, steps):
         return merge_correctness
     logger.info("skipped because '%s' is not sensitive branch" %actor.base_branch)
     return {"msg":"skipped because '%s' is not sensitive branch" %actor.base_branch}
-
 
 
 @app.route("/", methods=['GET', 'POST'])
