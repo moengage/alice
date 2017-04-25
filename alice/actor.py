@@ -37,6 +37,10 @@ class Actor(Base):
 
 
     def was_eligible_to_merge(self):
+        """
+        checks for +1 in review approved
+        :return:
+        """
         if self.pr.is_merged: #and self.head_branch in PushPayload.PROTECTED_BRANCH_LIST:  TO ENABLE
             is_bad_pr = self.is_reviewed(self.created_by)
             logger.info("Bad PR={msg} repo:{repo}".format(repo=self.pr.repo, msg=is_bad_pr))
@@ -45,6 +49,10 @@ class Actor(Base):
 
 
     def add_comment(self):
+        """
+        add comment on opened PR
+        :return:
+        """
         if self.pr.is_opened:
             if not self.pr.config.is_debug:
                 if self.pr.base_branch == self.pr.config.mainBranch:
@@ -59,15 +67,23 @@ class Actor(Base):
 
 
     def slack_merged_to_channel(self):
+        """
+        store merged PR data to respective channel
+        :return:
+        """
         if self.pr.is_merged and self.pr.is_sensitive_branch:
             #print "**** Repo=" + repo + ", new merge came to " + base_branch + " set trace to " + code_merge_channel + " channel"
             msg = MSG_CODE_CHANNEL.format(title=self.pr.title, desc=self.pr.description, pr=self.pr.link,
                                           head_branch=self.pr.head_branch, base_branch=self.pr.base_branch,
                                           pr_by=self.created_by, merge_by=self.merged_by)
             return msg
-            #slack.postToSlack(code_merge_channel, msg, data={"username": bot_name})  # code-merged
+            # TO DO: slack.postToSlack(code_merge_channel, msg, data={"username": bot_name})  # code-merged
 
     def slack_lead_on_specific_action(self):
+        """
+        keep lead posted on particular action on sensitive branch
+        :return:
+        """
         #if self.pr.is_opened:
         desired_action = self.pr.config.actionToBeNotifiedFor
         if self.pr.action == desired_action:
@@ -219,38 +235,43 @@ def merge():
     return jsonify(merge_correctness)
 
 
-def run_checks(pull_request, steps):
-    if len(steps) == 0:
-        pull_request.close_dangerous_pr()
-        pull_request.add_comment()
-        pull_request.slack_lead_on_specific_action()
-        merge_correctness = pull_request.was_eligible_to_merge()
-        pull_request.slack_merged_to_channel()
-        pull_request.slack_creator_for_release_guidelines()
-        pull_request.notify_on_sensitive_files_touched()
-        pull_request.notify_QA_signOff()
-    else:
-        for item in steps:
-            check_type = item.lower()
-            if check_type == Action.CLOSE_DANGEROUS_PR.value:
-                pull_request.close_dangerous_pr()
-            elif check_type == Action.GUIDELINES.value:
-                pull_request.add_comment()
-            elif check_type == Action.SLACK_DIRECT_ON_GIVEN_ACTION.value:
-                pull_request.slack_lead_on_specific_action()
-            if check_type == Action.TECH_REVIEW.value:
-                merge_correctness = pull_request.was_eligible_to_merge()
-            elif check_type == Action.PRODUCT_REVIEW.value:
-                pass
-            elif check_type == Action.SLACK_CHANNEL_ON_MERGE.value:
-                pull_request.slack_merged_to_channel()
-            elif check_type == Action.SLACK_REMIND_FOR_RELEASE_GUIDELINE.value:
-                pull_request.slack_creator_for_release_guidelines()
-            elif check_type == Action.NOTIFY_SENSITIVE_FILES_TOUCHED.value:
-                pull_request.notify_on_sensitive_files_touched()
-            elif check_type == Action.NOTIFY_QA_SIGN_OFF.value:
-                pull_request.notify_QA_signOff()
-    return merge_correctness
+def run_checks(actor, steps):
+    merge_correctness = {}
+    if actor.is_sensitive_branch:
+        if len(steps) == 0:
+            actor.close_dangerous_pr()
+            actor.add_comment()
+            actor.slack_lead_on_specific_action()
+            merge_correctness = actor.was_eligible_to_merge()
+            actor.slack_merged_to_channel()
+            actor.slack_creator_for_release_guidelines()
+            actor.notify_on_sensitive_files_touched()
+            actor.notify_QA_signOff()
+        else:
+            for item in steps:
+                check_type = item.lower()
+                if check_type == Action.CLOSE_DANGEROUS_PR.value:
+                    actor.close_dangerous_pr()
+                elif check_type == Action.GUIDELINES.value:
+                    actor.add_comment()
+                elif check_type == Action.SLACK_DIRECT_ON_GIVEN_ACTION.value:
+                    actor.slack_lead_on_specific_action()
+                if check_type == Action.TECH_REVIEW.value:
+                    merge_correctness = actor.was_eligible_to_merge()
+                elif check_type == Action.PRODUCT_REVIEW.value:
+                    pass
+                elif check_type == Action.SLACK_CHANNEL_ON_MERGE.value:
+                    actor.slack_merged_to_channel()
+                elif check_type == Action.SLACK_REMIND_FOR_RELEASE_GUIDELINE.value:
+                    actor.slack_creator_for_release_guidelines()
+                elif check_type == Action.NOTIFY_SENSITIVE_FILES_TOUCHED.value:
+                    actor.notify_on_sensitive_files_touched()
+                elif check_type == Action.NOTIFY_QA_SIGN_OFF.value:
+                    actor.notify_QA_signOff()
+        return merge_correctness
+    logger.info("skipped because '%s' is not sensitive branch" %actor.base_branch)
+    return {"msg":"skipped because '%s' is not sensitive branch" %actor.base_branch}
+
 
 
 @app.route("/", methods=['GET', 'POST'])
