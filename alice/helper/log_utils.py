@@ -1,6 +1,6 @@
 import logging
 import os
-from alice.helper.common_utils import CommonUtils
+from alice.helper.common_utils import getDictFromJson
 
 logger = logging.getLogger()
 handler = logging.StreamHandler()
@@ -10,7 +10,7 @@ formatter = logging.Formatter(
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 config_file = os.environ["config"]
-config = CommonUtils.getDictFromJson(config_file)
+config = getDictFromJson(config_file)
 debug = config.get('debug', False)
 if debug:
     logger.setLevel(logging.DEBUG)

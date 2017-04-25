@@ -2,14 +2,18 @@ from alice.helper.constants  import *
 import simplejson as json
 import requests
 import pkg_resources
-
+import os
 from alice.helper.api_manager import ApiManager
 git_mappings = {}
 slack_mappings = {}
 
+
+def getDictFromJson(json_path):
+    return json.load(open(json_path))
+
 class CommonUtils(object):
     config_file = os.environ["config"]
-    config = CommonUtils.getDictFromJson(config_file)
+    config = getDictFromJson(config_file)
     GIT_TOKEN =  config.get('tokens').get("github")
     SLACK_TOKEN = config.get('tokens').get("slack")
     organisation = config.get('organisation')
@@ -60,6 +64,4 @@ class CommonUtils(object):
     def readResourceString(module, path):
         return pkg_resources.resource_string(module, path)
 
-    @staticmethod
-    def getDictFromJson(json_path):
-        return json.load(open(json_path))
+
