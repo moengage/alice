@@ -1,5 +1,6 @@
 SLACK_USER_LIST = "https://slack.com/api/users.list?token="
-GITHUB_USER_LIST = "https://api.github.com/orgs/{org}/members?page="
+GITHUB_USERS = "https://api.github.com/users/"
+GITHUB_MEMBERS_LIST = "https://api.github.com/orgs/{org}/members?page="
 GITHUB_MEMBERS = "https://api.github.com/orgs/{org}/members"
 GITHUB_REPO_MEMBER = "https://api.github.com/repos/{org}/{repo}"
 THUMBS_UP_ICON = "\ud83d\udc4d"
@@ -10,3 +11,5 @@ STATE_OPEN = "open"
 STATE_CLOSED = "closed"
 SLACK_ICON = "https://cloud.githubusercontent.com/assets/12966925/25132384/021095fc-2467-11e7-95c0-78917bf4d52a.png"
 bot_name = "alice"
+
+

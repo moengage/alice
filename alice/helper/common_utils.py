@@ -4,14 +4,16 @@ import requests
 import pkg_resources
 
 from alice.helper.api_manager import ApiManager
-API_GITHUB_ORG_MEMBER = "https://api.github.com/orgs/moengage/members?page="
-API_GITHUB_USER = "https://api.github.com/users/"
-API_SLACK_MEMEBRS ="https://slack.com/api/users.list?token="
-
 git_mappings = {}
 slack_mappings = {}
 
 class CommonUtils(object):
+    config_file = os.environ["config"]
+    config = CommonUtils.getDictFromJson(config_file)
+    GIT_TOKEN =  config.get('tokens').get("github")
+    SLACK_TOKEN = config.get('tokens').get("slack")
+    organisation = config.get('organisation')
+
     @staticmethod
     def getGithubUsers():
         if git_mappings:
@@ -19,8 +21,8 @@ class CommonUtils(object):
         users = []
         page = 1
         while True:
-            member_api = "%s%s" % (API_GITHUB_ORG_MEMBER, page)
-            response = ApiManager.get(member_api, headers={"Authorization": "token " + GIT_TOKEN})
+            member_api = "%s%s" % (GITHUB_MEMBERS_LIST.format(org=CommonUtils.organisation), page)
+            response = ApiManager.get(member_api, headers={"Authorization": "token " + CommonUtils.GIT_TOKEN})
             if not response:
                 break
             users += json.loads(response["content"])
@@ -36,7 +38,7 @@ class CommonUtils(object):
     def getSlackUsers():
         if slack_mappings:
             return slack_mappings
-        response = ApiManager.get(API_SLACK_MEMEBRS + SLACK_TOKEN, headers={})
+        response = ApiManager.get(SLACK_USER_LIST + CommonUtils.SLACK_TOKEN, headers={})
         users = json.loads(response["content"])
 
         for item in users["members"]:
