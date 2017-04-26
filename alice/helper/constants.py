@@ -14,5 +14,5 @@ bot_name = "alice"
 
 
 ### docs link ###
-extend_alice="https://github.com/moengage/alice/docs/extend_alice"
+extend_alice="https://github.com/moengage/alice/docs/extend_alice.md"
 issue_link="https://github.com/moengage/alice/issues/new"
