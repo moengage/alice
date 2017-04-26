@@ -13,7 +13,7 @@ from enum import Enum
 import logging
 from alice.helper.log_utils import LOG
 from logging import Formatter, FileHandler
-from alice.runner import RunChecks
+from alice.main.runner import RunChecks
 
 app = Flask(__name__)
 

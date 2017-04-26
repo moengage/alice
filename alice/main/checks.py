@@ -16,7 +16,7 @@ from alice.helper.slack_helper import SlackHelper
 
 class Checks(object):
     def __init__(self, pr_payload):
-        from alice.actor import Actor
+        from alice.main.actor import Actor
         self.pr = pr_payload
         self.github = GithubHelper(self.pr.config.organisation, self.pr.repo, self.pr.config.githubToken, self.pr.link)
         self.slack = SlackHelper(self.pr.config)
@@ -27,7 +27,6 @@ class Checks(object):
         self.head_branch = self.pr.head_branch
         self.created_by = self.pr.config.getSlackName(self.pr.opened_by)
         self.merged_by = self.pr.config.getSlackName(self.pr.merged_by)
-
         if self.pr.is_merged:
             self.actor = Actor(github=self.github, pr=self.pr)
             self.sensitive_file_touched, self.change_requires_product_plus1 = self.actor.parse_files_and_set_flags()

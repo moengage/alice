@@ -1,6 +1,7 @@
 import logging
 import requests
 import simplejson as json
+import traceback
 from enum import Enum
 from flask import Flask, request, jsonify, abort
 from logging import Formatter, FileHandler
@@ -13,7 +14,7 @@ from alice.helper.file_utlis import write_to_file_from_top, clear_file
 from alice.helper.github_helper import GithubHelper, PRFilesNotFoundException
 from alice.helper.log_utils import LOG
 from alice.helper.slack_helper import SlackHelper
-import traceback
+
 
 class RunChecks:
 
