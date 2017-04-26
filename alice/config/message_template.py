@@ -1,3 +1,5 @@
+from alice.helper.colors import Blinking_Colors
+
 RELEASE_NOTES = "https://docs.google.com/a/moengage.com/spreadsheets/d/1eW3y-GxGzu8Jde8z4EYC6fRh1Ve4TpbW5qv2-iWs1ks/edit?usp=sharing "
 MSG_BAD_START = "Very Bad "
 MSG_NO_TECH_REVIEW = "{name} :rage: <{pr}|{title}> is merged into `{branch}` without a \"Tech +1\", soon these kind of requests will" \
@@ -40,3 +42,8 @@ special_comment = {
             "- [ ] Release Notes linked?"
 }
 
+DOC_CHECK_NOT_FOUND="\"{check_name}\" Check is not found (please cross check the checks defined in config file). \n" \
+                    "If you wish to implement this new check yourself, please read here: "+Blinking_Colors.OKBLUE+\
+                    "{doc_link}"+Blinking_Colors.END
+ISSUE_FOUND = "\nOo this looks like i've messed up, Please raise this as issue at: "+Blinking_Colors.OKBLUE\
+              +"{issue_link}"+Blinking_Colors.END +" will try to help you asap"

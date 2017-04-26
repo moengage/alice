@@ -1,6 +1,6 @@
 from alice.config.config_provider import ConfigProvider
 from alice.helper.common_utils import CommonUtils
-from alice.helper.log_utils import logger
+from alice.helper.log_utils import LOG
 
 class Base(object):
     pass
@@ -11,7 +11,7 @@ class PushPayloadParser(Base):
         self.request = request
         self.payload = payload
         self.pr = payload["pull_request"]
-        logger.debug("Repo="+self.repo)
+        LOG.debug("Repo=" + self.repo)
         self.config = ConfigProvider(self.repo)
 
     @property

@@ -13,3 +13,6 @@ SLACK_ICON = "https://cloud.githubusercontent.com/assets/12966925/25132384/02109
 bot_name = "alice"
 
 
+### docs link ###
+extend_alice="https://github.com/moengage/alice/docs/extend_alice"
+issue_link="https://github.com/moengage/alice/issues/new"

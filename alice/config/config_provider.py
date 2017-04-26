@@ -1,14 +1,14 @@
 from alice.helper.common_utils import getDictFromJson
 import argparse
 import os
-from alice.helper.log_utils import logger
+from alice.helper.log_utils import LOG
 
 class ConfigProvider(object):
     # __metaclass__ = SingletonMetaClass
 
     def __init__(self, repo):
         config_file = os.environ["config"]
-        logger.info("config file=" + config_file)
+        LOG.info("config file=" + config_file)
         #self.config = CommonUtils.readResourceJson(__name__, config_file) #relative package path
         self.config = getDictFromJson(config_file) #absolute path to keep file anywhere
         self.repo_name = repo
