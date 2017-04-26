@@ -25,3 +25,4 @@ I help the teams "preventing last moment panic moments" by:
       `export FLASK_APP="alice/main/actor.py" config="config.json"; flask run --host 0.0.0.0 --port 5005`
    -  as a uwsgi process
       `export config="config.json"; uwsgi --socket 0.0.0.0:5005 --protocol=http -w alice.main.actor --callable app`
+   - Note: can change port number as needed
