@@ -79,7 +79,6 @@ def merge():
     return jsonify(merge_correctness)
 
 
-
 @app.route("/", methods=['GET', 'POST'])
 def hello():
     return "Welcome to the world of Alice "
