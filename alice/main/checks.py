@@ -1,15 +1,8 @@
-import logging
-import requests
-import simplejson as json
-from enum import Enum
-from flask import Flask, request, jsonify, abort
-from logging import Formatter, FileHandler
-
-from alice.commons.base import Base, PushPayloadParser
-from alice.config.message_template import *
-from alice.helper.constants import *
+from alice.config.message_template import MSG_BAD_START, MSG_NO_TECH_REVIEW, MSG_AUTO_CLOSE, MSG_OPENED_TO_MAIN_BRANCH, \
+    MSG_OPENED_TO_PREVENTED_BRANCH, SPECIAL_COMMENT, GENERAL_COMMENT, MSG_RELEASE_PREPARATION, MSG_CODE_CHANNEL, \
+    MSG_GUIDELINE_ON_MERGE, MSG_SENSITIVE_FILE_TOUCHED, MSG_QA_SIGN_OFF
 from alice.helper.file_utlis import write_to_file_from_top, clear_file
-from alice.helper.github_helper import GithubHelper, PRFilesNotFoundException
+from alice.helper.github_helper import GithubHelper
 from alice.helper.log_utils import LOG
 from alice.helper.slack_helper import SlackHelper
 
@@ -57,9 +50,9 @@ class Checks(object):
         if self.pr.is_opened:
             if not self.pr.config.is_debug:
                 if self.pr.base_branch == self.pr.config.mainBranch:
-                    guideline_comment = special_comment
+                    guideline_comment = SPECIAL_COMMENT
                 else:
-                    guideline_comment = general_comment
+                    guideline_comment = GENERAL_COMMENT
                 self.github.comment_pr(self.pr.comments_section, guideline_comment)
                 LOG.info("**** Added Comment of dev guidelines ***")
                 return {"msg": "Added Comment of dev guidelines"}
@@ -148,12 +141,12 @@ class Checks(object):
                                          tech_team=self.pr.config.techLeadsToBeNotified)
 
             self.slack.postToSlack(self.pr.config.alertChannelName, msg,
-                                   data=self.slack.getBot(channel_name, self.merged_by))
+                                   data=self.slack.getBot(self.pr.config.alertChannelName, self.merged_by))
             """ for bot """
-            write_to_file_from_top(release_freeze_details_path, ":clubs:" +
-                                   str(datetime.now(pytz.timezone('Asia/Calcutta')).strftime(
-                                       '%B %d,%Y at %I.%M %p')) + " with <" + self.pr.link_pretty + "|master> code")  # on:" + str(datetime.datetime.now().strftime('%B %d, %Y @ %I.%M%p'))
-            clear_file(code_freeze_details_path)
+            # write_to_file_from_top(release_freeze_details_path, ":clubs:" +
+            #                        str(datetime.now(pytz.timezone('Asia/Calcutta')).strftime(
+            #                            '%B %d,%Y at %I.%M %p')) + " with <" + self.pr.link_pretty + "|master> code")  # on:" + str(datetime.datetime.now().strftime('%B %d, %Y @ %I.%M%p'))
+            # clear_file(code_freeze_details_path)
 
     def notify_to_add_release_notes_for_next_release(self):
         pass

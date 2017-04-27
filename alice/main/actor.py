@@ -1,18 +1,8 @@
 from flask import Flask, request, jsonify, abort
-# from logging.handlers import RotatingFileHandler
-from alice.helper.constants  import *
-import requests
-#from flask import app as application
 import simplejson as json
-from alice.config.message_template import *
-from alice.commons.base import Base, PushPayloadParser
-from alice.helper.github_helper import GithubHelper, PRFilesNotFoundException
-from alice.helper.slack_helper import SlackHelper
-from alice.helper.file_utlis import write_to_file_from_top, clear_file
-from enum import Enum
-import logging
+from alice.commons.base import Base
+from alice.helper.constants import THUMBS_UP_ICON
 from alice.helper.log_utils import LOG
-from logging import Formatter, FileHandler
 from alice.main.runner import RunChecks
 
 app = Flask(__name__)
@@ -55,7 +45,7 @@ class Actor(Base):
                 LOG.debug("review body= %s" + review_comment)
                 thumbsUpIcon = THUMBS_UP_ICON in json.dumps(review_comment)
                 LOG.debug("unicode thumbsUp icon present=%s" % (thumbsUpIcon))
-                if self.created_by in self.pr.config.superMembers:  # FEW FOLKS TO ALLOW TO HAVE SUPER POWER
+                if self.pr.opened_by in self.pr.config.superMembers:  # FEW FOLKS TO ALLOW TO HAVE SUPER POWER
                     LOG.debug("PR is opened by %s who is the super user of repo %s, so NO alert'"
                               % (self.pr.opened_by_slack, self.pr.repo))
                     bad_pr = False

@@ -1,3 +1,6 @@
+import os
+
+
 def write_to_file_from_top(file_path, msg):
     dir_path = file_path.rpartition("/")[0]
     try:

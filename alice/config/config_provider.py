@@ -1,7 +1,7 @@
-from alice.helper.common_utils import getDictFromJson
-import argparse
 import os
+from alice.helper.common_utils import getDictFromJson
 from alice.helper.log_utils import LOG
+
 
 class ConfigProvider(object):
     # __metaclass__ = SingletonMetaClass

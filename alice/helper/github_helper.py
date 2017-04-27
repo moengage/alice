@@ -1,9 +1,10 @@
-import requests
 import json
-import time
+import requests
+from alice.helper.api_manager import ApiManager
 from alice.helper.constants  import GITHUB_REVIEW_ACCEPT_KEY, EP_REVIEWS, GITHUB_REPO_MEMBER
 from alice.helper.decorators.retry import Retry
-from alice.helper.api_manager import ApiManager
+from alice.helper.log_utils import LOG
+
 
 class PRFilesNotFoundException(Exception):
     def __init__(self, pr_response):
@@ -27,15 +28,15 @@ class GithubHelper:
     def comment_pr(self, comment_section, comment):
         resp = requests.post(comment_section, headers={"Authorization": "token " + self.GITHUB_TOKEN},
                              data=json.dumps(comment))
-        logger.debug(resp.content)
+        LOG.debug(resp.content)
 
     def modify_pr(self, msg, state):
         data = {
             "title": msg,
             "state": state
         }
-        resp = requests.post(pr_api_link, json.dumps(data), headers={"Authorization": "token " + self.GITHUB_TOKEN})
-        logger.debug(resp.content)
+        resp = requests.post(self.pr_api_link, json.dumps(data), headers={"Authorization": "token " + self.GITHUB_TOKEN})
+        LOG.debug(resp.content)
 
     def get_reviews(self):
         url = self.pr_api_link + "/" + EP_REVIEWS

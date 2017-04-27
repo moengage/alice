@@ -19,10 +19,10 @@ MSG_GUIDELINE_ON_MERGE = "Hi @{person}: you have merged <{pr}|{title}> into {bas
 MSG_AUTO_CLOSE = "alice have auto-closed it because she sensed it an accidental PR (only \"{tested_branch}\" " \
                  "can be merged to \"{main_branch}\") \n Alice is smart! Be like Alice!"
 
-general_comment = { "body": "Did you remember to?\n"
+GENERAL_COMMENT = {"body": "Did you remember to?\n"
             "- [ ] Add Test Case(s) [how to check](https://github.com/moengage/MoEngage/wiki/jenkins#unit-tests)\n"
             "- [ ] P0 Tests Executed EndToEnd? [what is it](https://github.com/moengage/MoEngage/wiki/p0%20list)?\n"
-}
+                   }
 
 MSG_OPENED_TO_MAIN_BRANCH = "{repo} repo:: <{pr}|{title}> is {action} to `{main_branch}` by:*{pr_by}* " \
                             "\n Please review as Release preparation starts now ..."
@@ -32,7 +32,7 @@ MSG_QA_SIGN_OFF = "<@{person}>  QA passed :+1: {main_branch} is updated <{pr}|De
                   " \n cc: {dev_ops_team} {tech_team} "
 MSG_SENSITIVE_FILE_TOUCHED = "{notify_folks} {file}  is modified in <{pr}|{pr_number}> by @{pr_by}"
 
-special_comment = {
+SPECIAL_COMMENT = {
     "body": "**Attention!** \n Release Checklist\n"
             "- [ ] JS version Update? check index.html\n"
             "- [ ] No code/PR to be reverted? check release notes\n"
