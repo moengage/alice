@@ -1,32 +1,42 @@
 ---
-organisation: moengage
+organisation: moengage # YOUR GITHUB organisation name
 tokens:
-  github: a1facb3353acab12725cf1bb77d2e16c92909712
-  slack: xoxb-85081296883-5elMWjhTYzvfCF5BFmet8k5e
-  jenkins: ''
-repo:
-  MoEngage:
-    sensitive_branches:
+  github: 'a1facb3353acab12725cf1bb77d2e16c92909712' #YOUR local alice's GITHUB TOKEN
+  slack: 'xoxb-85081296883-5elMWjhTYzvfCF5BFmet8k5e' #YOUR local alice's slack TOKEN
+  jenkins: '' #YOUR jekin's alice's jenkins TOKEN
+repo: #Repo wise settings
+  MoEngage:  #YOUR repo name
+    checks: # enable these checks, if given none: will trigger all the checks
+    - close_dangerous_pr
+    - tech_review
+    - product_review
+    - comment_guidelines
+    - notify_lead_on_given_action
+    - notify_channel_on_merge
+    - notify_on_sensitive_files_touched
+    - notify_qa_sign_off
+    - remind_direct_release_guideline_on_merge
+    sensitive_branches: #the branches you want to prevent
     - dev
     - qa
     - master
-    sensitive_files:
+    sensitive_files: #the files you want to protect
     - moengage_pull_production_latest
     - moengage_production
-    sensitive_file_pattern: ''
-    product_plus_required_dir_pattern: dashboard
-    cc_members: "@satya @pooja"
-    code_channel: "#code-merged"
-    alert_channel: "#weekly-releases"
-    product_team: "@riteshg @nalin"
-    dev_ops_team: "@pruthvi @adithya"
-    notify_direct:
-      action_to_be_notified_on: opened
-      branch_list_to_be_notified:
+    sensitive_file_pattern: '' #sensitive files are inside some directory or starts with some pattern
+    product_team: "@riteshg @nalin" # the slack names space separated
+    product_plus_required_dir_pattern: 'dashboard' #directory path for which product review is a must
+    cc_members: "@satya @pooja" #the slack memeber names space separated
+    code_channel: "#code-merged" #the slack channel names in which merged pull request info shoudl be notified
+    alert_channel: "#weekly-releases" #the slack channel name in which alerts should be posted
+    dev_ops_team: "@pruthvi @adithya" #the slack channel names of your dev ops team
+    notify_direct: # settings for direct message on slack
+      person_to_be_notified: "@yashwanth" #1 person for any activity notify this person, generally the lead for this repo
+      action_to_be_notified_on: 'opened' #1 github action Ex. ["opened", "repoened", "merged"]
+      branch_list_to_be_notified: #direct notification on these branches for action set above
       - dev
       - qa
-      person_to_be_notified: "@yashwanth"
-      tech_leads_to_be_notified:
+      tech_leads_to_be_notified_on_release_freeze:
       - "@yashwanth"
       - "@pooja"
       - "@satya"
@@ -38,28 +48,18 @@ repo:
       - "@geetima"
       - "@vandana"
       - "@sneh"
-    main_branch: master
-    test_branch: qa
-    whitelisted_git_members:
+    main_branch: 'master' # release branch, generally its master
+    test_branch: 'qa' # test branch on which qa is locked to do release testing
+    whitelisted_git_members: #NO alerts for these git members only
     - shahp00ja
     - satyamoengage
     - snehsagar
     - vandanamoriwal
     - geetima12
-    super_git_members:
+    super_git_members: #GITHUB NAMES for white listing some users to break the rules in a tough case
     - shahp00ja
     - satyamoengage
-    checks:
-    - close_dangerous_pr
-    - tech_review
-    - product_review
-    - comment_guidelines
-    - notify_lead_on_given_action
-    - notify_channel_on_merge
-    - notify_on_sensitive_files_touched
-    - notify_qa_sign_off
-    - remind_direct_release_guideline_on_merge
-  segmentation:
+  segmentation: # REPO 2
     sensitive_branches:
     - develop
     - release
@@ -69,8 +69,7 @@ repo:
     code_channel: "#segmentation-code"
     alert_channel: "#weekly-releases"
     product_team: "@riteshg @nalin"
-    dev_ops_team: "<@pruthvi> <@adithya>"
-    lead_to_be_notified: "<@yashwanth>"
+    dev_ops_team: "@pruthvi @adithya"
     whitelisted_git_members:
     - akgoel-mo
     - shahp00ja
@@ -84,14 +83,13 @@ repo:
     code_channel: "#commons-code"
     alert_channel: "#weekly-releases"
     product_team: "@riteshg @nalin"
-    dev_ops_team: "<@pruthvi> <@adithya>"
-    lead_to_be_notified: "<@yashwanth>"
+    dev_ops_team: "@pruthvi @adithya"
+    lead_to_be_notified: "@yashwanth"
     whitelisted_git_members:
     - akgoel-mo
     - shahp00ja
     - pruthvintss
-dev_ops_team: "<@pruthvi> <@adithya>"
-lead_to_be_notified: "<@yashwanth>"
+dev_ops_team: "@pruthvi @adithya"
 JENKINS_BASE: http://ci.moengage.com/
 repo_list:
 - MoEngage

@@ -52,9 +52,9 @@ class ConfigProvider(object):
     def actionToBeNotifiedFor(self):
         return self.repo.get('notify_direct', {}).get('action_to_be_notified_on', "opened")
 
-    @property
-    def whiteListedMembers(self):
-        return self.repo.get('whitelisted_git_members')
+    # @property
+    # def whiteListedMembers(self):
+    #     return self.repo.get('whitelisted_git_members')
 
     @property
     def superMembers(self):
@@ -98,7 +98,7 @@ class ConfigProvider(object):
     def techLeadsToBeNotified(self):
         if self.config.get("debug"):
             return self.debug_folks
-        return self.repo.get('notify_direct', {}).get('tech_leads_to_be_notified')
+        return self.repo.get('notify_direct', {}).get('tech_leads_to_be_notified_on_release_freeze')
 
     @property
     def productPlusRequiredDirPattern(self):
