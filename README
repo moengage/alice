@@ -21,6 +21,8 @@ I help the teams "preventing last moment panic moments" by:
 ### Want to hire me?
 1. Install: pip install alice-pro
 2. Start:
+   2.1 setup your config file()
+   2.
    -  direct as flask app
       `export FLASK_APP="alice/main/actor.py" config="config.json"; flask run --host 0.0.0.0 --port 5005`
    -  as a uwsgi process
