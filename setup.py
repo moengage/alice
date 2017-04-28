@@ -1,13 +1,13 @@
 from setuptools import setup, find_packages
 
-# Get the long description from the README file
-with open('README.rst', encoding='utf-8') as f:
+# Get the long description from the README.md file
+with open('README.rst') as f:
     long_description = f.read()
 
-with open('VERSION', encoding='utf-8') as f:
+with open('VERSION') as f:
     package_version = f.read()
 
-with open('requirements.txt', encoding='utf-8') as f:
+with open('requirements.txt') as f:
     dependencies = []
     for line in f:
         line = line.strip()  # or someother preprocessing
