@@ -1,19 +1,17 @@
-from alice.helper.constants  import *
 import simplejson as json
 import requests
 import pkg_resources
 import os
 from alice.helper.api_manager import ApiManager
+from alice.helper.constants import API_GITHUB_MEMBERS_LIST, API_GITHUB_USERS
+from alice.helper.file_utils import get_dict_from_config_file
 git_mappings = {}
 slack_mappings = {}
 
 
-def getDictFromJson(json_path):
-    return json.load(open(json_path))
-
 class CommonUtils(object):
     config_file = os.environ["config"]
-    config = getDictFromJson(config_file)
+    config = get_dict_from_config_file(config_file)
     GIT_TOKEN =  config.get('tokens').get("github")
     SLACK_TOKEN = config.get('tokens').get("slack")
     organisation = config.get('organisation')
@@ -25,7 +23,7 @@ class CommonUtils(object):
         users = []
         page = 1
         while True:
-            member_api = "%s%s" % (GITHUB_MEMBERS_LIST.format(org=CommonUtils.organisation), page)
+            member_api = "%s%s" % (API_GITHUB_MEMBERS_LIST.format(org=CommonUtils.organisation), page)
             response = ApiManager.get(member_api, headers={"Authorization": "token " + CommonUtils.GIT_TOKEN})
             if not response:
                 break
@@ -34,7 +32,7 @@ class CommonUtils(object):
 
         for item in users:
             user_name = item["login"]
-            ApiManager.get(API_GITHUB_USER+"/"+user_name)
+            ApiManager.get(API_GITHUB_USERS + "/" + user_name)
             git_mappings[item["login"]] = item["login"]
         return git_mappings
 
