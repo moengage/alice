@@ -3,7 +3,7 @@ I'm alice!
 I'm being made with :heart: for spreading love among teams (i.e. developers, qa can be friends, o yes!)
 
 ### Why do I exist
-Recall a Release Day @ your workplace and some code started breaking all of a sudden, tested features not working anymore, its going to take time to figure out whom to reach & people start passing the buck?
+Recall a Release Day @ your workplace and some of the features started breaking all of a sudden, tested features are not working anymore, its going to take time to figure out whom to reach & people start passing the buck?
 ![image](https://s3.amazonaws.com/qa-ops/no.gif) Experienced such stormy sail on your release day?
 Amidst all this, losing time for release deployment as the traffic on your product is peaking up or exceeding the deadline promised to the clients. Manual monitoring wasn’t a solution as it isn’t scalable?
 - Already nodding your head in agreement ? Many times somewhere deep down, did you feel like escaping from the heated discussion or wished there were snapshots of all the important events which could give you the clues/traceback to hunt & chuck the wrong commits out of the system and move ahead. Or even better some software which you could just hook to your system which would never let us reach such a chaotic state itself by blocking/notifying any wrong doings.
@@ -18,9 +18,8 @@ I help the teams "preventing last moment panic moments" by:
 - having a trustworthy 24x7 code monitoring system from dev to release phase which can prevent & alert for any unhealthy action for the code
 
 
-### How you can hire me
-1. Install:
-    
+### Want to hire me?
+1. Install: pip install alice-pro
 2. Start:
    -  direct as flask app
       `export FLASK_APP="alice/main/actor.py" config="config.json"; flask run --host 0.0.0.0 --port 5005`
