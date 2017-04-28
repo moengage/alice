@@ -1,6 +1,6 @@
 from alice.config.config_provider import ConfigProvider
 from alice.helper.common_utils import CommonUtils
-from alice.helper.log_utils import LOG
+from alice.helper.log_utils import logger
 
 class Base(object):
     pass
@@ -11,7 +11,7 @@ class PushPayloadParser(Base):
         self.request = request
         self.payload = payload
         self.pr = payload["pull_request"]
-        LOG.debug("Repo=" + self.repo)
+        logger.debug("Repo="+self.repo)
         self.config = ConfigProvider(self.repo)
 
     @property
@@ -29,14 +29,6 @@ class PushPayloadParser(Base):
     @property
     def merged_by(self):
         return self.pr["merged_by"]["login"]
-
-    @property
-    def merged_by_slack(self):
-        return CommonUtils.getSlackNicksFromGitNicks(self.merged_by)
-
-    @property
-    def opened_by_slack(self):
-        return CommonUtils.getSlackNicksFromGitNicks(self.opened_by)
 
     @property
     def link_pretty(self):
@@ -69,7 +61,7 @@ class PushPayloadParser(Base):
     @property
     def head_branch(self):
         return self.pr["head"]["ref"]
-
+    
     @property
     def comments_section(self):
         return self.pr["_links"]["comments"]["href"]
@@ -77,6 +69,14 @@ class PushPayloadParser(Base):
     @property
     def is_sensitive_branch(self):
         return self.base_branch in self.config.sensitiveBranches
+
+    @property
+    def merged_by_slack(self):
+        return CommonUtils.getSlackNicksFromGitNicks(self.merged_by)
+
+    @property
+    def opened_by_slack(self):
+        return CommonUtils.getSlackNicksFromGitNicks(self.opened_by)
 
     @property
     def title(self):

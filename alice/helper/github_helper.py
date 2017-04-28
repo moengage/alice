@@ -1,10 +1,9 @@
-import json
 import requests
-from alice.helper.api_manager import ApiManager
-from alice.helper.constants  import API_GITHUB_REVIEW_ACCEPT_KEY, EP_REVIEWS, API_GITHUB_REPO_MEMBER
+import json
+import time
+from alice.helper.constants  import GITHUB_REVIEW_ACCEPT_KEY, EP_REVIEWS, GITHUB_REPO_MEMBER
 from alice.helper.decorators.retry import Retry
-from alice.helper.log_utils import LOG
-
+from alice.helper.api_manager import ApiManager
 
 class PRFilesNotFoundException(Exception):
     def __init__(self, pr_response):
@@ -19,7 +18,7 @@ class GithubHelper:
         self.GITHUB_TOKEN = github_token
         self.headers = {"Authorization": "token " + self.GITHUB_TOKEN}
 
-        url = API_GITHUB_REPO_MEMBER.format(org=org, repo=repo)
+        url = GITHUB_REPO_MEMBER.format(org=org, repo=repo)
         response = ApiManager.get(url=url, headers=self.headers)
         if response["status_code"] != 200:
             raise Exception(response["content"], "Please check the provided Github Token, "
@@ -28,19 +27,19 @@ class GithubHelper:
     def comment_pr(self, comment_section, comment):
         resp = requests.post(comment_section, headers={"Authorization": "token " + self.GITHUB_TOKEN},
                              data=json.dumps(comment))
-        LOG.debug(resp.content)
+        logger.debug(resp.content)
 
     def modify_pr(self, msg, state):
         data = {
             "title": msg,
             "state": state
         }
-        resp = requests.post(self.pr_api_link, json.dumps(data), headers={"Authorization": "token " + self.GITHUB_TOKEN})
-        LOG.debug(resp.content)
+        resp = requests.post(pr_api_link, json.dumps(data), headers={"Authorization": "token " + self.GITHUB_TOKEN})
+        logger.debug(resp.content)
 
     def get_reviews(self):
         url = self.pr_api_link + "/" + EP_REVIEWS
-        self.headers["Accept"] = API_GITHUB_REVIEW_ACCEPT_KEY
+        self.headers["Accept"] = GITHUB_REVIEW_ACCEPT_KEY
         return requests.get(url, headers=self.headers)
 
     def get_files_requests(self):
