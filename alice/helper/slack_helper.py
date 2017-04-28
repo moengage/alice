@@ -3,7 +3,7 @@ import requests
 from alice.config.message_template import *
 from alice.helper.constants import SLACK_ICON
 from slacker import Slacker
-from alice.helper.log_utils import logger
+from alice.helper.log_utils import LOG
 class SlackHelper(object):
 
 
@@ -14,16 +14,16 @@ class SlackHelper(object):
 
 
     def postToSlack(self, channel, msg=None, *args, **kwargs):
-        logger.info("\n************** NOTIFYING ******************\n"
+        LOG.info("\n************** NOTIFYING ******************\n"
                     "**************  %s      *************\n"
                     "Message= %s\n"
-                    "******************************************* "%(channel, msg))
+                    "******************************************* " % (channel, msg))
         self.slack.chat.post_message(channel=channel, text=msg, icon_url=self.icon, username="Alice", *args, **kwargs)
 
     def directSlack(self, person, msg=None, *args, **kwargs):
         if self.config.is_debug:
             person = self.config.debug_folks
-        logger.info("\n************** NOTIFYING ******************\n"
+        LOG.info("\n************** NOTIFYING ******************\n"
                     "**************  %s      *************\n"
                     "Message= %s\n"
                     "******************************************* " % (person, msg))
