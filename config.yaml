@@ -1,8 +1,8 @@
 ---
 organisation: moengage # YOUR GITHUB organisation name
 tokens:
-  github: 'a1facb3353acab12725cf1bb77d2e16c92909712' #YOUR local alice's GITHUB TOKEN
-  slack: 'xoxb-85081296883-5elMWjhTYzvfCF5BFmet8k5e' #YOUR local alice's slack TOKEN
+  github: '' #YOUR local alice's GITHUB TOKEN
+  slack: '' #YOUR local alice's slack TOKEN
   jenkins: '' #YOUR jekin's alice's jenkins TOKEN
 repo: #Repo wise settings
   MoEngage:  #YOUR repo name
