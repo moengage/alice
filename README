@@ -20,6 +20,7 @@ I help the teams "preventing last moment panic moments" by:
 
 ### How you can hire me
 1. Install:
+    
 2. Start:
    -  direct as flask app
       `export FLASK_APP="alice/main/actor.py" config="config.json"; flask run --host 0.0.0.0 --port 5005`

@@ -85,7 +85,7 @@ class ConfigProvider(object):
 
     @property
     def codeChannelName(self):
-        if is_debug:
+        if self.is_debug:
             return self.debug_channel
         return self.repo.get('code_channel')
 

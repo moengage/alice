@@ -51,6 +51,7 @@ class Checks(object):
             if not self.pr.config.is_debug:
                 if self.pr.base_branch == self.pr.config.mainBranch:
                     guideline_comment = SPECIAL_COMMENT
+                    self.slack.postToSlack(self.pr.opened_by)
                 else:
                     guideline_comment = GENERAL_COMMENT
                 self.github.comment_pr(self.pr.comments_section, guideline_comment)

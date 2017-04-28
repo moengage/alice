@@ -1,9 +1,10 @@
-from alice.helper.constants  import *
 import simplejson as json
 import requests
 import pkg_resources
 import os
 from alice.helper.api_manager import ApiManager
+from alice.helper.constants import API_GITHUB_MEMBERS_LIST, API_GITHUB_USERS
+
 git_mappings = {}
 slack_mappings = {}
 
@@ -25,7 +26,7 @@ class CommonUtils(object):
         users = []
         page = 1
         while True:
-            member_api = "%s%s" % (GITHUB_MEMBERS_LIST.format(org=CommonUtils.organisation), page)
+            member_api = "%s%s" % (API_GITHUB_MEMBERS_LIST.format(org=CommonUtils.organisation), page)
             response = ApiManager.get(member_api, headers={"Authorization": "token " + CommonUtils.GIT_TOKEN})
             if not response:
                 break
@@ -34,7 +35,7 @@ class CommonUtils(object):
 
         for item in users:
             user_name = item["login"]
-            ApiManager.get(API_GITHUB_USER+"/"+user_name)
+            ApiManager.get(API_GITHUB_USERS + "/" + user_name)
             git_mappings[item["login"]] = item["login"]
         return git_mappings
 

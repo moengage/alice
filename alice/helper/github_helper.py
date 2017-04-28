@@ -1,7 +1,7 @@
 import json
 import requests
 from alice.helper.api_manager import ApiManager
-from alice.helper.constants  import GITHUB_REVIEW_ACCEPT_KEY, EP_REVIEWS, GITHUB_REPO_MEMBER
+from alice.helper.constants  import API_GITHUB_REVIEW_ACCEPT_KEY, EP_REVIEWS, API_GITHUB_REPO_MEMBER
 from alice.helper.decorators.retry import Retry
 from alice.helper.log_utils import LOG
 
@@ -19,7 +19,7 @@ class GithubHelper:
         self.GITHUB_TOKEN = github_token
         self.headers = {"Authorization": "token " + self.GITHUB_TOKEN}
 
-        url = GITHUB_REPO_MEMBER.format(org=org, repo=repo)
+        url = API_GITHUB_REPO_MEMBER.format(org=org, repo=repo)
         response = ApiManager.get(url=url, headers=self.headers)
         if response["status_code"] != 200:
             raise Exception(response["content"], "Please check the provided Github Token, "
@@ -40,7 +40,7 @@ class GithubHelper:
 
     def get_reviews(self):
         url = self.pr_api_link + "/" + EP_REVIEWS
-        self.headers["Accept"] = GITHUB_REVIEW_ACCEPT_KEY
+        self.headers["Accept"] = API_GITHUB_REVIEW_ACCEPT_KEY
         return requests.get(url, headers=self.headers)
 
     def get_files_requests(self):

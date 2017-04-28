@@ -31,6 +31,14 @@ class PushPayloadParser(Base):
         return self.pr["merged_by"]["login"]
 
     @property
+    def merged_by_slack(self):
+        return CommonUtils.getSlackNicksFromGitNicks(self.merged_by)
+
+    @property
+    def opened_by_slack(self):
+        return CommonUtils.getSlackNicksFromGitNicks(self.opened_by)
+
+    @property
     def link_pretty(self):
         return self.pr["html_url"]
 
@@ -61,7 +69,7 @@ class PushPayloadParser(Base):
     @property
     def head_branch(self):
         return self.pr["head"]["ref"]
-    
+
     @property
     def comments_section(self):
         return self.pr["_links"]["comments"]["href"]
@@ -69,14 +77,6 @@ class PushPayloadParser(Base):
     @property
     def is_sensitive_branch(self):
         return self.base_branch in self.config.sensitiveBranches
-
-    @property
-    def merged_by_slack(self):
-        return CommonUtils.getSlackNicksFromGitNicks(self.merged_by)
-
-    @property
-    def opened_by_slack(self):
-        return CommonUtils.getSlackNicksFromGitNicks(self.opened_by)
 
     @property
     def title(self):

@@ -1,0 +1,3 @@
+Flask==0.13.dev0
+slacker==0.9.24
+python-jenkins==0.4.13
