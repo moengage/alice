@@ -1,6 +1,5 @@
 from alice.helper.colors import Blinking_Colors
 
-RELEASE_NOTES = "https://docs.google.com/a/moengage.com/spreadsheets/d/1eW3y-GxGzu8Jde8z4EYC6fRh1Ve4TpbW5qv2-iWs1ks/edit?usp=sharing "
 MSG_BAD_START = "Very Bad "
 MSG_NO_TECH_REVIEW = "{name} :rage: <{pr}|{title}> is merged into `{branch}` without a \"Tech +1\", soon these kind of requests will" \
       " be automatically reverted CC: {team}"
@@ -14,7 +13,7 @@ MSG_RELEASE_PREPARATION = "\n Please review and approve with +1, Release prepara
 
 MSG_GUIDELINE_ON_MERGE = "Hi @{person}: you have merged <{pr}|{title}> into {base_branch}\n now, be nice & mention it " \
                          "in Release Notes for getting it `QAed and released` " \
-                         "under Sheet name as respective Date \n " + RELEASE_NOTES
+                         "under Sheet name as respective Date \n {release_notes_link}"
 
 MSG_AUTO_CLOSE = "alice have auto-closed it because she sensed it an accidental PR (only \"{tested_branch}\" " \
                  "can be merged to \"{main_branch}\") \n Alice is smart! Be like Alice!"

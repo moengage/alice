@@ -115,9 +115,14 @@ class ConfigProvider(object):
     def checks(self):
         return self.repo.get("checks",[])
 
+    @property
+    def release_notes_link(self):
+        return self.config.get("release_notes_link")
 
     def getSlackName(self, github_name):
         return self.config.get('user_map',{}).get(github_name, github_name)
+
+
 
 
 

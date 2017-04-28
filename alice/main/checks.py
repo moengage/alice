@@ -102,8 +102,10 @@ class Checks(object):
         if self.pr.is_merged:
             if self.base_branch in self.pr.config.sensitiveBranches:
                 msg = MSG_GUIDELINE_ON_MERGE.format(person=self.created_by, pr=self.pr.link_pretty,
-                                                    base_branch=self.pr.base_branch, title=self.pr.title)
+                                                    base_branch=self.pr.base_branch, title=self.pr.title,
+                                                    release_notes_link=self.pr.config.release_notes_link)
                 self.slack.directSlack('@' + self.created_by, msg)
+
                 LOG.info("slacked personally to %s" % self.created_by)
                 return {"msg": "slacked personally to %s" % self.created_by}
             return {"msg": "skipped slack personally because not sensitive branch"}

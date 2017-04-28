@@ -10,7 +10,9 @@ slack_mappings = {}
 
 
 def getDictFromJson(json_path):
-    return json.load(open(json_path))
+    with open(json_path) as f:
+        data = f.read()
+    return json.loads(data)
 
 class CommonUtils(object):
     config_file = os.environ["config"]
