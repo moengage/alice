@@ -10,7 +10,7 @@ from alice.checker_impl import CheckImpl
 from alice.commons.base import Base, PushPayloadParser
 from alice.config.message_template import *
 from alice.helper.constants import *
-from alice.helper.file_utlis import write_to_file_from_top, clear_file
+from alice.helper.file_utils import write_to_file_from_top, clear_file
 from alice.helper.github_helper import GithubHelper, PRFilesNotFoundException
 from alice.helper.log_utils import LOG
 from alice.helper.slack_helper import SlackHelper

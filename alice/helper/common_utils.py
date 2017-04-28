@@ -4,19 +4,14 @@ import pkg_resources
 import os
 from alice.helper.api_manager import ApiManager
 from alice.helper.constants import API_GITHUB_MEMBERS_LIST, API_GITHUB_USERS
-
+from alice.helper.file_utils import get_dict_from_config_file
 git_mappings = {}
 slack_mappings = {}
 
 
-def getDictFromJson(json_path):
-    with open(json_path) as f:
-        data = f.read()
-    return json.loads(data)
-
 class CommonUtils(object):
     config_file = os.environ["config"]
-    config = getDictFromJson(config_file)
+    config = get_dict_from_config_file(config_file)
     GIT_TOKEN =  config.get('tokens').get("github")
     SLACK_TOKEN = config.get('tokens').get("slack")
     organisation = config.get('organisation')

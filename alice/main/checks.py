@@ -1,7 +1,7 @@
 from alice.config.message_template import MSG_BAD_START, MSG_NO_TECH_REVIEW, MSG_AUTO_CLOSE, MSG_OPENED_TO_MAIN_BRANCH, \
     MSG_OPENED_TO_PREVENTED_BRANCH, SPECIAL_COMMENT, GENERAL_COMMENT, MSG_RELEASE_PREPARATION, MSG_CODE_CHANNEL, \
     MSG_GUIDELINE_ON_MERGE, MSG_SENSITIVE_FILE_TOUCHED, MSG_QA_SIGN_OFF
-from alice.helper.file_utlis import write_to_file_from_top, clear_file
+from alice.helper.file_utils import write_to_file_from_top, clear_file
 from alice.helper.github_helper import GithubHelper
 from alice.helper.log_utils import LOG
 from alice.helper.slack_helper import SlackHelper

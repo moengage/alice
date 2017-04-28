@@ -1,5 +1,5 @@
 import os
-from alice.helper.common_utils import getDictFromJson
+from alice.helper.file_utils import get_dict_from_config_file, get_dict_from_yaml
 from alice.helper.log_utils import LOG
 
 
@@ -8,9 +8,8 @@ class ConfigProvider(object):
 
     def __init__(self, repo):
         config_file = os.environ["config"]
-        LOG.info("config file=" + config_file)
-        #self.config = CommonUtils.readResourceJson(__name__, config_file) #relative package path
-        self.config = getDictFromJson(config_file) #absolute path to keep file anywhere
+        LOG.info("********** config file=" + config_file)
+        self.config = get_dict_from_config_file(config_file) #absolute path to keep file anywhere
         self.repo_name = repo
 
     def __str__(self):
