@@ -1,3 +1,7 @@
+alice_core.egg-info/
+dist/
+*.log
+alice.iml
 .idea/
 build/
 *.egg
