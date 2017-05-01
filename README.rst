@@ -15,11 +15,13 @@ How to use
 
   2. Start Alice (any 1 way):
 
+    modify the commands for particular config.yaml or config.json file path & port number
     * **run as flask app**
-       export FLASK_APP='alice/main/actor.py' config='config.yaml'; flask run --host 0.0.0.0 --port <PORT_NO>
+       SITE_PATH=`python -c "import site; print site.getsitepackages()[0]"`
+       export FLASK_APP=$SITE_PATH"/alice/main/actor.py' config='config.yaml'; flask run --host 0.0.0.0 --port <GIVE_ORT_NO>
 
     * **run as uwsgi process**
-        export config="config.yaml"; uwsgi --socket 0.0.0.0:<PORT_NO> --protocol=http -w alice.main.actor --callable app
+        export config="config.yaml"; uwsgi --socket 0.0.0.0:<GIVE_PORT_NO> --protocol=http -w alice.main.actor --callable app
 
     **Note:** default port number is '5000' if not specified
 

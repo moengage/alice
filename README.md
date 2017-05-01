@@ -26,17 +26,26 @@ I help the teams "preventing last moment panic moments" by:
    2.1 Create your team specific input config file [setup config file](https://github.com/moengage/alice/blob/master/docs/setup_config.md)
 
    2.2. Start Alice (any 1 way):
+
+   modify the commands for particular config.yaml or config.json file path & port number
    -  run as flask app
-      `export FLASK_APP='alice/main/actor.py' config='config.yaml'; flask run --host 0.0.0.0 --port <PORT_NO>`
+
+      ```
+      SITE_PATH=`python -c "import site; print site.getsitepackages()[0]"
+      export FLASK_APP=$SITE_PATH"/alice/main/actor.py' config='<PATH_TO_YOUR_config.yaml>'; flask run --host 0.0.0.0 --port <GIVE_PORT_NO>
+      ```
    -  run as uwsgi process
-      `export config="config.yaml"; uwsgi --socket 0.0.0.0:<PORT_NO> --protocol=http -w alice.main.actor --callable app`
+
+      ```
+      export config="config.yaml"; uwsgi --socket 0.0.0.0:<GIVE_PORT_NO> --protocol=http -w alice.main.actor --callable app
+      ```
 
     **Note:** can change port number as needed
 
    2.3 Plug it in with your system
    - test locally with any pull request payload:
      ```
-     http://0.0.0.0:<PORT_NO>
+     http://0.0.0.0:<GIVE_PORT_NO>
      ```
      it should return "welcome" message
    - activate on your github

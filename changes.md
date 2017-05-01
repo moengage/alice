@@ -2,10 +2,10 @@
 
 Here you can see the full list of changes between each Alice release.
 
-#### Version 1.1
+#### Version 1.0.1
 PyPi support
 
-#### Version 1.0
+#### Version 1.0.0
 First public release
 For on th fly checks like:
 
