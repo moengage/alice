@@ -14,7 +14,7 @@ with open('requirements.txt') as f:
         dependencies.append(line)
 
 setup(
-    name='alice-pooja',
+    name='alice-core',
     version=package_version,
     license='MIT',
     author='Pooja Shah',
