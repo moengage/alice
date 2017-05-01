@@ -23,6 +23,7 @@ setup(
     url='https://github.com/moengage/alice',
     include_package_data=True,
     zip_safe=False,
+    # package_data={'': ['VERSION', 'changes.md']},
     install_requires=dependencies
    )
 
