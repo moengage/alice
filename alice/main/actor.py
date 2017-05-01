@@ -59,8 +59,8 @@ class Actor(Base):
         return bad_pr
 
 
-@app.route("/merge", methods=['POST'])
-def merge():
+@app.route("/alice", methods=['POST'])
+def alice():
     if request.method != 'POST':
         abort(501)
     payload = request.get_data()
@@ -70,8 +70,8 @@ def merge():
 
 
 @app.route("/", methods=['GET', 'POST'])
-def hello():
-    return "Welcome to the world of Alice "
+def home():
+    return "************ Welcome to the world of Alice ***********"
 
 
 @app.before_first_request
@@ -79,15 +79,4 @@ def setup_logging():
     if not app.debug:
         LOG.debug('************ log from setup_config *********')
 
-# if __name__ == "__main__":
-#     #application.run()
-#     handler = RotatingFileHandler('app.log', maxBytes=100000, backupCount=3)
-#     logger = logging.getLogger('tdm')
-#     logger.setLevel(logging.DEBUG)
-#     logger.addHandler(handler)
-#
-#     application.run(debug=True,
-#         host="0.0.0.0",
-#         port=int("5006")
-#     )
 

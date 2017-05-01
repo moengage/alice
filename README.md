@@ -19,6 +19,7 @@ I help the teams "preventing last moment panic moments" by:
 
 
 ### Want to hire me?
+
 1. Install: pip install alice-pro
 2. Start:
    2.1 setup your config file()
@@ -28,3 +29,5 @@ I help the teams "preventing last moment panic moments" by:
    -  as a uwsgi process
       `export config="config.json"; uwsgi --socket 0.0.0.0:5005 --protocol=http -w alice.main.actor --callable app`
    - Note: can change port number as needed
+
+![its very simple](https://cloud.githubusercontent.com/assets/12966925/25533071/ffc4f7c8-2c4c-11e7-9308-ae295a9f34b7.gif)
