@@ -23,12 +23,12 @@ I help the teams "preventing last moment panic moments" by:
 1. **Install:** pip install alice-pro
 2. **Start:**
 
-   2.1 Give your team speciifc input [setup your config file](https://github.com/moengage/alice/blob/master/docs/setup_config.md)
+   2.1 Give your team specific input [setup your config file](https://github.com/moengage/alice/blob/master/docs/setup_config.md)
 
    2.2. Start Alice (any 1 way is fine):
-   -  direct as flask app
+   -  run as flask app
       `export FLASK_APP='alice/main/actor.py' config='config.yaml'; flask run --host 0.0.0.0 --port <PORT_NO>`
-   -  as a uwsgi process
+   -  run as uwsgi process
       `export config="config.yaml"; uwsgi --socket 0.0.0.0:<PORT_NO> --protocol=http -w alice.main.actor --callable app`
 
     **Note:** can change port number as needed
