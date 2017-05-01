@@ -22,8 +22,8 @@ Your work requires a different check which is not part of this repo
 simple steps: [follow this](https://github.com/moengage/alice/blob/master/docs/extend_alice.md)
 
 ##### 3.2 Adding more adapters
-At present its focused on Github(for code) & Slack Users(communicator, and if you use different ones then come join
-our slack channel discussion and [propose your idea](https://joinalice.slack.com/)
+At present its focused on Github(for code) & Slack Users(communicator, and if you use different ones then
+raise a request in github issue or alternatively come join our slack channel discussion and [propose your idea](https://joinalice.slack.com/)
 
 
 

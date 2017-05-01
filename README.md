@@ -20,10 +20,10 @@ I help the teams "preventing last moment panic moments" by:
 
 ### Want to hire me?
 
-1. **Install:** pip install alice-pro
+1. **Install via pip:** pip install alice-core
 2. **Start:**
 
-   2.1 Give your team specific input [setup your config file](https://github.com/moengage/alice/blob/master/docs/setup_config.md)
+   2.1 Create your team specific input config file [setup config file](https://github.com/moengage/alice/blob/master/docs/setup_config.md)
 
    2.2. Start Alice (any 1 way):
    -  run as flask app
@@ -44,7 +44,7 @@ I help the teams "preventing last moment panic moments" by:
 
      Example:
 
-     ![image](https://cloud.githubusercontent.com/assets/12966925/25573710/925362ea-2e65-11e7-93db-fa3f261f81dc.png)
+     ![image](https://cloud.githubusercontent.com/assets/12966925/25574851/72ea088c-2e6f-11e7-9ddf-9512a425729a.png)
 3. **Want to talk to me as well**
   - integrate me with hubot
     - install [hubot](https://hubot.github.com/docs/)

@@ -1,6 +1,5 @@
 from setuptools import setup, find_packages
 
-# Get the long description from the README.md file
 with open('README.rst') as f:
     long_description = f.read()
 
@@ -10,7 +9,7 @@ with open('VERSION') as f:
 with open('requirements.txt') as f:
     dependencies = []
     for line in f:
-        line = line.strip()  # or someother preprocessing
+        line = line.strip()
         dependencies.append(line)
 
 setup(

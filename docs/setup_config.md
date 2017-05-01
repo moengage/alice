@@ -10,11 +10,11 @@ Ex.
 *Note:* config file name should be ending with `.yml` or `.json`
 
 
-- Easy yml way
-  - just [download sample](https://github.com/moengage/alice/docs/config.yml)
+- Easy yaml way
+  - just [download sample](https://github.com/moengage/alice/blob/master/docs/config.yml)
   - set your tokens, repo specific and checks you wish to enable
 
 - For json lovers:
-   - just [download sample](https://github.com/moengage/alice/docs/config.json)
+   - just [download sample](https://github.com/moengage/alice/blob/master/docs/config.json)
    - set your tokens, repo specific and checks you wish to enable
 
