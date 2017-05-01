@@ -12,8 +12,8 @@ STATE_CLOSED = "closed"
 
 
 """ docs link """
-extend_alice="https://github.com/moengage/alice/docs/extend_alice.md"
-config_file="https://github.com/moengage/alice/docs/setup_config.md"
+extend_alice="https://github.com/moengage/alice/blob/master/docs/extend_alice.md"
+config_file="https://github.com/moengage/alice/blob/master/docs/setup_config.md"
 issue_link="https://github.com/moengage/alice/issues/new"
 
 

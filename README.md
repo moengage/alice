@@ -1,6 +1,6 @@
-Hi
-I'm alice!
-I'm being made with :heart: for spreading love among teams (i.e. developers, qa can be friends, o yes!)
+Hi, I'm alice!
+
+I'm being made with :heart: for spreading love among teams (i.e. developers, qa can be friends, o yes! that is possible having me)
 
 ### Why do I exist
 Recall a Release Day @ your workplace and some of the features started breaking all of a sudden, tested features are not working anymore, its going to take time to figure out whom to reach & people start passing the buck?
@@ -20,14 +20,49 @@ I help the teams "preventing last moment panic moments" by:
 
 ### Want to hire me?
 
-1. Install: pip install alice-pro
-2. Start:
-   2.1 setup your config file()
-   2.2.
-   -  direct as flask app
-      `export FLASK_APP="alice/main/actor.py" config="config.json"; flask run --host 0.0.0.0 --port 5005`
-   -  as a uwsgi process
-      `export config="config.json"; uwsgi --socket 0.0.0.0:5005 --protocol=http -w alice.main.actor --callable app`
-   - Note: can change port number as needed
+1. **Install:** pip install alice-pro
+2. **Start:**
 
-![its very simple](https://cloud.githubusercontent.com/assets/12966925/25533071/ffc4f7c8-2c4c-11e7-9308-ae295a9f34b7.gif)
+   2.1 Give your team speciifc input [setup your config file](https://github.com/moengage/alice/blob/master/docs/setup_config.md)
+
+   2.2. Start Alice (any 1 way is fine):
+   -  direct as flask app
+      `export FLASK_APP='alice/main/actor.py' config='config.yaml'; flask run --host 0.0.0.0 --port <PORT_NO>`
+   -  as a uwsgi process
+      `export config="config.yaml"; uwsgi --socket 0.0.0.0:<PORT_NO> --protocol=http -w alice.main.actor --callable app`
+
+    **Note:** can change port number as needed
+
+   2.3 Plug it in with your system
+   - test locally with any pull request payload:
+     ```
+     http://0.0.0.0:<PORT_NO>
+     ```
+     it should return "welcome" message
+   - activate on your github
+     Create [web-hook in github](https://developer.github.com/webhooks/creating/) and set it to <IP_WHERE_ALICE_IS_LISTNING>/alice
+
+     Example:
+
+     ![image](https://cloud.githubusercontent.com/assets/12966925/25573710/925362ea-2e65-11e7-93db-fa3f261f81dc.png)
+3. **Want to talk to me as well**
+  - integrate me with hubot
+    - install [hubot](https://hubot.github.com/docs/)
+    - [add/edit coffee scripts in the scripts folder](https://github.com/github/hubot/blob/master/docs/scripting.md)
+
+
+O yay! all set. let's rock :smile:
+![](https://cloud.githubusercontent.com/assets/12966925/25533071/ffc4f7c8-2c4c-11e7-9308-ae295a9f34b7.gif)
+
+### Want to Contribute
+Please read [CONTRIBUTING.md](https://github.com/moengage/alice/tree/master/.github/CONTRIBUTING.md) before submitting your pull requests.
+
+
+### Credits
+- [Hitesh Mantrala](https://github.com/hittudiv)
+- [Akshay Goel](https://github.com/akgoel-mo)
+- [Satya](https://github.com/satyamoengage)
+- [GitHub Api docs](https://developer.github.com/)
+- [Slack Api docs](https://api.slack.com/)
+- [Hubot community](https://github.com/github/hubot)
+- Jenkins Community

@@ -1,4 +1,5 @@
-Awesome to see that you have an exciting check to implement or
+### Adding more checks
+Glad to see that you have an exciting check to implement or
 Your work requires a different check which is not part of this repo
 
 **Steps**
@@ -10,6 +11,3 @@ Your work requires a different check which is not part of this repo
 **Need**
 - coding knowledge of [python](https://www.python.org/)
 - install dependencies from requires.txt
-
-
-
