@@ -1,15 +1,16 @@
 ### Alice
-________________________________
 A bot for code monitoring and more
 ________________________________
 
-Hi, I'm alice.
-Incepted with :heart: for spreading love among teams (i.e. developers, qa & devops can be friends, o yes! that is possible having me)
+Hi, I'm alice, made with :heart: for spreading love among teams (i.e. developers, qa can be friends, o yes! that is possible having me)
+
+I can be your assistant who monitors flow of the code in order to prevent mistakes in your Software Development Life Cycle.
+
 This repository provides a library that's distributed by `pip` that you can use for building your own inhouse robot mate.
 In most cases, you'll probably never have to hack on this repo directly. But if you do, check out [CONTRIBUTING.md](https://github.com/p00j4/alice/blob/master/.github/CONTRIBUTING.md)
 
 
-### What I do
+### How I do it
 I help teams "preventing last moment panic moments" by:
 - monitoring/reminding/blocking/alerting teams/individuals to maintain code hygiene
 - enabling every member in team to get any info about the system @ any time
