@@ -1,4 +1,0 @@
-Flask
-Falcon
-slacker
-python-jenkins
