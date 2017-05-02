@@ -5,8 +5,8 @@ tokens:
   slack: '' #give your local alice's slack TOKEN
   jenkins: '' #give your jekin's alice's jenkins TOKEN
 
-dev_ops_team: "@p1 @p2"
-JENKINS_BASE: http://ci.moengage.com/
+dev_ops_team: "@p1 @p2" #your devOps team slack names preceeded by @
+JENKINS_BASE: "http://YOUR_JENKINS_DOMAIN.com/"
 repo_list:  #type:list ::all repo names for which alice should monitor
 - REPO_1
 - REPO_2

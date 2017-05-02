@@ -19,7 +19,7 @@ How to use
 
     * **run as flask app**
 
-       ``SITE_PATH=`python -c "import site; print site.getsitepackages()[0]"`; export FLASK_APP=$SITE_PATH"/alice/main/actor.py" config="config.json"; flask run --host 0.0.0.0 --port 5005``
+        export FLASK_APP=alice.main.actor config='config.yaml'; flask run --host 0.0.0.0 --port 5005
 
     * **run as uwsgi process**
         export config="config.yaml"; uwsgi --socket 0.0.0.0:5000 --protocol=http -w alice.main.actor --callable app
