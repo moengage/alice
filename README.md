@@ -17,6 +17,17 @@ I help teams "preventing last moment panic moments" by:
 - enabling saving some brains whose most of the work time goes in answering same questions about the system
 - having a trustworthy 24x7 code monitoring system from dev to release phase which can prevent & alert for any unhealthy action for the code
 
+### Current Features
+For all sensitive branches (Ex. master, qa, develop)
+- Tech Review
+- Comment branch specific guidelines
+- Remind release guideline on merge
+- Auto close dangerous Pull Request
+- Alert for sensitive file(s) modified
+- Notify channel on merge
+- Notify lead on given action
+- Your own Check Implementer
+
 
 ### Want to hire me
 
@@ -73,6 +84,13 @@ I help teams "preventing last moment panic moments" by:
 ### Want to Contribute
 Please read [CONTRIBUTING.md](https://github.com/moengage/alice/tree/master/.github/CONTRIBUTING.md) before submitting your pull requests.
 If you'd like to chat, drop by [joinalice](https://joinalice.slack.com/messages) on slack channel
+
+### Future in plan
+- More Features
+  - Notify QA signOff
+  - Notify Code Freeze
+
+- Continuous Integration
 
 ### Credits
 - [Hitesh Mantrala](https://github.com/hittudiv)
