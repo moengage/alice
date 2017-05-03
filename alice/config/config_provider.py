@@ -9,7 +9,8 @@ class ConfigProvider(object):
     def __init__(self, repo):
         config_file = os.environ["config"]
         LOG.info("********** config file=" + config_file)
-        self.config = get_dict_from_config_file(config_file) #absolute path to keep file anywhere
+        # absolute path to keep file anywhere
+        self.config = get_dict_from_config_file(config_file)
         self.repo_name = repo
 
     def __str__(self):
@@ -35,7 +36,6 @@ class ConfigProvider(object):
     def repo(self):
         return self.config.get("repo").get(self.repo_name, {})
 
-
     @property
     def sensitiveBranches(self):
         return self.repo.get('sensitive_branches')
@@ -51,10 +51,6 @@ class ConfigProvider(object):
     @property
     def actionToBeNotifiedFor(self):
         return self.repo.get('notify_direct', {}).get('action_to_be_notified_on', "opened")
-
-    # @property
-    # def whiteListedMembers(self):
-    #     return self.repo.get('whitelisted_git_members')
 
     @property
     def superMembers(self):
@@ -90,13 +86,13 @@ class ConfigProvider(object):
 
     @property
     def personToBeNotified(self):
-        if self.config.get("debug"):
+        if self.is_debug:
             return self.debug_folks
         return self.repo.get('notify_direct', {}).get('person_to_be_notified')
 
     @property
     def techLeadsToBeNotified(self):
-        if self.config.get("debug"):
+        if self.is_debug:
             return self.debug_folks
         return self.repo.get('notify_direct', {}).get('tech_leads_to_be_notified_on_release_freeze')
 
@@ -106,7 +102,7 @@ class ConfigProvider(object):
 
     @property
     def devOpsTeam(self):
-        if self.config.get("debug"):
+        if self.is_debug:
             return self.debug_folks
         return self.repo.get("dev_ops_team", [])
 
@@ -120,11 +116,3 @@ class ConfigProvider(object):
 
     def getSlackName(self, github_name):
         return self.config.get('user_map',{}).get(github_name, github_name)
-
-
-
-
-
-
-
-

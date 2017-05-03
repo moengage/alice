@@ -1,23 +1,13 @@
-import logging
-import requests
-import simplejson as json
 import traceback
-from enum import Enum
-from flask import Flask, request, jsonify, abort
-from logging import Formatter, FileHandler
 
 from alice.checker_impl import CheckImpl
-from alice.commons.base import Base, PushPayloadParser
-from alice.config.message_template import *
-from alice.helper.constants import *
-from alice.helper.file_utils import write_to_file_from_top, clear_file
-from alice.helper.github_helper import GithubHelper, PRFilesNotFoundException
+from alice.commons.base import PushPayloadParser
+from alice.config.message_template import ISSUE_FOUND, DOC_CHECK_NOT_FOUND
+from alice.helper.constants import ISSUE_LINK, EXTEND_ALICE
 from alice.helper.log_utils import LOG
-from alice.helper.slack_helper import SlackHelper
 
 
-class RunChecks:
-
+class RunChecks(object):
     def execute_check(self, ci, check):
         LOG.debug("************* Starting check=%s *****************" % check)
         response = getattr(ci, check)()
@@ -37,22 +27,23 @@ class RunChecks:
             else:
                 try:
                     for check in checks:
-                        self.execute_check(ci, check)
-                except Exception,e:
+                        try:
+                            self.execute_check(ci, check)
+                        except AttributeError:
+                            LOG.debug("Exception in Run Checks", exc_info=traceback)
+                            raise CheckNotFoundException(check)
+                except Exception, e:
                     LOG.debug("Exception in Run Checks", exc_info=traceback)
-                    if isinstance(e, AttributeError):
-                        raise CheckNotFoundException(check)
-                    else:
-                        raise Exception(str(e)+ISSUE_FOUND.format(issue_link=issue_link))
+                    raise Exception(str(e) + ISSUE_FOUND.format(issue_link=ISSUE_LINK))
             return response
         LOG.info("skipped because '%s' is not sensitive branch" % ci.base_branch)
-        return {"msg":"skipped because '%s' is not sensitive branch" %ci.base_branch}
-
+        return {"msg": "skipped because '%s' is not sensitive branch" % ci.base_branch}
 
 
 class CheckNotFoundException(Exception):
     def __init__(self, method_name):
-        super(CheckNotFoundException, self).__init__(DOC_CHECK_NOT_FOUND.format(check_name=method_name, doc_link=extend_alice))
+        super(CheckNotFoundException, self).__init__(DOC_CHECK_NOT_FOUND.format(check_name=method_name,
+                                                                                doc_link=EXTEND_ALICE))
 
 
 

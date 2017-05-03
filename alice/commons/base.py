@@ -2,8 +2,10 @@ from alice.config.config_provider import ConfigProvider
 from alice.helper.common_utils import CommonUtils
 from alice.helper.log_utils import LOG
 
+
 class Base(object):
     pass
+
 
 class PushPayloadParser(Base):
 
@@ -16,7 +18,7 @@ class PushPayloadParser(Base):
 
     @property
     def repo(self):
-        return self.payload["repository"]["name"]#self.data["head"]["repo"]["name"]
+        return self.payload["repository"]["name"]
 
     @property
     def number(self):
