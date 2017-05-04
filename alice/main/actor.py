@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, abort
 import simplejson as json
 from alice.commons.base import Base
 from alice.helper.constants import THUMBS_UP_ICON
+from alice.helper.github_helper import PRFilesNotFoundException
 from alice.helper.log_utils import LOG
 from alice.main.runner import RunChecks
 
@@ -16,27 +17,29 @@ class Actor(Base):
         super(Actor, self).__init__()
 
     def parse_files_and_set_flags(self):
-        files_contents = self.github.get_files()
         change_requires_product_plus1 = False
         sensitive_file_touched = {}
-        LOG.info("**** Reading files ****")
-        for item in files_contents:
-            file_path = item["filename"]
-            if any(x in str(file_path) for x in self.pr.config.sensitiveFiles):
-                sensitive_file_touched["is_found"] = True
-                sensitive_file_touched["file_name"] = str(file_path)
-            if item["filename"].find(self.pr.config.productPlusRequiredDirPattern) != -1:
-                LOG.info("product change found marking ui_change to True")
-                change_requires_product_plus1 = True
-                # break
-        return (sensitive_file_touched, change_requires_product_plus1)
+        try:
+            files_contents = self.github.get_files()
+            LOG.info("**** Reading files ****")
+            for item in files_contents:
+                file_path = item["filename"]
+                if any(x in str(file_path) for x in self.pr.config.sensitiveFiles):
+                    sensitive_file_touched["is_found"] = True
+                    sensitive_file_touched["file_name"] = str(file_path)
+                if item["filename"].find(self.pr.config.productPlusRequiredDirPattern) != -1:
+                    LOG.info("product change found marking ui_change to True")
+                    change_requires_product_plus1 = True
+                    # break
+        except PRFilesNotFoundException, e:
+            LOG.exception(e)
+        return sensitive_file_touched, change_requires_product_plus1
 
     def is_bad_pr(self):
         reviews = self.github.get_reviews()
         if 200 != reviews.status_code:
             raise Exception(reviews.content)
 
-        # logger.debug("##### reviews= %s #####" + reviews.content)
         bad_pr = True
         LOG.info("***** Reading Reviews *****")
         for item in json.loads(reviews.content):

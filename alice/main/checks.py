@@ -24,7 +24,6 @@ class Checks(object):
             self.actor = Actor(github=self.github, pr=self.pr)
             self.sensitive_file_touched, self.change_requires_product_plus1 = self.actor.parse_files_and_set_flags()
 
-
     def tech_review(self):
         """
         checks for +1 in review approved

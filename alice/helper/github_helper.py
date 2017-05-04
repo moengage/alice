@@ -12,7 +12,7 @@ class PRFilesNotFoundException(Exception):
         super(PRFilesNotFoundException, self).__init__(str(self.pr_response))
 
 
-class GithubHelper:
+class GithubHelper(object):
 
     def __init__(self, org, repo, github_token, pr_api_link):
         self.pr_api_link = pr_api_link
@@ -23,10 +23,11 @@ class GithubHelper:
         response = ApiManager.get(url=url, headers=self.headers)
         if response["status_code"] != 200:
             raise Exception(response["content"], "Please check the provided Github Token, "
-                               "either user doesn't have permission to the organisation or the repository")
+                                                 "either user doesn't have permission to"
+                                                 " the organisation or the repository")
 
     def comment_pr(self, comment_section, comment):
-        resp = requests.post(comment_section, headers={"Authorization": "token " + self.GITHUB_TOKEN},
+        resp = requests.post(comment_section, headers=self.headers,
                              data=json.dumps(comment))
         LOG.debug(resp.content)
 
@@ -35,7 +36,7 @@ class GithubHelper:
             "title": msg,
             "state": state
         }
-        resp = requests.post(self.pr_api_link, json.dumps(data), headers={"Authorization": "token " + self.GITHUB_TOKEN})
+        resp = requests.post(self.pr_api_link, json.dumps(data), headers=self.headers)
         LOG.debug(resp.content)
 
     def get_reviews(self):
@@ -51,15 +52,11 @@ class GithubHelper:
     def is_pr_file_content_available(self, response):
         return not (isinstance(response, dict) and 'message' in response and response['message'] == "Not Found")
 
-
-    @Retry(PRFilesNotFoundException, max_retries=20,
-           default_value={"message": "Not Found", "documentation_url": "https://developer.github.com/v3"})
+    @Retry(PRFilesNotFoundException, max_retries=20)
     def get_files(self):
-        #import pdb; pdb.set_trace()
         files_content = self.get_files_requests()
         if not self.is_pr_file_content_available(files_content):
             raise PRFilesNotFoundException(files_content)
-        #print files_content
         return files_content
 
 

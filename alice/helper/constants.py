@@ -12,9 +12,9 @@ STATE_CLOSED = "closed"
 
 
 """ docs link """
-extend_alice="https://github.com/moengage/alice/blob/master/docs/extend_alice.md"
+EXTEND_ALICE= "https://github.com/moengage/alice/blob/master/docs/extend_alice.md"
 config_file="https://github.com/moengage/alice/blob/master/docs/setup_config.md"
-issue_link="https://github.com/moengage/alice/issues/new"
+ISSUE_LINK= "https://github.com/moengage/alice/issues/new"
 
 
 """ other constants """
