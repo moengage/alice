@@ -11,7 +11,7 @@ class Checks(object):
         checks for +1 in review approved
         :return:
         """
-        self.actor.is_tech_approved()
+        return self.actor.is_tech_approved()
 
 
     def comment_guidelines(self):
@@ -19,14 +19,14 @@ class Checks(object):
         add comment on opened PR
         :return:
         """
-        self.actor.comment_on_pr()
+        return self.actor.comment_on_pr()
 
     def notify_channel_on_merge(self):
         """
         store merged PR data to respective channel
         :return:
         """
-        self.actor.notify_channel_on_merge()
+        return self.actor.notify_channel_on_merge()
 
     def notify_lead_on_given_action(self):
         """
@@ -34,20 +34,20 @@ class Checks(object):
         :return:
         """
         # if self.pr.is_opened:
-        self.actor.notify_on_action()
+        return self.actor.notify_on_action()
 
     def remind_direct_release_guideline_on_merge(self):
 
-        self.actor.remind_direct()
+        return self.actor.remind_direct()
 
     def close_dangerous_pr(self):
-        self.actor.remind_direct()
+        return self.actor.remind_direct()
 
     def notify_on_sensitive_files_touched(self):
-        self.actor.notify_if_sensitive_modified()
+        return self.actor.notify_if_sensitive_modified()
 
     def product_review(self):
-        self.actor.is_product_approved()
+        return self.actor.is_product_approved()
 
     """ TO DO """
     # def notify_qa_sign_off(self):
