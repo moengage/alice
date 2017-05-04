@@ -1,11 +1,10 @@
 import traceback
 
-from alice.checker_impl import CheckImpl
 from alice.commons.base import PushPayloadParser
 from alice.config.message_template import ISSUE_FOUND, DOC_CHECK_NOT_FOUND
 from alice.helper.constants import ISSUE_LINK, EXTEND_ALICE
 from alice.helper.log_utils import LOG
-
+from alice.checker_impl import CheckImpl
 
 class RunChecks(object):
     def execute_check(self, ci, check):

@@ -5,6 +5,8 @@ API_GITHUB_MEMBERS_LIST = "https://api.github.com/orgs/{org}/members?page="
 API_GITHUB_MEMBERS = "https://api.github.com/orgs/{org}/members"
 API_GITHUB_REPO_MEMBER = "https://api.github.com/repos/{org}/{repo}"
 API_GITHUB_REVIEW_ACCEPT_KEY = "application/vnd.github.black-cat-preview+json"
+API_GITHUB_ISSUES = "https://api.github.com/repos/{org}/{repo}/issues"
+
 EP_REVIEWS = "reviews"
 EP_COMMENTS = "comments"
 STATE_OPEN = "open"

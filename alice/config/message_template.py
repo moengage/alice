@@ -3,7 +3,7 @@ from alice.helper.colors import Blinking_Colors
 MSG_BAD_START = "Very Bad "
 MSG_NO_TECH_REVIEW = "{name} :rage: <{pr}|{title}> is merged into `{branch}` without a \"Tech +1\"," \
                      " soon these kind of requests will be automatically reverted CC: {team}"
-MSG_NO_PRODUCT_REVIEW = "{name} :rage: {pr} is merged into `{branch}` without \"Product +1\"," \
+MSG_NO_PRODUCT_REVIEW = "{name} :rage: <{pr}|{title}>  is merged into `{branch}` without \"Product +1\"," \
                         " soon these kind of requests will be automatically reverted CC: {team}"
 
 MSG_CODE_CHANNEL = "Title=\"{title}\", Description=\"{desc}\" \nPR: {pr}\n from {head_branch} into `{base_branch}`" \

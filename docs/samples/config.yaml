@@ -41,10 +41,13 @@ repo:
     - f2
     product_team: "@p1 @p2 @p3" # the slack names space separated (each name to start with @)
     product_plus_required_dir_pattern: 'dashboard' #give directory name/path for which product review is a must
+    product_team_github_names: # the github names of all PM's whose plus+1 should be considered mandatory
+    - p1
+    - p2
+    - p3
     cc_members: "@p1 @p2" #the slack memeber names space separated (each name to start with @)
     code_channel: "#repo1-code" #1 slack channel name in which merged pull request info shoudl be notified
     alert_channel: "#weekly-releases" #1 slack channel name in which alerts should be posted
-    dev_ops_team: "@p1 @p2" #the slack names of your dev ops team (each name to start with @)
     notify_direct: # settings for direct message on slack
       person_to_be_notified: "@yashwanth" #1 person for any activity notify this person, generally the lead for this repo
       action_to_be_notified_on: 'opened' #1 github action Ex. ["opened", "repoened", "merged"]
@@ -74,7 +77,6 @@ repo:
     cc_members: "@p1 @p2 @p3" #the slack memeber names space separated (each name to start with @)
     code_channel: "#repo2-code" #1 slack channel name in which merged pull request info shoudl be notified
     alert_channel: "#weekly-releases" #1 slack channel name in which alerts should be posted
-    dev_ops_team: "@p1 @p2" #the slack names of your dev ops team (each name to start with @)
     notify_direct: # settings for direct message on slack
       person_to_be_notified: "@p" #1 person for any activity notify this person, generally the lead for this repo
       action_to_be_notified_on: 'opened' #1 github action Ex. ["opened", "repoened", "merged"]
