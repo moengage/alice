@@ -3,7 +3,7 @@ import simplejson as json
 from alice.commons.base import Base
 from alice.config.message_template import MSG_BAD_START, MSG_NO_TECH_REVIEW, MSG_AUTO_CLOSE, MSG_OPENED_TO_MAIN_BRANCH, \
     MSG_OPENED_TO_PREVENTED_BRANCH, SPECIAL_COMMENT, GENERAL_COMMENT, MSG_RELEASE_PREPARATION, \
-    MSG_SENSITIVE_FILE_TOUCHED, MSG_QA_SIGN_OFF, MSG_CODE_CHANNEL
+    MSG_SENSITIVE_FILE_TOUCHED, MSG_QA_SIGN_OFF, MSG_CODE_CHANNEL, MSG_GUIDELINE_ON_MERGE
 from alice.config.message_template import MSG_NO_PRODUCT_REVIEW
 from alice.helper.constants import THUMBS_UP_ICON
 from alice.helper.github_helper import GithubHelper
@@ -159,7 +159,20 @@ class Actor(Base):
         return {"msg": "Skipped notify because its (%s) not desired event '%s'" %(self.pr.action, desired_action)}
 
 
-    def remind_direct(self):
+    def remind_direct_release_guideline_on_merge(self):
+        if self.pr.is_merged:
+            if self.base_branch in self.pr.config.sensitiveBranches:
+                msg = MSG_GUIDELINE_ON_MERGE.format(person=self.created_by, pr=self.pr.link_pretty,
+                                                    base_branch=self.pr.base_branch, title=self.pr.title,
+                                                    release_notes_link=self.pr.config.release_notes_link)
+                self.slack.directSlack('@' + self.created_by, msg)
+                LOG.info("slacked personally to %s" % self.created_by)
+                return {"msg": "slacked personally to %s" % self.created_by}
+            return {"msg": "skipped slack personally because not sensitive branch"}
+        return {"msg": "skipped slack personally because its not merge event" % self.created_by}
+
+
+    def close_dangerous_pr(self):
         if self.pr.is_opened or self.pr.is_reopened:
             master_branch = self.pr.config.mainBranch
             qa_branch = self.pr.config.testBranch

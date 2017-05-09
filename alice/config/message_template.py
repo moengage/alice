@@ -12,8 +12,8 @@ MSG_CODE_CHANNEL = "Title=\"{title}\", Description=\"{desc}\" \nPR: {pr}\n from 
 MSG_RELEASE_PREPARATION = "\n Please review and approve with +1, Release preparation starts..."
 
 MSG_GUIDELINE_ON_MERGE = "Hi @{person}: you have merged <{pr}|{title}> into {base_branch}\n now, be nice & mention it " \
-                         "in Release Notes for getting it `QAed and released` " \
-                         "under Sheet name as respective Date \n {release_notes_link}"
+                         "in <{release_notes_link}|Release Notes> for getting it `QAed and released` " \
+                         "under Sheet name as respective Date"
 
 MSG_AUTO_CLOSE = "alice have auto-closed it because she sensed it an accidental PR (only \"{tested_branch}\" " \
                  "can be merged to \"{main_branch}\") \n Alice is smart! Be like Alice!"

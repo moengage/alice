@@ -37,11 +37,18 @@ class Checks(object):
         return self.actor.notify_on_action()
 
     def remind_direct_release_guideline_on_merge(self):
-
-        return self.actor.remind_direct()
+        """
+        remind the member who had raised PR to any of the sensitive branch to follow specific release guideline
+        :return:
+        """
+        return self.actor.remind_direct_release_guideline_on_merge()
 
     def close_dangerous_pr(self):
-        return self.actor.remind_direct()
+        """
+        senses
+        :return:
+        """
+        return self.actor.close_dangerous_pr()
 
     def notify_on_sensitive_files_touched(self):
         return self.actor.notify_if_sensitive_modified()
