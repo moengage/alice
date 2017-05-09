@@ -2,7 +2,6 @@ from flask import Flask, request, jsonify, abort
 import simplejson as json
 from alice.main.runner import RunChecks
 from alice.helper.log_utils import LOG
-#__import__('pkg_resources').declare_namespace(__name__)
 
 app = Flask(__name__)
 

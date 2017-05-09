@@ -19,7 +19,6 @@ class PRContentNotFoundException(Exception):
         super(PRContentNotFoundException, self).__init__(str(self.pr_response))
 
 
-
 class GithubHelper(object):
 
     def __init__(self, pr):
