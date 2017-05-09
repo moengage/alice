@@ -11,7 +11,7 @@ class Checks(object):
         checks for +1 in review approved
         :return:
         """
-        return self.actor.is_tech_approved()
+        return self.actor.validate_tech_approval()
 
 
     def comment_guidelines(self):
@@ -54,7 +54,7 @@ class Checks(object):
         return self.actor.notify_if_sensitive_modified()
 
     def product_review(self):
-        return self.actor.is_product_approved()
+        return self.actor.validate_product_approval()
 
     """ TO DO """
     # def notify_qa_sign_off(self):
