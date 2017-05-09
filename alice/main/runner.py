@@ -1,17 +1,16 @@
 import traceback
 
-from alice.checker_impl import CheckImpl
 from alice.commons.base import PushPayloadParser
 from alice.config.message_template import ISSUE_FOUND, DOC_CHECK_NOT_FOUND
 from alice.helper.constants import ISSUE_LINK, EXTEND_ALICE
 from alice.helper.log_utils import LOG
-
+from alice.checker_impl import CheckImpl
 
 class RunChecks(object):
     def execute_check(self, ci, check):
         LOG.debug("************* Starting check=%s *****************" % check)
         response = getattr(ci, check)()
-        LOG.debug("for check=%s, response=%s"%(check, response))
+        LOG.debug("for check= %s, response= %s"%(check, response))
 
     def run_checks(self, request, data):
         ci = CheckImpl(PushPayloadParser(request, payload=data))
