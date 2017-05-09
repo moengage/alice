@@ -76,7 +76,13 @@ class ConfigProvider(object):
     def alertChannelName(self):
         if self.is_debug:
             return self.debug_channel
-        return self.config.get("repo").get(self.repo_name, {}).get('alert_channel')
+        return self.repo.get('alert_channel')
+
+    @property
+    def cc_tech_team(self):
+        if self.is_debug:
+            return self.debug_folks
+        return self.repo.get('cc_members')
 
     @property
     def codeChannelName(self):
@@ -97,14 +103,28 @@ class ConfigProvider(object):
         return self.repo.get('notify_direct', {}).get('tech_leads_to_be_notified_on_release_freeze')
 
     @property
+    def productTeamToBeNotified(self):
+        if self.is_debug:
+            return self.debug_folks
+        return self.repo.get('product_team')
+
+    @property
+    def productTeamGithub(self):
+        return self.repo.get('product_team_github_names')
+
+    @property
     def productPlusRequiredDirPattern(self):
         return self.repo.get('product_plus_required_dir_pattern')
 
     @property
-    def devOpsTeam(self):
+    def devOpsTeamToBeNotified(self):
         if self.is_debug:
             return self.debug_folks
-        return self.repo.get("dev_ops_team", [])
+        return self.config.get("dev_ops_team", "")
+
+    @property
+    def devOpsTeamMembers(self):
+        return self.config.get("dev_ops_team", "")
 
     @property
     def checks(self):

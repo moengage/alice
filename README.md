@@ -2,7 +2,7 @@
 A bot for code monitoring and more
 ________________________________
 
-Hi, I'm alice, made with :heart: for spreading love among teams (i.e. developers, qa can be friends, o yes! that is possible having me)
+Hi, I'm alice, made with :heart: for spreading love among teams (i.e. developers, qa can be friends. O yes! it is possible having me)
 
 I can be your assistant who monitors flow of the code in order to prevent mistakes in your Software Development Life Cycle.
 
@@ -96,7 +96,9 @@ If you'd like to chat, drop by [joinalice](https://joinalice.slack.com/messages)
 - [Hitesh Mantrala](https://github.com/hittudiv)
 - [Akshay Goel](https://github.com/akgoel-mo)
 - [Satya](https://github.com/satyamoengage)
+- Jenkins Community
 - [GitHub Api docs](https://developer.github.com/)
 - [Slack Api docs](https://api.slack.com/)
 - [Hubot community](https://github.com/github/hubot)
-- Jenkins Community
+
+
