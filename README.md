@@ -45,12 +45,12 @@ For all sensitive branches (Ex. master, qa, develop)
  	-  run as uwsgi process
 
       	```
-      	export config="config.yaml"; uwsgi --socket 0.0.0.0:5005 --protocol=http -w alice.main.actor --callable app
+      	export config="config.yaml"; uwsgi --socket 0.0.0.0:5005 --protocol=http -w alice --callable app
       	```
  	-  run as flask app
 
       	```
-      	export FLASK_APP=alice.main.actor config='config.yaml'; flask run --host 0.0.0.0 --port 5005
+      	export FLASK_APP=alice config='config.yaml'; flask run --host 0.0.0.0 --port 5005
       	```
       
        **Note:** can change port number as needed

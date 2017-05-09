@@ -19,10 +19,10 @@ How to use
 
     * **run as flask app**
 
-        export FLASK_APP=alice.main.actor config='config.yaml'; flask run --host 0.0.0.0 --port 5005
+        export FLASK_APP=alice config='config.yaml'; flask run --host 0.0.0.0 --port 5005
 
     * **run as uwsgi process**
-        export config="config.yaml"; uwsgi --socket 0.0.0.0:5000 --protocol=http -w alice.main.actor --callable app
+        export config="config.yaml"; uwsgi --socket 0.0.0.0:5005 --protocol=http -w alice --callable app
 
     **Note:** default port number is '5000' if not specified
     `more details <https://github.com/moengage/alice/tree/master#want-to-hire-me>`_
