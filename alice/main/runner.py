@@ -10,7 +10,7 @@ class RunChecks(object):
     def execute_check(self, ci, check):
         LOG.debug("************* Starting check=%s *****************" % check)
         response = getattr(ci, check)()
-        LOG.debug("for check=%s, response=%s"%(check, response))
+        LOG.debug("for check= %s, response= %s"%(check, response))
 
     def run_checks(self, request, data):
         ci = CheckImpl(PushPayloadParser(request, payload=data))

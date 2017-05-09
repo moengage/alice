@@ -70,7 +70,7 @@ class Actor(Base):
                 print "***** review_comment", review_comment
                 created_by = self.pr.config.getSlackName(self.pr.opened_by)
                 if item["user"]["login"] != created_by and (review_comment.find("+1") != -1 or thumbsUpIcon):
-                    LOG.debug("+1 found from reviewer=%s marking No Alert" + item["user"]["login"])
+                    LOG.debug("+1 is found from reviewer=%s marking No Alert " % item["user"]["login"])
                     bad_pr = False
                     break
         return bad_pr
@@ -102,7 +102,7 @@ class Actor(Base):
                 if not is_product_plus1:
                     bad_name_str = MSG_BAD_START + "@" + self.created_by
                     msg = MSG_NO_PRODUCT_REVIEW.format(name=bad_name_str, pr=self.pr.link_pretty, title=self.pr.title,
-                                                    branch=self.pr.base_branch, team=self.pr.config.productTeamGithub)
+                                                    branch=self.pr.base_branch, team="".join(self.pr.config.productTeamToBeNotified))
                     LOG.debug(msg)
                     self.slack.postToSlack(self.pr.config.alertChannelName, msg)
                     LOG.info("Bad PR={msg} repo:{repo}".format(repo=self.pr.repo, msg=self.is_bad_pr))
@@ -153,10 +153,10 @@ class Actor(Base):
                 msg = MSG_OPENED_TO_PREVENTED_BRANCH.format(repo=self.pr.repo, pr_by=self.created_by,
                                                             base_branch=self.pr.base_branch, title=self.pr.title,
                                                             pr=self.pr.link_pretty, action=self.pr.action)
-                self.slack.postToSlack('@' + self.pr.config.personToBeNotified, msg)
+                self.slack.postToSlack(self.pr.config.personToBeNotified, msg)
                 LOG.info("Notified to %s on action %s" % (self.pr.config.personToBeNotified, self.pr.action))
                 return {"msg": "Notified to %s on action %s" % (self.pr.config.personToBeNotified, self.pr.action)}
-        return {"msg": "Skipped notify because its not desired event %s" % self.pr.action}
+        return {"msg": "Skipped notify because its (%s) not desired event '%s'" %(self.pr.action, desired_action)}
 
 
     def remind_direct(self):
@@ -184,7 +184,7 @@ class Actor(Base):
                     "msg": "informed %s because sensitive files are touched" % self.pr.config.devOpsTeamToBeNotified}
             return {"msg": "Skipped sensitive files alerts because no sensitive file being touched"}
         return {
-            "msg": "Skipped sensitive files alerts because its not PR merge event" % self.pr.config.devOpsTeamToBeNotified}
+            "msg": "Skipped sensitive files alerts because its not PR merge event %s" % self.pr.config.devOpsTeamToBeNotified}
 
 
     def notify_qa_sign(self):
