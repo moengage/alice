@@ -42,6 +42,8 @@ Eg. the Pull Request raised from `feature` branch to `master` should not be merg
 This check is specially made for devOps at present
 As soon as a Pull request is merged into a [sensitive branch](https://github.com/moengage/alice/blob/master/docs/checks.md#Sensitive-Branch)
 I sense for the given file(s) pattern in [config](https://github.com/moengage/alice/blob/master/docs/setup_config.md) file and if any of those files are modified, I inform the respective devOps members
+Eg. ![image](https://cloud.githubusercontent.com/assets/12966925/25906482/6552bb56-35c2-11e7-95af-d0c2e6887981.png)
+
 
 ### Notify on commits
 This is to notify direct/channel on slack based on git commits

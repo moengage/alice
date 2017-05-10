@@ -5,21 +5,21 @@ ________________________________
 Hi, I'm alice, made with :heart: on top of [python](https://www.python.org/) using [Flask](http://flask.pocoo.org/).
 For any team, I prevent [last minute chaos situations](https://github.com/moengage/alice/blob/master/README.md#why-me?) and improve Quality Assurance (Oh yes! it's possible with me)
 
-I'm your friendly robot sidekick. Install me in your company to dramatically improve teams' efficiency.
+I'm your friendly robot sidekick. Integrate me with your product to dramatically improve your Release process (Pre and Post)
 
 ### Why Me?
-Imagine your standard release day and a sudden roadblock is encountered.
+Imagine your standard release day and a sudden **roadblock** is encountered.
 Everyone in your team is running around with questions like:
 
-- Which commit is breaking the feature/code?
+- Which build is breaking the feature/code?
 - Did we miss any steps while deploying code to staging?
-- Did we not run tests?
 - How had it been merged without review?
+- How did it get passed through test cases, didn't they run?
 - Which code to revert to, to fix this quickly?
 - Who should I reach out to, for this?
-- Were these machine level changes?
+- Were these configuration or dependency changes?
 - Were these changes well informed to devOps team?
-- How not to miss the respective DB/Machine/JS update changes from next time?
+- How not to miss the respective DB/config/JS/dependency update changes from next time?
 
 Are you looking for a **free automated** solution which can, not only prevent these but also improve the collaboration and productivity of your team by performing the required *code supervision* tasks.
 
@@ -117,9 +117,10 @@ If you'd like to chat, stop by our slack team [joinalice](https://joinalice.slac
 - Continuous Integration
 
 ### Credits
-- [Hitesh Mantrala](https://github.com/hittudiv)
-- [Akshay Goel](https://github.com/akgoel-mo)
-- [Satya](https://github.com/satyamoengage) & [Yashwanth](https://github.com/yashwanth2)
+- Problems at work :smile:
+- [Hitesh Mantrala](https://github.com/hittudiv) for giving it a start.
+- [Akshay Goel](https://github.com/akgoel-mo) for the incessant support.
+- [Satyanarayan Saini](https://github.com/satyamoengage) & [Yashwanth Kumar](https://github.com/yashwanth2) for having faith in me.
 - Jenkins Community
 - [GitHub Api docs](https://developer.github.com/)
 - [Slack Api docs](https://api.slack.com/)
