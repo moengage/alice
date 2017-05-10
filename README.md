@@ -2,41 +2,51 @@
 A bot for code monitoring and more...
 ________________________________
 
-Hi, I'm alice, made with :heart: on top of [python](https://www.python.org/) using [Flask](http://flask.pocoo.org/) for preventing last minute chaos situation and improving Quality Assurance (Oh yes! it is possible having me)
+Hi, I'm alice, made with :heart: on top of [python](https://www.python.org/) using [Flask](http://flask.pocoo.org/).
+For any team, I prevent [last minute chaos situations](https://github.com/moengage/alice/blob/master/README.md#why-me?) and improve Quality Assurance (Oh yes! it's possible with me)
 
 I'm your friendly robot sidekick. Install me in your company to dramatically improve teams' efficiency.
 
-### Why Me
-Use me if:
-- You are facing last minute panic moments like
-  - Sudden breaking of features or you are about to release and bump into new bugs all of a sudden and it takes very long to figure out whom to reach out to get the fix faster and move ahead.
-- Or you want to bring a free automated solution which can improve the collaboration and productivity of your team by leaving code supervising tasks on it.
-**Note** current implementation is for [Github](https://github.com/) & [Slack](https://slack.com/) users however I'm open to expand it more. Please Read [here](https://github.com/moengage/alice#want-to-contribute) to go ahead
+### Why Me?
+Imagine your standard release day and a sudden roadblock is encountered.
+Everyone in your team is running around with questions like:
 
-### What I do
-I can be your assistant who can monitor code flow, right from development to release phases which help you preventing mistakes in your entire Software Development Life Cycle.
+- Which commit is breaking the feature/code?
+- Did we miss any steps while deploying code to staging?
+- Did we not run tests?
+- How had it been merged without review?
+- Which code to revert to, to fix this quickly?
+- Who should I reach out to, for this?
+- Were these machine level changes?
+- Were these changes well informed to devOps team?
+- How not to miss the respective DB/Machine/JS update changes from next time?
 
-This repository provides a library that's distributed by [pip](https://pypi.python.org/pypi/alice-core) that you can use for building your own in-house robot mate.
-In most cases, you'll probably never have to hack on this repo directly. But if you do, check out [CONTRIBUTING.md](https://github.com/p00j4/alice/blob/master/.github/CONTRIBUTING.md)
+Are you looking for a **free automated** solution which can, not only prevent these but also improve the collaboration and productivity of your team by performing the required *code supervision* tasks.
 
-### How I do it
-I help teams "preventing last moment panic moments" by:
+### What I do?
+I can be your assistant who can monitor code flow, right from development to release phase, thus preventing usual mistakes throughout your Development Life Cycle.
+
+This library is distributed via [pip](https://pypi.python.org/pypi/alice-core) so that you can build your own in-house mate.
+
+### How I do it?
+I help teams avoid "last moment panic attacks" by:
 - Monitoring/reminding/blocking/alerting teams/individuals to maintain code hygiene
-- Enabling every member in team to get any info about the system @ any time
-- Enabling saving some brains whose most of the work time goes in answering same questions about the system
-- Having a trustworthy 24x7 code monitoring system from dev to release phase which can prevent & alert for any unhealthy action for the code
+- Enabling every member in team to get required info about the system @ any time
+- Answering repetitive and mundane questions about the system
+- Having a trustworthy 24x7 code monitoring system from development to release phase
 
 ### Current Features
-For all sensitive branches (Eg. master, qa, develop)
+For all [sensitive branches](https://github.com/moengage/alice/blob/master/docs/checks.md#sensitive-branch) (Eg. master, qa, develop)
 - [Code Review](https://github.com/moengage/alice/blob/master/docs/checks.md#code-review)
 - [Remind team](https://github.com/moengage/alice/blob/master/docs/checks.md#remind-duidelines) members to follow Guidelines
 - [Auto close](https://github.com/moengage/alice/blob/master/docs/checks.md#auto-close-pull-request) suspicious Pull Request
 - Alerts on modification of [sensitive file(s)](https://github.com/moengage/alice/blob/master/docs/checks.md#alerts-to-devops-for-modification-of-sensitive-file(s))
 - Notify on specific [action on a Pull Request](https://github.com/moengage/alice/blob/master/docs/checks.md#notify-on-commits)
-- Your own [check implementer](https://github.com/moengage/alice/blob/master/docs/extend_alice.md#adding-more-checks)
+- [Custom check](https://github.com/moengage/alice/blob/master/docs/extend_alice.md#adding-more-checks) implementations
 
+**Note:** I am currently implemented for [Github](https://github.com/) & [Slack](https://slack.com/) users only. However I can be expanded to support other platforms as well. Please read [here](https://github.com/moengage/alice#want-to-contribute)
 
-### Want to hire me
+### Want to hire me?
 
 1. **Installation:** 
    ```
@@ -77,22 +87,18 @@ For all sensitive branches (Eg. master, qa, develop)
 
    - activate alice from your github repository
 
-     - Create [web-hook in github](https://developer.github.com/webhooks/creating/) and set it to <IP_WHERE_ALICE_IS_LISTNING>/alice
+     - Create [web-hook in github](https://developer.github.com/webhooks/creating/) and set it to `<IP_WHERE_ALICE_IS_LISTENING>/alice`
 
      Example:
 
      ![image](https://cloud.githubusercontent.com/assets/12966925/25574851/72ea088c-2e6f-11e7-9ddf-9512a425729a.png)
 
 ### Want to talk to me
-  - integrate me with hubot
-    Hubot is a talkative bot, all you need is to know a little bit of [CoffeScript](http://coffeescript.org/) and [Regular Expressions](https://www.w3schools.com/js/js_regexp.asp) to start with
-    and the same you can plug with alice to route tasks to/from it as per need.
-    - install [hubot](https://hubot.github.com/docs/)
-    - [add/edit coffee scripts in the scripts folder](https://github.com/github/hubot/blob/master/docs/scripting.md)
+Integrate me with [**Hubot**](https://hubot.github.com/docs). It's a talkative bot and all you need to know is a little bit of [CoffeScript](http://coffeescript.org/) and [Regular Expressions](https://www.w3schools.com/js/js_regexp.asp)
+You can use alice with hubot to route tasks to and fro.
+- To use alice with hubot, [add/edit coffee scripts in the scripts folder](https://github.com/github/hubot/blob/master/docs/scripting.md)
 
-
-
- Yay! all set. let's rock 
+Yay! all set. let's rock
 
 ----------------------
  <center> <img src="https://cloud.githubusercontent.com/assets/12966925/25533071/ffc4f7c8-2c4c-11e7-9308-ae295a9f34b7.gif" alt="Drawing" style="width: 100px;"/> </center>
@@ -103,7 +109,7 @@ For all sensitive branches (Eg. master, qa, develop)
 Please read [CONTRIBUTING.md](https://github.com/moengage/alice/tree/master/.github/CONTRIBUTING.md) before submitting your pull requests.
 If you'd like to chat, stop by our slack team [joinalice](https://joinalice.slack.com/messages)
 
-### Future in plan
+### Future plan
 - More Features
   - Notify QA signOff
   - Notify Code Freeze
