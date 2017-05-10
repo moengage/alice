@@ -27,7 +27,8 @@ class Actor(Base):
         self.base_branch = self.pr.base_branch
         self.head_branch = self.pr.head_branch
         self.created_by = self.pr.config.getSlackName(self.pr.opened_by)
-        self.merged_by = self.pr.config.getSlackName(self.pr.merged_by)
+        if self.pr.is_merged:
+            self.merged_by = self.pr.config.getSlackName(self.pr.merged_by)
         self.sensitive_file_touched, self.change_requires_product_plus1 = self.parse_files_and_set_flags()
 
 
@@ -204,7 +205,7 @@ class Actor(Base):
                 LOG.info("slacked personally to %s" % self.created_by)
                 return {"msg": "slacked personally to %s" % self.created_by}
             return {"msg": "skipped slack personally because not sensitive branch"}
-        return {"msg": "skipped slack personally because its not merge event" % self.created_by}
+        return {"msg": "skipped slack personally to %s because its not merge event" % self.created_by}
 
 
     def close_dangerous_pr(self):
@@ -221,7 +222,7 @@ class Actor(Base):
                 self.slack.postToSlack(self.pr.config.alertChannelName, "@" + self.created_by + ": " + msg)
                 LOG.info("closed dangerous PR %s" % self.pr.link_pretty)
                 return {"msg": "closed dangerous PR %s" % self.pr.link_pretty}
-            return {"msg": "skipped closing PR because not raised to mainBranch %s" % self.pr.link_pretty}
+            return {"msg": "skipped closing PR=%s because not raised to mainBranch %s" %(self.pr.link_pretty, master_branch)}
         return {"msg": "skipped closing PR because not a opened PR"}
 
     def notify_if_sensitive_modified(self):

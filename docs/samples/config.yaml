@@ -26,7 +26,7 @@ repo:
     - close_dangerous_pr #names are case sensitive
     - tech_review
     - product_review
-    - comment_guidelines
+    - github_comment_guidelines
     - notify_lead_on_given_action
     - notify_channel_on_merge
     - notify_on_sensitive_files_touched

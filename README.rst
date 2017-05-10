@@ -23,11 +23,11 @@ How to use
 
     or
 
-    * **run as uwsgi process**
+    * **run as uwsgi process** (Install uwsgi>=2.0.14 on your machine for using this)
         export config="config.yaml"; uwsgi --socket 0.0.0.0:5005 --protocol=http -w alice --callable app
 
     **Note:** default port number is '5000' if not specified
-    
+
     `more details <https://github.com/moengage/alice/tree/master#want-to-hire-me>`_
 
   3. Create `web-hook in github <https://developer.github.com/webhooks/creating/>`_ set it to <IP_WHERE_ALICE_IS_LISTNING>/alice

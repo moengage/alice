@@ -14,7 +14,7 @@ class Checks(object):
         return self.actor.validate_tech_approval()
 
 
-    def comment_guidelines(self):
+    def github_comment_guidelines(self):
         """
         add comment on opened PR
         :return:
