@@ -29,7 +29,7 @@ I can be your assistant who can monitor code flow, right from development to rel
 This library is distributed via [pip](https://pypi.python.org/pypi/alice-core) so that you can build your own in-house mate.
 
 ### How I do it?
-I help teams avoid "last moment panic attacks" by:
+I help teams avoid "last moment panic attacks" by using collaboration tool like [slack](https://slack.com/) by:
 - Monitoring/reminding/blocking/alerting teams/individuals to maintain code hygiene
 - Enabling every member in team to get required info about the system @ any time
 - Answering repetitive and mundane questions about the system
