@@ -2,6 +2,10 @@
 
 Here you can see the full list of changes between each Alice release.
 
+##### Version 1.5
+- updated docs
+- fixed a bug with PR open
+
 ##### Version 1.4
 First public release
 - PyPi support for anyone to install easily
