@@ -2,21 +2,21 @@
 A bot for code monitoring and more...
 ________________________________
 
-Hi, I'm alice, made with :heart: on top of [python](https://www.python.org/) using [Flask](http://flask.pocoo.org/) for preventing last minute chaos and improve Quality Assurance (Oh yes! it is possible having me)
+Hi, I'm alice, made with :heart: on top of [python](https://www.python.org/) using [Flask](http://flask.pocoo.org/) for preventing last minute chaos situation and improving Quality Assurance (Oh yes! it is possible having me)
+
 I'm your friendly robot sidekick. Install me in your company to dramatically improve teams' efficiency.
 
 ### Why Me
-Install and Use me if:
-- you are facing last minute panic moments (sudden breaking of features or just introduced bug and you are to release) in any phase of [SDLC](https://en.wikipedia.org/wiki/Systems_development_life_cycle), specially in the release phase
-and it takes very long to figure out whom to reach out to get the fix faster and move ahead.
-- Or you want such situations to prevent with more control
-- Or you want to bring a free automated solution which can improve the collaboration and productivity of your team
-**Note** current implementation is for [Github](https://github.com/) & [Slack](https://slack.com/) users however I'm open to be expanded for [more adapters]()
+Use me if:
+- You are facing last minute panic moments like
+  - Sudden breaking of features or you are about to release and bump into new bugs all of a sudden and it takes very long to figure out whom to reach out to get the fix faster and move ahead.
+- Or you want to bring a free automated solution which can improve the collaboration and productivity of your team by leaving code supervising tasks on it.
+**Note** current implementation is for [Github](https://github.com/) & [Slack](https://slack.com/) users however I'm open to expand it more. Please Read [here](https://github.com/moengage/alice#want-to-contribute) to go ahead
 
 ### What I do
-I can be your assistant who monitors code flow from `dev` to `qa` to `release` phases which help you preventing mistakes in your entire Software Development Life Cycle.
+I can be your assistant who can monitor code flow, right from development to release phases which help you preventing mistakes in your entire Software Development Life Cycle.
 
-This repository provides a library that's distributed by `pip` that you can use for building your own in-house robot mate.
+This repository provides a library that's distributed by [pip](https://pypi.python.org/pypi/alice-core) that you can use for building your own in-house robot mate.
 In most cases, you'll probably never have to hack on this repo directly. But if you do, check out [CONTRIBUTING.md](https://github.com/p00j4/alice/blob/master/.github/CONTRIBUTING.md)
 
 ### How I do it
@@ -44,7 +44,7 @@ For all sensitive branches (Eg. master, qa, develop)
    ```
 2. **Getting Started:**
 
-   2.1 Create your team specific input config file [setup config file](https://github.com/moengage/alice/blob/master/docs/setup_config.md)
+   2.1  Create your team specific input config file [setup config file](https://github.com/moengage/alice/blob/master/docs/setup_config.md)
 
    2.2. Start Alice (any 1 way):
 
@@ -54,7 +54,11 @@ For all sensitive branches (Eg. master, qa, develop)
       	```
       	export FLASK_APP=alice config='config.yaml'; flask run --host 0.0.0.0 --port 5005
       	```
-    or
+        You should see success message like this
+
+        ![image](https://cloud.githubusercontent.com/assets/12966925/25900478/3c801d38-35b1-11e7-9701-ee9a1ebb134f.png)
+
+      or
     -  run as uwsgi process (Install uwsgi>=2.0.14 on machine yourself for using this)
 
       	```
@@ -62,23 +66,27 @@ For all sensitive branches (Eg. master, qa, develop)
       	```
     **Note:** can change port number as needed
 
+
+
    2.3 Plug it in with your system
    - test locally with any pull request payload:
      ```
      http://0.0.0.0:<GIVE_PORT_NO>
      ```
      it should return "welcome" message
-   - activate on your github
-     Create [web-hook in github](https://developer.github.com/webhooks/creating/) and set it to <IP_WHERE_ALICE_IS_LISTNING>/alice
+
+   - activate alice from your github repository
+
+     - Create [web-hook in github](https://developer.github.com/webhooks/creating/) and set it to <IP_WHERE_ALICE_IS_LISTNING>/alice
 
      Example:
 
      ![image](https://cloud.githubusercontent.com/assets/12966925/25574851/72ea088c-2e6f-11e7-9ddf-9512a425729a.png)
 
-### Want to talk to me as well
+### Want to talk to me
   - integrate me with hubot
     Hubot is a talkative bot, all you need is to know a little bit of [CoffeScript](http://coffeescript.org/) and [Regular Expressions](https://www.w3schools.com/js/js_regexp.asp) to start with
-    and then the same you can plug with alice to route tasks to/from it as needed.
+    and the same you can plug with alice to route tasks to/from it as per need.
     - install [hubot](https://hubot.github.com/docs/)
     - [add/edit coffee scripts in the scripts folder](https://github.com/github/hubot/blob/master/docs/scripting.md)
 
@@ -91,9 +99,9 @@ For all sensitive branches (Eg. master, qa, develop)
 
 ----------------------
 
-### Want to Contribute
+### Willing to Contribute
 Please read [CONTRIBUTING.md](https://github.com/moengage/alice/tree/master/.github/CONTRIBUTING.md) before submitting your pull requests.
-If you'd like to chat, drop by [joinalice](https://joinalice.slack.com/messages) on slack channel
+If you'd like to chat, stop by our slack team [joinalice](https://joinalice.slack.com/messages)
 
 ### Future in plan
 - More Features

@@ -1,6 +1,6 @@
 ### Adding more checks
 Glad to see that you have an exciting check to implement yourself or
-Your work requires a different check which is not part of this repo, all you need to do is follow these simple steps:
+your work requires a different check which is not part of this repo, all you need to do is follow these simple steps:
 
 **Steps**
 1. Git [clone](https://help.github.com/articles/cloning-a-repository/) [alice](https://github.com/moengage/alice.git)
@@ -16,4 +16,5 @@ Your work requires a different check which is not part of this repo, all you nee
 
 
 **Willing to contribute your new check**
-its simple, please read guidelines [here](https://github.com/moengage/alice/blob/master/.github/CONTRIBUTING.md#3-code-contributions)
+
+Please read guidelines [here](https://github.com/moengage/alice/blob/master/.github/CONTRIBUTING.md#3-code-contributions)
