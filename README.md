@@ -121,7 +121,8 @@ If you'd like to chat, stop by our slack team [joinalice](https://joinalice.slac
 - [Hitesh Mantrala](https://github.com/hittudiv) for giving it a start.
 - [Akshay Goel](https://github.com/akgoel-mo) for the incessant support.
 - [Satyanarayan Saini](https://github.com/satyamoengage) & [Yashwanth Kumar](https://github.com/yashwanth2) for having faith in me.
-- Jenkins Community
+- Team [MoEngage](http://moengage.com/) for helping me pass through User Acceptance Testing.
+- Jenkins Community for ideas
 - [GitHub Api docs](https://developer.github.com/)
 - [Slack Api docs](https://api.slack.com/)
 - [Hubot community](https://github.com/github/hubot)
