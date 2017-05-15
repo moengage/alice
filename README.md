@@ -115,6 +115,8 @@ If you'd like to chat, stop by our slack team [joinalice](https://joinalice.slac
   - Notify Code Freeze
 
 - Continuous Integration
+- More Adapters like with HipChat, BitBucket. If you are using these or any other version control or communication tools, please come, let's discuss & [build it together](https://github.com/moengage/alice/blob/master/.github/CONTRIBUTING.md#32-adding-more-adapters)
+
 
 ### Credits
 - Problems at work :smile:
