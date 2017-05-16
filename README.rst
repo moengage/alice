@@ -19,12 +19,15 @@ How to use
 
     * **run as flask app**
 
-        export FLASK_APP=alice.main.actor config='config.yaml'; flask run --host 0.0.0.0 --port 5005
+        export FLASK_APP=alice config='config.yaml'; flask run --host 0.0.0.0 --port 5005
 
-    * **run as uwsgi process**
-        export config="config.yaml"; uwsgi --socket 0.0.0.0:5000 --protocol=http -w alice.main.actor --callable app
+    or
+
+    * **run as uwsgi process** (Install uwsgi>=2.0.14 on your machine for using this)
+        export config="config.yaml"; uwsgi --socket 0.0.0.0:5005 --protocol=http -w alice --callable app
 
     **Note:** default port number is '5000' if not specified
+
     `more details <https://github.com/moengage/alice/tree/master#want-to-hire-me>`_
 
   3. Create `web-hook in github <https://developer.github.com/webhooks/creating/>`_ set it to <IP_WHERE_ALICE_IS_LISTNING>/alice

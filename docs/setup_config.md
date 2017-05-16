@@ -1,33 +1,47 @@
-### Setup your team specific configurations
-while running alice, you need to pass your team specific config to help alice take better decisions
-all you need to do is download the sample config file and pass it with `--config` flag
-
-Ex.
- Modify the commands with particular **config.yaml** or **config.json** file path & port number
-   -  run as flask app
-
-      ```
-      SITE_PATH=`python -c "import site; print site.getsitepackages()[0]"`;
-      export FLASK_APP=$SITE_PATH"/alice/main/actor.py" config='GIVE_PATH_TO_YOUR_config.yaml'; flask run --host 0.0.0.0 --port 5005
-      ```
-   -  run as uwsgi process
-
-      ```
-      export config="config.yaml"; uwsgi --socket 0.0.0.0:5005 --protocol=http -w alice.main.actor --callable app
-      ```
-      
-*Note:* config file name should be ending with `.yml` or `.json`
+## Setup your team specific configurations
+While running alice, you need to pass your team specific configurations to help alice take better decisions, [How](https://github.com/moengage/alice/blob/master/docs/setup_config.md#config-file-required-changes)
 
 #### Config file required changes:
-1. set your tokens, repo specific data and checks you wish to enable
-2. github vs slack user name mappings (if writing manually is huge then follow [this](https://gist.github.com/p00j4/18be94b7261ff564d13241d0899f7101) to get individually automactically and just copy paste in right places)
-
+Look at the config file from below link, modify as per your team settings as the instructions given in comments inside the [yaml](https://github.com/moengage/alice/blob/master/docs/samples/config.yaml) file
 - Easy yaml way (with all hints on what to fill in)
-  - [download sample](https://github.com/moengage/alice/blob/master/docs/config.yml)
-  
+  - [sample yaml](https://github.com/moengage/alice/blob/master/docs/samples/config.yaml)
+
+ or
+
 - For json lovers:
-   - [download sample](https://github.com/moengage/alice/blob/master/docs/config.json)
-   
-- edit->save and keep your config file in a safe place and use this path in alice execution command
-   
+   - [sample json](https://github.com/moengage/alice/blob/master/docs/samples/config.json)
+
+**Steps:** click on `raw` -> save file (ctrl/cmd+s) -> remove `.text` from end -> edit as per need -> save your config file at a safe path and use this path in alice execution command
+
+*Note:* config file name should be ending with `.yaml` or `.json`
+
+**Most important changes:**
+
+- Set your tokens, repo specific data and checks you wish to enable
+- Give user map properly in GithubName:slackName style (if writing manually is painful then follow [this](https://gist.github.com/p00j4/18be94b7261ff564d13241d0899f7101) to get individually automatically and just copy paste in right places)
+- Your Code Repository specific settings like mainBranch, channel names etc.
+- Set debug key true or false as required.
+
+**Note** Make sure to set debug False when you go live
+
+
+Pass on the modified config file along with `--config` flag to alice
+Eg.
+   Modify the commands with particular **config.yaml** or **config.json** file path & port number
+   -  run as uwsgi process
+
+      	```
+      	export config="config.yaml"; uwsgi --socket 0.0.0.0:5005 --protocol=http -w alice --callable app
+      	```
+      	or
+   -  run as flask app
+
+      	```
+      	export FLASK_APP=alice config='config.yaml'; flask run --host 0.0.0.0 --port 5005
+      	```
+
+   **Note:** can change port number as needed
+
+
+
 

@@ -5,6 +5,8 @@ API_GITHUB_MEMBERS_LIST = "https://api.github.com/orgs/{org}/members?page="
 API_GITHUB_MEMBERS = "https://api.github.com/orgs/{org}/members"
 API_GITHUB_REPO_MEMBER = "https://api.github.com/repos/{org}/{repo}"
 API_GITHUB_REVIEW_ACCEPT_KEY = "application/vnd.github.black-cat-preview+json"
+API_GITHUB_ISSUES = "https://api.github.com/repos/{org}/{repo}/issues"
+
 EP_REVIEWS = "reviews"
 EP_COMMENTS = "comments"
 STATE_OPEN = "open"
@@ -12,9 +14,9 @@ STATE_CLOSED = "closed"
 
 
 """ docs link """
-extend_alice="https://github.com/moengage/alice/blob/master/docs/extend_alice.md"
+EXTEND_ALICE= "https://github.com/moengage/alice/blob/master/docs/extend_alice.md"
 config_file="https://github.com/moengage/alice/blob/master/docs/setup_config.md"
-issue_link="https://github.com/moengage/alice/issues/new"
+ISSUE_LINK= "https://github.com/moengage/alice/issues/new"
 
 
 """ other constants """

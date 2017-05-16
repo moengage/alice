@@ -1,12 +1,11 @@
 import requests
 
-class ApiManager:
 
+class ApiManager(object):
     @staticmethod
     def get(url, headers, data=None):
         response = requests.get(url, headers=headers, data=data)
-        print response.url
-        return {"status_code":response.status_code, "content":response.content, "response":response}
+        return {"status_code": response.status_code, "content": response.content, "response": response}
 
 
     @staticmethod

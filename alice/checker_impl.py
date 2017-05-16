@@ -9,7 +9,7 @@ class CheckImpl(Checks):
 
 
     """
-    Implement your check here, is will be automatically called
+    Implement your check here, will be automatically called
 
     To get pull request related data, access with self.pr Ex.
         self.pr.repo
