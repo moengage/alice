@@ -14,7 +14,7 @@ class SlackHelper(object):
                     "**************  %s      *************\n"
                     "Message= %s\n"
                     "******************************************* " % (channel, msg))
-        self.slack.chat.post_message(channel=channel, text=msg, icon_url=self.icon, username="Alice", *args, **kwargs)
+        self.slack.chat.post_message(channel=channel, text=msg, icon_url=self.icon, as_user=True, *args, **kwargs)
 
     def directSlack(self, person, msg=None, *args, **kwargs):
         if self.config.is_debug:
@@ -23,7 +23,7 @@ class SlackHelper(object):
                     "**************  %s      *************\n"
                     "Message= %s\n"
                     "******************************************* " % (person, msg))
-        self.slack.chat.post_message(channel=person, text=msg, icon_url=self.icon, username="Alice", *args, **kwargs)
+        self.slack.chat.post_message(channel=person, text=msg, icon_url=self.icon, as_user=True, *args, **kwargs)
 
     def getBot(self, channel, user):
         icon_url = "https://cloud.githubusercontent.com/assets/12966925/25274594/528675da-26ae-11e7-8331-25f25c41b75d.png"

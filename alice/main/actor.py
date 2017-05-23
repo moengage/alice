@@ -1,19 +1,21 @@
 import simplejson as json
+from alice.helper.file_utils import write_to_file_from_top, clear_file
 
 from alice.commons.base import Base
 from alice.config.message_template import MSG_BAD_START, MSG_NO_TECH_REVIEW, MSG_AUTO_CLOSE, MSG_OPENED_TO_MAIN_BRANCH, \
     MSG_OPENED_TO_PREVENTED_BRANCH, SPECIAL_COMMENT, GENERAL_COMMENT, MSG_RELEASE_PREPARATION, \
-    MSG_SENSITIVE_FILE_TOUCHED, MSG_QA_SIGN_OFF, MSG_CODE_CHANNEL, MSG_GUIDELINE_ON_MERGE
+    MSG_SENSITIVE_FILE_TOUCHED, MSG_QA_SIGN_OFF, MSG_CODE_CHANNEL, MSG_GUIDELINE_ON_MERGE, CODE_FREEZE_TEXT, \
+    RELEASE_NOTES_REMINDER
 from alice.config.message_template import MSG_NO_PRODUCT_REVIEW
 from alice.helper.constants import THUMBS_UP_ICON
 from alice.helper.github_helper import GithubHelper
 from alice.helper.github_helper import PRFilesNotFoundException
-from alice.helper.log_utils import LOG
 from alice.helper.slack_helper import SlackHelper
-
-
-#app = Flask(__name__)
-
+from alice.helper.log_utils import LOG
+from datetime import datetime
+import time
+import pytz
+import shutil
 
 class Actor(Base):
     
@@ -105,7 +107,7 @@ class Actor(Base):
         return {"msg": "Skipped review because its not PR merge event"}
 
     def validate_product_approval(self):
-        """
+        """`
         notify in channel if not product approved (applicable only to files/dir which require product approval)
         :return: relevant response dict
         """
@@ -244,7 +246,7 @@ class Actor(Base):
             "msg": "Skipped sensitive files alerts because its not PR merge event %s" % self.pr.config.devOpsTeamToBeNotified}
 
 
-    def notify_qa_sign(self):
+    def notify_qa_sign_off(self):
         if self.pr.is_merged and self.pr.base_branch == self.pr.config.mainBranch \
                 and self.pr.head_branch == self.pr.config.testBranch:
             msg = MSG_QA_SIGN_OFF.format(person=self.pr.config.personToBeNotified, pr=self.pr.link_pretty,
@@ -253,11 +255,12 @@ class Actor(Base):
 
             self.slack.postToSlack(self.pr.config.alertChannelName, msg,
                                data=self.slack.getBot(self.pr.config.alertChannelName, self.merged_by))
-        """ for bot """
-        # write_to_file_from_top(release_freeze_details_path, ":clubs:" +
-        #                        str(datetime.now(pytz.timezone('Asia/Calcutta')).strftime(
-        #                            '%B %d,%Y at %I.%M %p')) + " with <" + self.pr.link_pretty + "|master> code")  # on:" + str(datetime.datetime.now().strftime('%B %d, %Y @ %I.%M%p'))
-        # clear_file(code_freeze_details_path)
+        """ for bot to keep data ready for fiture use"""
+        write_to_file_from_top(self.pr.config.releaseFreezeDetailsPath, ":clubs:" +
+                               str(datetime.now(pytz.timezone('Asia/Calcutta')).strftime(
+                                   '%B %d,%Y at %I.%M %p')) + " with <" + self.pr.link_pretty + "|master> code")
+        clear_file(self.pr.config.codeFreezeDetailsPath)
+
 
     def notify_channel_on_merge(self):
         """
@@ -265,7 +268,8 @@ class Actor(Base):
         :return: relevant response dict
         """
         if self.pr.is_merged:
-            # print "**** Repo=" + repo + ", new merge came to " + base_branch + " set trace to " + code_merge_channel + " channel"
+            LOG.debug("**** Repo=%s, new merge came to=%s, setting trace to=%s channel"
+                      %(self.pr.repo, self.pr.base_branch, self.pr.config.alertChannelName))
             msg = MSG_CODE_CHANNEL.format(title=self.pr.title, desc=self.pr.description, pr=self.pr.link,
                                           head_branch=self.pr.head_branch, base_branch=self.pr.base_branch,
                                           pr_by=self.created_by, merge_by=self.merged_by)
@@ -275,6 +279,61 @@ class Actor(Base):
             return {"msg":"informed %s because pr=%s is merged into sensitive branch=%s" %
                      (self.pr.config.alertChannelName, self.pr.link_pretty, self.pr.base_branch)}
         return {"msg", "Skipped posting to code channel because '%s' is not merge event" %self.pr.action}
+
+
+    def notify_code_freeze(self):
+        if self.pr.is_merged and (self.pr.base_branch == self.pr.config.testBranch \
+                and self.pr.head_branch == self.pr.config.devBranch):
+            LOG.debug("pr merged from {dev_branch} to {qa_branch}, posting release items to slack".
+                      format(dev_branch=self.pr.config.devBranch, qa_branch=self.pr.config.testBranch))
+
+            write_to_file_from_top(self.pr.config.codeFreezeDetailsPath, ":clubs:" + str(
+                datetime.now(pytz.timezone(self.pr.config.timezone)).strftime(
+                    '%B %d at %I.%M %p')) + " with <" + self.pr.link_pretty + "|PR>")
+
+            with open(self.pr.config.releaseItemsFilePath) as f:
+                msg = f.read()
+                f.close()
+            LOG.debug("final msg =" + msg)
+
+            if msg:
+                CODE_FREEZE_TEXT[0]["pretext"] = CODE_FREEZE_TEXT[0]["pretext"].format(dev_branch=self.pr.config.devBranch,
+                                                                                       test_branch=self.pr.config.testBranch)
+                CODE_FREEZE_TEXT[0]["fields"][0]["title"] =  CODE_FREEZE_TEXT[0]["fields"][0].get("title")\
+                    .format(test_branch=self.pr.config.testBranch)
+                CODE_FREEZE_TEXT[0]["text"] = CODE_FREEZE_TEXT[0]["text"].format(msg=msg)
+                CODE_FREEZE_TEXT[0]["title_link"] = CODE_FREEZE_TEXT[0]["title_link"].format(release_notes_link=self.pr.config.release_notes_link)
+
+                self.slack.postToSlack(channel=self.pr.config.alertChannelName, attachments=CODE_FREEZE_TEXT)
+
+                """ backup & clean-up file for next release """
+                shutil.copy(self.pr.config.releaseItemsFilePath, self.pr.config.backupFilesPath + '_'
+                            + str(datetime.now().strftime('%m-%d-%Y:%I.%M%p')) + '.txt')  # take backup before clearing
+                if self.pr.config.is_debug is False:
+                    clear_file(self.pr.config.releaseItemsFilePath)  # clear file for next release content
+
+                self.remind_finally_to_update_release_notes()
+                return {"msg": "informed code-freeze on %s for pr=%s" % (self.pr.config.alertChannelName,
+                                                                         self.pr.link_pretty)}
+            return {"msg": "Skipped posting code-freeze because not items found in file %s" % self.pr.config.releaseItemsFilePath}
+        return {"msg", "Skipped posting to code-freeze because its not code-freeze event, {pr_action}ed from "
+                       "{dev_branch} -> {qa_branch} ".format(pr_action=self.pr.action,
+                        dev_branch=self.pr.config.devBranch, qa_branch=self.pr.config.testBranch)}
+
+
+    def remind_all_finally_to_update_release_notes(self):
+        with open(self.pr.config.releaseItemsFileMergedBy) as f:
+            names = f.read()
+            f.close()
+            LOG.debug("final names list =" + names)
+        if names:
+            time.sleep(10)
+
+            msg = RELEASE_NOTES_REMINDER.format(msg=names, release_notes_link=self.pr.config.release_notes_link,
+                                                qa_team=self.pr.config.qaTeamMembers)
+
+            self.slack.postToSlack(channel=self.pr.config.alertChannelName, msg=msg)
+            clear_file(self.pr.config.releaseItemsFileMergedBy)
 
 
 
