@@ -123,7 +123,8 @@ class Actor(Base):
                 if not is_product_plus1:
                     bad_name_str = MSG_BAD_START + "@" + self.created_by
                     msg = MSG_NO_PRODUCT_REVIEW.format(name=bad_name_str, pr=self.pr.link_pretty, title=self.pr.title,
-                                                    branch=self.pr.base_branch, team="".join(self.pr.config.productTeamToBeNotified))
+                                                    branch=self.pr.base_branch, team=""
+                                                       .join(self.pr.config.productTeamToBeNotified))
                     LOG.debug(msg)
                     self.slack.postToSlack(self.pr.config.alertChannelName, msg)
                     LOG.info("Bad PR={msg} repo:{repo}".format(repo=self.pr.repo, msg=self.is_bad_pr))
@@ -224,7 +225,8 @@ class Actor(Base):
                 self.slack.postToSlack(self.pr.config.alertChannelName, "@" + self.created_by + ": " + msg)
                 LOG.info("closed dangerous PR %s" % self.pr.link_pretty)
                 return {"msg": "closed dangerous PR %s" % self.pr.link_pretty}
-            return {"msg": "skipped closing PR=%s because not raised to mainBranch %s" %(self.pr.link_pretty, master_branch)}
+            return {"msg": "skipped closing PR=%s because not raised to mainBranch %s" %(self.pr.link_pretty,
+                                                                                         master_branch)}
         return {"msg": "skipped closing PR because not a opened PR"}
 
     def notify_if_sensitive_modified(self):
@@ -243,7 +245,8 @@ class Actor(Base):
                 return {"msg": "informed %s because sensitive files are touched" % self.pr.config.devOpsTeamToBeNotified}
             return {"msg": "Skipped sensitive files alerts because no sensitive file being touched"}
         return {
-            "msg": "Skipped sensitive files alerts because its not PR merge event %s" % self.pr.config.devOpsTeamToBeNotified}
+            "msg": "Skipped sensitive files alerts because its not PR merge event %s" %
+                   self.pr.config.devOpsTeamToBeNotified}
 
 
     def notify_qa_sign_off(self):
@@ -302,7 +305,8 @@ class Actor(Base):
                 CODE_FREEZE_TEXT[0]["fields"][0]["title"] =  CODE_FREEZE_TEXT[0]["fields"][0].get("title")\
                     .format(test_branch=self.pr.config.testBranch)
                 CODE_FREEZE_TEXT[0]["text"] = CODE_FREEZE_TEXT[0]["text"].format(msg=msg)
-                CODE_FREEZE_TEXT[0]["title_link"] = CODE_FREEZE_TEXT[0]["title_link"].format(release_notes_link=self.pr.config.release_notes_link)
+                CODE_FREEZE_TEXT[0]["title_link"] = CODE_FREEZE_TEXT[0]["title_link"]\
+                    .format(release_notes_link=self.pr.config.release_notes_link)
 
                 self.slack.postToSlack(channel=self.pr.config.alertChannelName, attachments=CODE_FREEZE_TEXT)
 
@@ -315,7 +319,8 @@ class Actor(Base):
                 self.remind_finally_to_update_release_notes()
                 return {"msg": "informed code-freeze on %s for pr=%s" % (self.pr.config.alertChannelName,
                                                                          self.pr.link_pretty)}
-            return {"msg": "Skipped posting code-freeze because not items found in file %s" % self.pr.config.releaseItemsFilePath}
+            return {"msg": "Skipped posting code-freeze because not items found in file %s"
+                           % self.pr.config.releaseItemsFilePath}
         return {"msg", "Skipped posting to code-freeze because its not code-freeze event, {pr_action}ed from "
                        "{dev_branch} -> {qa_branch} ".format(pr_action=self.pr.action,
                         dev_branch=self.pr.config.devBranch, qa_branch=self.pr.config.testBranch)}
