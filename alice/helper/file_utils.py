@@ -25,12 +25,7 @@ def get_dict_from_yaml(file_path):
 
 
 def write_to_file_from_top(file_path, msg):
-    dir_path = file_path.rpartition("/")[0]
-    try:
-        os.makedirs(dir_path)
-    except Exception:
-        if not os.path.isdir(dir_path):
-            raise
+    create_if_not_found(file_path)
     with open(file_path, "r+") as f:
         first_line = f.readline()
         lines = f.readlines()
@@ -40,18 +35,31 @@ def write_to_file_from_top(file_path, msg):
         f.writelines(lines)
         f.close()
 
+def read_from_file(file_name):
+    with open(file_name) as f:
+        contents = f.read()
+        f.close()
+    return contents
 
-def write_to_file(file_path, msg):
-    dir_path = file_path.rpartition("/")[0]  # partitions from last occurence
-    try:
-        os.makedirs(dir_path)
-    except Exception:
-        if not os.path.isdir(dir_path):
-            raise
+def append_to_file(file_path, msg):
+    create_if_not_found()
     with open(file_path, "a+") as f:
         f.write(msg + '\n')
         f.close()
 
 
+def create_if_not_found(file_name):
+    if not os.path.exists(os.path.dirname(file_name)):
+        try:
+            os.makedirs(os.path.dirname(file_name))
+        except OSError as exc:  # Guard against race condition
+            if exc.errno != exc.errno.EEXIST:
+                raise
+    if not os.path.exists(file_name):
+        open(file_name, 'w').close()
+
+
 def clear_file(_file):
+    print "************** CLEARNING FILE=" +_file
     open(_file, 'w').close()
+

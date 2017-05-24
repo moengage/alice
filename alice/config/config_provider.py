@@ -65,6 +65,10 @@ class ConfigProvider(object):
         return self.repo.get('test_branch')
 
     @property
+    def devBranch(self):
+        return self.repo.get('dev_branch')
+
+    @property
     def debug_folks(self):
         return self.config.get('debug_alice', {}).get('debug_folks')
 
@@ -127,6 +131,10 @@ class ConfigProvider(object):
         return self.config.get("dev_ops_team", "")
 
     @property
+    def qaTeamMembers(self):
+        return self.config.get("qa_team", "")
+
+    @property
     def checks(self):
         return self.repo.get("checks",[])
 
@@ -136,3 +144,27 @@ class ConfigProvider(object):
 
     def getSlackName(self, github_name):
         return self.config.get('user_map',{}).get(github_name, github_name)
+
+    @property
+    def releaseFreezeDetailsPath(self):
+        return self.config.get("release_freeze_details_path", "")
+
+    @property
+    def codeFreezeDetailsPath(self):
+        return self.config.get("code_freeze_details_path", "")
+
+    @property
+    def releaseItemsFilePath(self):
+        return self.config.get("release_items_file_path", "")
+
+    @property
+    def releaseItemsFileMergedBy(self):
+        return self.config.get("release_items_file_mergedBy", "")
+
+    @property
+    def backupFilesPath(self):
+        return self.config.get("backup_files_path", "")
+
+    @property
+    def timezone(self):
+        return self.config.get("timezone", "")
