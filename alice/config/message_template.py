@@ -11,7 +11,7 @@ MSG_CODE_CHANNEL = "Title=\"{title}\", Description=\"{desc}\" \nPR: {pr}\n from 
 
 MSG_RELEASE_PREPARATION = "\n Please review and approve with +1, Release preparation starts..."
 
-MSG_GUIDELINE_ON_MERGE = "Hi @{person}: you have merged <{pr}|{title}> into {base_branch}\n now, be nice & mention it " \
+MSG_GUIDELINE_ON_MERGE = "Hi @{person} you have merged <{pr}|{title}> into {base_branch}\n now, be nice & mention it " \
                          "in <{release_notes_link}|Release Notes> for getting it `QAed and released` " \
                          "under Sheet name as respective Date"
 
@@ -72,3 +72,5 @@ RELEASE_NOTES_REMINDER = "|Final Reminder| :raising_hand: \n Hi {msg}\n There ar
                          "Please do mention them in release notes & inform immediately if it needs QA " \
                          "*else will be treated as self tested* (ignore, only if done already):\n {release_notes_link} " \
                          " \t\tcc: {qa_team}"
+
+DATA_SAVE_MERGED = ":beer: Title=\"{title}\",  Description=\"{desc}\" \nPR: {pr} By: @{by}"

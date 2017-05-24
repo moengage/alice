@@ -56,6 +56,14 @@ class Checks(object):
     def product_review(self):
         return self.actor.validate_product_approval()
 
+    def notify_code_freeze(self):
+        return self.actor.notify_code_freeze()
+
+    def notify_qa_sign_off(self):
+        return self.actor.notify_qa_sign_off()
+
+
+
     """ TO DO """
     # def notify_qa_sign_off(self):
     #     return self.actor.notify_qa_sign()

@@ -159,7 +159,7 @@ class ConfigProvider(object):
 
     @property
     def releaseItemsFileMergedBy(self):
-        return self.config.get("code_freeze_details_path", "")
+        return self.config.get("release_items_file_mergedBy", "")
 
     @property
     def backupFilesPath(self):
