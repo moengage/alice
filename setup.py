@@ -27,6 +27,11 @@ setup(
     install_requires=dependencies
    )
 
-
+<<<<<<< qa
+   line 1
+=======
+    line1 
+    line 2
+>>>>>>> dev
 
 
