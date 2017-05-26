@@ -17,7 +17,7 @@ setup(
     name='alice-pooja',
     version=package_version,
     license='MIT',
-    author='Pooja Shah',
+   
     author_email='writeback2pooja@gmail.com',
     long_description=long_description,
     packages=find_packages(exclude=['build', 'dist']),
