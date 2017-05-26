@@ -17,7 +17,15 @@ setup(
     name='alice-pooja',
     version=package_version,
     license='MIT',
+    
+<<<<<<< qa
+   line 1
     author='Pooja Shah',
+=======
+    line1 
+    line 2
+>>>>>>> dev
+    
     author_email='writeback2pooja@gmail.com',
     long_description=long_description,
     packages=find_packages(exclude=['build', 'dist']),
@@ -27,11 +35,5 @@ setup(
     install_requires=dependencies
    )
 
-<<<<<<< qa
-   line 1
-=======
-    line1 
-    line 2
->>>>>>> dev
 
 
