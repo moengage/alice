@@ -26,12 +26,3 @@ setup(
     # package_data={'': ['VERSION', 'changes.md']},
     install_requires=dependencies
    )
-
-
-<<<<<<< qa
-    line
-=======
-    line1
-    line2
->>>>>>> dev
-
