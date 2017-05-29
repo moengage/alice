@@ -6,10 +6,7 @@ tokens:
   jenkins: '' #give your jekin's alice's jenkins TOKEN
 
 dev_ops_team: "@p1 @p2" #your devOps team slack names preceeded by @
-JENKINS_BASE: "http://YOUR_JENKINS_DOMAIN.com/"
-repo_list:  #type:list ::all repo names for which alice should monitor
-- REPO_1
-- REPO_2
+qa_team: "@p1 @p2"  #your QA team memebr slack names
 debug: true  #To test your setup with alice, set it false when you take live
 debug_alice: #in debug mode all the alerts to go in specific channel/person to avoid spamming any
   debug_channel: "#tmp"  #your slack channel name preceded by #
@@ -18,8 +15,17 @@ user_map:   #key value map GITHUB_NAME: SLACK_NAME of each member in team, used 
   p00ja: pooja  #replace with your mapping, add more how many needed
   abhi: abhinav
 release_notes_link: '' # link where you get release notes mentioned
-
+release_freeze_details_path: "./alice/master_freeze_details.txt"
+code_freeze_details_path: "./alice/qa_freeze_details.txt"
+release_items_file_path: "./alice/dev_items.txt"
+release_items_file_mergedBy: "./alice/dev_items_mergedby.txt" #
+timezone: "Asia/Calcutta"   # Change as needed, this will used to store files with right timestamp
+backup_files_path: "./alice/release_items"
+repo_list:  #type:list ::all repo names for which alice should monitor
+- REPO_1
+- REPO_2
 #### Repo wise settings ####
+# Can keep adding repo specific input as per requirement
 repo:
   REPO_1:  #your repo name
     checks: #type:list ::add/remove these checks for REPO_1. if given none: will trigger all the checks
@@ -87,8 +93,28 @@ repo:
       - "@p1"
       - "@p2"
     main_branch: 'master' # release branch, generally its master
-    test_branch: 'qa' # test branch on which qa is locked to do release testing
+    test_branch: '' # test branch on which code is locked to do release testing
+    dev_branch: '' # dev branch from where code freeze will be taken to test_branch for testing
     super_git_members: #GITHUB NAMES who can have super powers to break the rules in any tough circumstance (no alert for the crime)
     - p1
     - p2
-  # Can keep adding repo specific input as per requirement
+
+#### For Running Tests: Yet to be released
+#ci:
+#  enable: true
+#  repositories:
+#  - repo1
+#  - repo2
+#  context: ci-jenkins
+#  file_types:
+#  - ".py"
+#  description: Unit Tests
+#  action_type:
+#  - opened
+#  - open
+#  - reopened
+#  - synchronize
+#  jenkins:
+#    domain: http://org.jenkins.com/
+#    username: alice
+#    job_name: CI_Unit_Tests

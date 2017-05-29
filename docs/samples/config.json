@@ -6,7 +6,7 @@
 		"jenkins": ""
 	},
 	"dev_ops_team": "@p1 @p2",
-	"JENKINS_BASE": "http://YOUR_JENKINS_DOMAIN.com/",
+	"qa_team": "@p1 @p2 @p3",
 	"repo_list": [
 		"REPO_1",
 		"REPO_2"
@@ -21,6 +21,13 @@
 		"abhi": "abhinav"
 	},
 	"release_notes_link": "",
+	"release_freeze_details_path" : "./master_freeze_details.txt",
+	"code_freeze_details_path" : "./alice/qa_freeze_details.txt",
+	"release_items_file_path" : "./alice/dev_items.txt",
+    "release_items_file_mergedBy" : "./alice/dev_items_mergedby.txt",
+	"timezone" : "Asia/Calcutta",
+	"backup_files_path" : "./alice/release_items",
+
 	"repo": {
 		"REPO_1": {
 			"checks": [
@@ -66,7 +73,8 @@
 				]
 			},
 			"main_branch": "master",
-			"test_branch": "qa",
+			"test_branch": "",
+			"dev_branch" : "",
 			"super_git_members": [
 				"p1",
 				"p2"
@@ -85,6 +93,7 @@
 				"f1",
 				"f2"
 			],
+			"sensitive_file_pattern": "",
 			"product_team": "@p1",
 			"product_plus_required_dir_pattern": "dashboard",
 			"cc_members": "@p1 @p2 @p3",
@@ -109,5 +118,19 @@
 				"p2"
 			]
 		}
+	},
+	"ci": {
+        "enable" : true,
+		"repositories": ["repo1", "repo2"],
+    	"context" : "ci-jenkins",
+        "file_types" : [".py"],
+    	"description" : "Unit Tests",
+    	"action_type" : ["opened", "open", "reopened", "synchronize"],
+        "jenkins": {
+            "domain": "http://org.jenkins.com/",
+            "username" : "alice",
+            "job_name" : "CI_Unit_Tests"
+        }
+
 	}
 }
