@@ -110,13 +110,11 @@ Please read [CONTRIBUTING.md](https://github.com/moengage/alice/tree/master/.git
 If you'd like to chat, stop by our slack team [joinalice](https://joinalice.slack.com/messages)
 
 ### Future plan
-- More Features
-  - Notify QA signOff
-  - Notify Code Freeze
-
+*Focus on:*
 - Continuous Integration
 - More Adapters like with HipChat, BitBucket. If you are using these or any other version control or communication tools, please come, let's discuss & [build it together](https://github.com/moengage/alice/blob/master/.github/CONTRIBUTING.md#32-adding-more-adapters)
 
+Here is the full [product board](https://github.com/moengage/alice/projects/1)
 
 ### Credits
 - Problems at work :smile:
