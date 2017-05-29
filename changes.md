@@ -2,6 +2,13 @@
 
 Here you can see the full list of changes between each Alice release.
 
+##### Version 1.6
+- Added Features
+  - Notify if sensitive files modified
+  - Notify Code Freeze
+  - Notify QA SignOff
+  - Personal Reminder on following Release process when merged to any of sensitive branch
+
 ##### Version 1.5
 - updated docs
 - fixed a bug with PR open
