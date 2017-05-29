@@ -11,7 +11,7 @@ MSG_CODE_CHANNEL = "Title=\"{title}\", Description=\"{desc}\" \nPR: {pr}\n from 
 
 MSG_RELEASE_PREPARATION = "\n Please review and approve with +1, Release preparation starts..."
 
-MSG_GUIDELINE_ON_MERGE = "Hi @{person}: you have merged <{pr}|{title}> into {base_branch}\n now, be nice & mention it " \
+MSG_GUIDELINE_ON_MERGE = "Hi @{person} you have merged <{pr}|{title}> into {base_branch}\n now, be nice & mention it " \
                          "in <{release_notes_link}|Release Notes> for getting it `QAed and released` " \
                          "under Sheet name as respective Date"
 
@@ -46,3 +46,31 @@ DOC_CHECK_NOT_FOUND = "\"{check_name}\" Check is not found (please cross check t
                       "{doc_link}" + Blinking_Colors.END
 ISSUE_FOUND = "\nOo this looks like i've messed up, Please raise this as issue at: " + Blinking_Colors.OKBLUE \
               + "{issue_link}" + Blinking_Colors.END + " will try to help you asap"
+
+CODE_FREEZE_TEXT = [{
+                "pretext": "<!channel>: Code is Frozen ({dev_branch}->{test_branch}) for Release testing\n "
+                           "Release Items for this week :bow:",
+                "fields": [
+                    {
+                        "title": "Use {test_branch} branch",
+                        "value": "to give fixes, branch out from it",
+                        "short": True
+                    },
+                    {
+                        "title": "to check if your code is part of",
+                        "value": "verify <{pr}|PR link>",
+                        "short": True
+                    }
+                ],
+                "title": "MoEngage Release Notes Link :battery: \n\n",
+                "title_link": "{release_notes_link}",
+                "text": "{msg}",
+                "color": "#764FA5"
+            }]
+
+RELEASE_NOTES_REMINDER = "|Final Reminder| :raising_hand: \n Hi {msg}\n There are changes on your name as mentioned *above*. " \
+                         "Please do mention them in release notes & inform immediately if it needs QA " \
+                         "*else will be treated as self tested* (ignore, only if done already):\n {release_notes_link} " \
+                         " \t\tcc: {qa_team}"
+
+DATA_SAVE_MERGED = ":beer: Title=\"{title}\",  Description=\"{desc}\" \nPR: {pr} By: @{by}"
