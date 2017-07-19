@@ -87,11 +87,11 @@ For all [sensitive branches](https://github.com/moengage/alice/blob/master/docs/
 
    - activate alice from your github repository
 
-     - Create [web-hook in github](https://developer.github.com/webhooks/creating/) and set it to `<IP_WHERE_ALICE_IS_LISTENING>/alice`
+     - Create [web-hook in github](https://developer.github.com/webhooks/creating/) and set it to `<IP_WHERE_ALICE_IS_LISTENING>:<PORT_NUMBER>`
 
      Example:
 
-     ![image](https://cloud.githubusercontent.com/assets/12966925/25574851/72ea088c-2e6f-11e7-9ddf-9512a425729a.png)
+     ![image](https://user-images.githubusercontent.com/12966925/28384333-f16100a2-6ce1-11e7-849b-8ed956e1964a.png)
 
 ### Want to talk to me
 Integrate me with [**Hubot**](https://hubot.github.com/docs). It's a talkative bot and all you need to know is a little bit of [CoffeScript](http://coffeescript.org/) and [Regular Expressions](https://www.w3schools.com/js/js_regexp.asp)

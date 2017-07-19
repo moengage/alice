@@ -7,8 +7,12 @@ def get_dict_from_config_file(file_path):
     if file_path.endswith(".yaml"):
         data = get_dict_from_yaml(file_path)
     elif file_path.endswith(".json"):
-        with open(file_path) as data_file:
-            data = json.load(data_file)
+        try:
+            with open(file_path) as data_file:
+                data = json.load(data_file)
+        except Exception as e:
+            print "\nPlease validate your config file, if it is correct. Can use https://jsonlint.com/ to debug quicker"
+            raise (e)
     else:
         raise Exception("The config file should be either yaml or json type")
     return data
@@ -20,7 +24,8 @@ def get_dict_from_yaml(file_path):
         try:
             data = yaml.load(stream)
         except yaml.YAMLError as exc:
-            print(exc)
+            print "\nPlease validate your config file, if it is correct. Can use http://www.yamllint.com/ to debug quicker"
+            raise (exc)
     return data
 
 
