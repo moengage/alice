@@ -1,5 +1,5 @@
 ## Setup your team specific configurations
-While running alice, you need to pass your team specific configurations to help alice take better decisions, [How](https://github.com/moengage/alice/blob/master/docs/setup_config.md#config-file-required-changes)
+While running alice, you need to pass your team specific configurations to help alice take better decisions. It can be done simply:
 
 #### Config file required changes:
 Look at the config file from below link, modify as per your team settings as the instructions given in comments inside the [yaml](https://github.com/moengage/alice/blob/master/docs/samples/config.yaml) file
