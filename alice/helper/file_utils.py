@@ -14,7 +14,7 @@ def get_dict_from_config_file(file_path):
             print "\nPlease validate your config file, if it is correct. Can use https://jsonlint.com/ to debug quicker"
             raise (e)
     else:
-        raise Exception("The config file should be either yaml or json type")
+        raise Exception("Config Format mismatch: The config file should be either yaml or json type")
     return data
 
 

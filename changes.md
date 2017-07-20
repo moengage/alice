@@ -2,6 +2,9 @@
 
 Here you can see the full list of changes between each Alice release.
 
+##### Version 1.6.1, 1.6.2
+- Minor enhancement for better logging in case, wrong config is passed
+
 ##### Version 1.6
 - Added Features
   - Notify if sensitive files modified

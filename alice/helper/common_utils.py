@@ -1,3 +1,4 @@
+
 import simplejson as json
 import pkg_resources
 import os
@@ -11,6 +12,7 @@ slack_mappings = {}
 class CommonUtils(object):
     config_file = os.environ["config"]
     config = get_dict_from_config_file(config_file)
+
     GIT_TOKEN = config.get('tokens').get("github")
     SLACK_TOKEN = config.get('tokens').get("slack")
     organisation = config.get('organisation')
