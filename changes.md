@@ -2,8 +2,10 @@
 
 Here you can see the full list of changes between each Alice release.
 
-##### Version 1.6.1, 1.6.2
+
+##### Version 1.6.1, 1.6.2, 16.3
 - Minor enhancement for better logging in case, wrong config is passed
+- code channel name separation from alert channel
 
 ##### Version 1.6
 - Added Features
