@@ -49,7 +49,7 @@ class Actor(Base):
                 existing_names = f.read()
                 if name not in existing_names:
                     f.write(name + ", ")
-                    print msg + ' added unique names to file ' + self.pr.config.releaseItemsFileMergedBy
+                    LOG.debug(msg + ' added unique names to file ' + self.pr.config.releaseItemsFileMergedBy)
                 f.close()
 
     def parse_files_and_set_flags(self):
@@ -98,7 +98,7 @@ class Actor(Base):
                               % (self.pr.opened_by_slack, self.pr.repo))
                     bad_pr = False
                     break
-                print "***** review_comment", review_comment
+                LOG.info("***** review_comment %r" %review_comment)
                 created_by = self.pr.config.getSlackName(self.pr.opened_by)
                 if item["user"]["login"] != created_by and (review_comment.find("+1") != -1 or thumbsUpIcon):
                     LOG.debug("+1 is found from reviewer=%s marking No Alert " % item["user"]["login"])
@@ -295,15 +295,15 @@ class Actor(Base):
         """
         if self.pr.is_merged:
             LOG.debug("**** Repo=%s, new merge came to=%s, setting trace to=%s channel"
-                      %(self.pr.repo, self.pr.base_branch, self.pr.config.alertChannelName))
+                      %(self.pr.repo, self.pr.base_branch, self.pr.config.codeChannelName))
             msg = MSG_CODE_CHANNEL.format(title=self.pr.title, desc=self.pr.description, pr=self.pr.link,
                                           head_branch=self.pr.head_branch, base_branch=self.pr.base_branch,
                                           pr_by=self.created_by, merge_by=self.merged_by)
-            self.slack.postToSlack(self.pr.config.alertChannelName, msg)
+            self.slack.postToSlack(self.pr.config.codeChannelName, msg)
             LOG.info("informed %s because pr=%s is merged into sensitive branch=%s" %
-                     (self.pr.config.alertChannelName, self.pr.link_pretty, self.pr.base_branch))
+                     (self.pr.config.codeChannelName, self.pr.link_pretty, self.pr.base_branch))
             return {"msg":"informed %s because pr=%s is merged into sensitive branch=%s" %
-                     (self.pr.config.alertChannelName, self.pr.link_pretty, self.pr.base_branch)}
+                     (self.pr.config.codeChannelName, self.pr.link_pretty, self.pr.base_branch)}
         return {"msg", "Skipped posting to code channel because '%s' is not merge event" %self.pr.action}
 
 

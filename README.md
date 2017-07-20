@@ -54,9 +54,11 @@ For all [sensitive branches](https://github.com/moengage/alice/blob/master/docs/
    ```
 2. **Getting Started:**
 
-   2.1  Create your team specific input config file [setup config file](https://github.com/moengage/alice/blob/master/docs/setup_config.md)
+   2.1 [Add hubot](https://slack.com/apps/A0F7XDU93-hubot) app in your slack team, change its name to alice or as needed. Invite this bot user in your respective slack channels to be able to post message
 
-   2.2. Start Alice (any 1 way):
+   2.2 Create your team specific input config file [setup config file](https://github.com/moengage/alice/blob/master/docs/setup_config.md)
+
+   2.3 Start Alice (either of the 1 way):
 
    Modify the commands with particular config.yaml or config.json file path & port number
  	-  run as flask app
@@ -77,8 +79,7 @@ For all [sensitive branches](https://github.com/moengage/alice/blob/master/docs/
     **Note:** can change port number as needed
 
 
-
-   2.3 Plug it in with your system
+   2.4 Plug it in with your system
    - test locally with any pull request payload:
      ```
      http://0.0.0.0:<GIVE_PORT_NO>
@@ -87,11 +88,11 @@ For all [sensitive branches](https://github.com/moengage/alice/blob/master/docs/
 
    - activate alice from your github repository
 
-     - Create [web-hook in github](https://developer.github.com/webhooks/creating/) and set it to `<IP_WHERE_ALICE_IS_LISTENING>:<PORT_NUMBER>`
+     - Create [web-hook in github](https://developer.github.com/webhooks/creating/) and set it to `<IP_WHERE_ALICE_IS_LISTENING>:<PORT_NUMBER>/alice`
 
      Example:
 
-     ![image](https://user-images.githubusercontent.com/12966925/28384333-f16100a2-6ce1-11e7-849b-8ed956e1964a.png)
+     ![image](https://user-images.githubusercontent.com/12966925/28403837-3c91e480-6d44-11e7-8c85-d848babe69f4.png)
 
 ### Want to talk to me
 Integrate me with [**Hubot**](https://hubot.github.com/docs). It's a talkative bot and all you need to know is a little bit of [CoffeScript](http://coffeescript.org/) and [Regular Expressions](https://www.w3schools.com/js/js_regexp.asp)

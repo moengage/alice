@@ -30,10 +30,10 @@ How to use
 
     `more details <https://github.com/moengage/alice/tree/master#want-to-hire-me>`_
 
-  3. Create `web-hook in github <https://developer.github.com/webhooks/creating/>`_ set it to <IP_WHERE_ALICE_IS_LISTNING>/alice
+  3. Create `web-hook in github <https://developer.github.com/webhooks/creating/>`_ set it to <IP_WHERE_ALICE_IS_LISTNING>:<PORT_NUMBER>/alice
   Example:
 
-  .. image:: https://cloud.githubusercontent.com/assets/12966925/25574851/72ea088c-2e6f-11e7-9ddf-9512a425729a.png
+  .. image:: https://user-images.githubusercontent.com/12966925/28403837-3c91e480-6d44-11e7-8c85-d848babe69f4.png
      :width: 300px
      :height: 100px
 

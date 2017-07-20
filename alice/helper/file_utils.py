@@ -2,8 +2,8 @@ import os
 import yaml
 import simplejson as json
 
-
 def get_dict_from_config_file(file_path):
+    from alice.helper.log_utils import LOG
     if file_path.endswith(".yaml"):
         data = get_dict_from_yaml(file_path)
     elif file_path.endswith(".json"):
@@ -11,7 +11,7 @@ def get_dict_from_config_file(file_path):
             with open(file_path) as data_file:
                 data = json.load(data_file)
         except Exception as e:
-            print "\nPlease validate your config file, if it is correct. Can use https://jsonlint.com/ to debug quicker"
+            LOG.error("\nPlease validate your config file, if it is correct. Can use https://jsonlint.com/ to debug quicker")
             raise (e)
     else:
         raise Exception("Config Format mismatch: The config file should be either yaml or json type")
@@ -19,12 +19,13 @@ def get_dict_from_config_file(file_path):
 
 
 def get_dict_from_yaml(file_path):
+    from alice.helper.log_utils import LOG
     data = {}
     with open(file_path, 'r') as stream:
         try:
             data = yaml.load(stream)
         except yaml.YAMLError as exc:
-            print "\nPlease validate your config file, if it is correct. Can use http://www.yamllint.com/ to debug quicker"
+            LOG.error("\nPlease validate your config file, if it is correct. Can use http://www.yamllint.com/ to debug quicker")
             raise (exc)
     return data
 
@@ -65,6 +66,6 @@ def create_if_not_found(file_name):
 
 
 def clear_file(_file):
-    print "************** CLEARNING FILE=" +_file
+    LOG.debug("************** CLEARNING FILE=" +_file)
     open(_file, 'w').close()
 

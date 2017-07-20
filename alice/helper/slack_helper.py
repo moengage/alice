@@ -14,7 +14,14 @@ class SlackHelper(object):
                     "**************  %s      *************\n"
                     "Message= %s\n"
                     "******************************************* " % (channel, msg))
-        self.slack.chat.post_message(channel=channel, text=msg, icon_url=self.icon, as_user=as_user, *args, **kwargs)
+        try:
+            self.slack.chat.post_message(channel=channel, text=msg, icon_url=self.icon, as_user=as_user, *args, **kwargs)
+        except Exception as ex:
+            LOG.error("Error while posting alert to slack, please check if: \n1. The provided slack/hubot token for alice is correct " \
+                  "and it has access to the channel=%s" \
+                  "\n2.The channel name is correct\n" %(channel))
+            raise ex
+
 
     def directSlack(self, person, msg=None, as_user=False, *args, **kwargs):
         if self.config.is_debug:

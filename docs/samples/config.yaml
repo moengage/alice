@@ -2,7 +2,7 @@
 organisation: '' #give your GITHUB organisation name
 tokens:
   github: '' #give your local alice's GITHUB TOKEN
-  slack: '' #give your local alice's slack TOKEN
+  slack: '' #give your local alice's slack TOKEN, make sure this token has access in your slack channels
   jenkins: '' #give your jekin's alice's jenkins TOKEN
 
 dev_ops_team: "@p1 @p2" #your devOps team slack names preceeded by @
@@ -55,7 +55,7 @@ repo:
     code_channel: "#repo1-code" #1 slack channel name in which merged pull request info shoudl be notified
     alert_channel: "#weekly-releases" #1 slack channel name in which alerts should be posted
     notify_direct: # settings for direct message on slack
-      person_to_be_notified: "@yashwanth" #1 person for any activity notify this person, generally the lead for this repo
+      person_to_be_notified: "@p1" #1 person for any activity notify this person, generally the lead for this repo
       action_to_be_notified_on: 'opened' #1 github action Ex. ["opened", "repoened", "merged"]
       branch_list_to_be_notified: #type:list ::direct notification on these branches for action set above
       - dev
