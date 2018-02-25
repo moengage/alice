@@ -122,7 +122,7 @@ Here is the full [product board](https://github.com/moengage/alice/projects/1)
 - Problems at work :smile:
 - [Hitesh Mantrala](https://github.com/hittudiv) for giving it a start.
 - [Akshay Goel](https://github.com/akgoel-mo) for the incessant support.
-- [Satyanarayan Saini](https://github.com/satyamoengage) & [Yashwanth Kumar](https://github.com/yashwanth2) for having faith in me.
+- [Satyanarayan Saini](https://github.com/satyamoengage), [Yashwanth Kumar](https://github.com/yashwanth2), [Philip Paeps](https://trouble.is/who/), and [Oren Rubin](https://twitter.com/shexman)
 - Team [MoEngage](http://moengage.com/) for helping me pass through User Acceptance Testing.
 - Jenkins Community for ideas
 - [GitHub Api docs](https://developer.github.com/)
