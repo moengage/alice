@@ -1,24 +1,25 @@
 ### Alice
-A bot for code monitoring and more...
+A bot for automating Repetitive Communication tasks and Release Quality Monitoring
 ________________________________
 
-Hi, I'm alice, made with :heart: on top of [python](https://www.python.org/) using [Flask](http://flask.pocoo.org/).
-For any team, I prevent [last minute chaos situations](https://github.com/moengage/alice/blob/master/README.md#why-me?) and improve Quality Assurance (Oh yes! it's possible with me)
+Hi, I'm alice. For any team, I prevent [last minute chaos situations](https://github.com/moengage/alice/blob/master/README.md#why-me?) and improve Quality Assurance (Oh yes! it's possible with me)
 
 I'm your friendly robot sidekick. Integrate me with your product to dramatically improve your Release process (Pre and Post)
+
+### Tech 
+I'm made with :heart: on top of [python](https://www.python.org/) using [Flask](http://flask.pocoo.org/).
 
 ### Why Me?
 Imagine your standard release day and a sudden **roadblock** is encountered.
 Everyone in your team is running around with questions like:
 
-- Which build is breaking the feature/code?
+- Which build broke the master branch?
+- Whom should I reach out to get this fixed?
 - Did we miss any steps while deploying code to staging?
-- How had it been merged without review?
-- How did it get passed through test cases, didn't they run?
+- How did it get passed through the checks, didn't they run?
 - Which code to revert to, to fix this quickly?
-- Who should I reach out to, for this?
 - Were these configuration or dependency changes?
-- Were these changes well informed to devOps team?
+- Were these changes well informed to release/devOps team?
 - How not to miss the respective DB/config/JS/dependency update changes from next time?
 
 Are you looking for a **free automated** solution which can, not only prevent these but also improve the collaboration and productivity of your team by performing the required *code supervision* tasks.
@@ -58,10 +59,10 @@ For all [sensitive branches](https://github.com/moengage/alice/blob/master/docs/
 
    2.2 Create your team specific input config file [setup config file](https://github.com/moengage/alice/blob/master/docs/setup_config.md)
 
-   2.3 Start Alice (either of the 1 way):
+   2.3 Start Alice (Any of one way):
 
    Modify the commands with particular config.yaml or config.json file path & port number
- 	-  run as flask app
+ 	-  Run as flask app
 
       	```
       	export FLASK_APP=alice config='config.yaml'; flask run --host 0.0.0.0 --port 5005
@@ -71,7 +72,7 @@ For all [sensitive branches](https://github.com/moengage/alice/blob/master/docs/
         ![image](https://cloud.githubusercontent.com/assets/12966925/25900478/3c801d38-35b1-11e7-9701-ee9a1ebb134f.png)
 
       or
-    -  run as uwsgi process (Install uwsgi>=2.0.14 on machine yourself for using this)
+    -  Run as uwsgi process (Install uwsgi>=2.0.14 on machine yourself for using this)
 
       	```
       	export config="config.yaml"; uwsgi --socket 0.0.0.0:5005 --protocol=http -w alice --callable app
@@ -121,11 +122,12 @@ Here is the full [product board](https://github.com/moengage/alice/projects/1)
 - Problems at work :smile:
 - [Hitesh Mantrala](https://github.com/hittudiv) for giving it a start.
 - [Akshay Goel](https://github.com/akgoel-mo) for the incessant support.
-- [Satyanarayan Saini](https://github.com/satyamoengage) & [Yashwanth Kumar](https://github.com/yashwanth2) for having faith in me.
+- [Satyanarayan Saini](https://github.com/satyamoengage), [Yashwanth Kumar](https://github.com/yashwanth2), [Philip Paeps](https://trouble.is/who/), and [Oren Rubin](https://twitter.com/shexman)
 - Team [MoEngage](http://moengage.com/) for helping me pass through User Acceptance Testing.
 - Jenkins Community for ideas
 - [GitHub Api docs](https://developer.github.com/)
 - [Slack Api docs](https://api.slack.com/)
 - [Hubot community](https://github.com/github/hubot)
+
 
 
