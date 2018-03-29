@@ -44,7 +44,7 @@ For all [sensitive branches](https://github.com/moengage/alice/blob/master/docs/
 - Notify on specific [action on a Pull Request](https://github.com/moengage/alice/blob/master/docs/checks.md#notify-on-commits)
 - [Custom check](https://github.com/moengage/alice/blob/master/docs/extend_alice.md#adding-more-checks) implementations
 
-**Note:** I am currently implemented for [Github](https://github.com/) & [Slack](https://slack.com/) users only. However I can be expanded to support other platforms as well. Please read [here](https://github.com/moengage/alice#want-to-contribute)
+**Note:** I am currently implemented for [Github](https://github.com/) & [Slack](https://slack.com/) users only. However I can be expanded to support other platforms as well. Please read [here](https://github.com/moengage/alice#willing-to-contribute)
 
 ### Want to hire me?
 

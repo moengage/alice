@@ -19,7 +19,7 @@ MSG_AUTO_CLOSE = "alice have auto-closed it because she sensed it an accidental 
                  "can be merged to \"{main_branch}\") \n Alice is smart! Be like Alice!"
 
 GENERAL_COMMENT = {"body": "Did you remember to?\n"
-                           "- [ ] Add Test Case(s)"
+                           "- [ ] Add Test Case(s)\n"
                            "- [ ] P0 Tests Executed EndToEnd?"
                    }
 
