@@ -34,7 +34,7 @@ class ConfigProvider(object):
 
     @property
     def repo(self):
-        return self.config.get("repo").get(self.repo_name, {})
+        return self.config.get("repo", {}).get(self.repo_name, {})
 
     @property
     def sensitiveBranches(self):
@@ -80,7 +80,10 @@ class ConfigProvider(object):
     def alertChannelName(self):
         if self.is_debug:
             return self.debug_channel
-        return self.repo.get('alert_channel')
+        alert_channel = self.config.get('alert_channel')
+        if self.repo and repo.get('alert_channel'): #override repo wise settings
+            alert_channel = self.repo.get('alert_channel')
+        return alert_channel
 
     @property
     def cc_tech_team(self):
@@ -168,3 +171,7 @@ class ConfigProvider(object):
     @property
     def timezone(self):
         return self.config.get("timezone", "")
+
+    @property
+    def inspector(self):
+        return self.config.get("inspector", "")
