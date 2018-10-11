@@ -81,7 +81,7 @@ class ConfigProvider(object):
         if self.is_debug:
             return self.debug_channel
         alert_channel = self.config.get('alert_channel')
-        if self.repo and repo.get('alert_channel'): #override repo wise settings
+        if self.repo and self.repo.get('alert_channel'): #override repo wise settings
             alert_channel = self.repo.get('alert_channel')
         return alert_channel
 
