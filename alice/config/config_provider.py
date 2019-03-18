@@ -8,7 +8,8 @@ class ConfigProvider(object):
 
     def __init__(self, repo):
         config_file = os.environ["config"]
-        LOG.info("********** config file=" + config_file)
+        #LOG.info("********** config file=" + config_file)
+        LOG.info("********** config file={config_file}".format(config_file=config_file))
         # absolute path to keep file anywhere
         self.config = get_dict_from_config_file(config_file)
         self.repo_name = repo
