@@ -1,5 +1,5 @@
 ### Alice
-A bot for automating Repetitive Communication tasks and Release Quality Monitoring
+A bot  for automating Repetitive Communication tasks and Release Quality Monitoring
 ________________________________
 
 Hi, I'm alice. For any team, I prevent [last minute chaos situations](https://github.com/moengage/alice/blob/master/README.md#why-me?) and improve Quality Assurance (Oh yes! it's possible with me)
