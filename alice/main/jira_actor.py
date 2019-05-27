@@ -95,7 +95,7 @@ class JiraActor():
             attach["text"] = attach.get("text").format(issue_desc=self.parsed_data.issue_description)
             attachment.append(attach)
         slack = Slacker(self.slack_token)
-        resp = slack.chat.post_message(channel='<@{0}>'.format(assignee_slack_channel_id), text="", username="alice", as_user=False, attachments=attachment)
+        resp = slack.chat.post_message(channel=str(assignee_slack_channel_id), text="", username="alice", as_user=False, attachments=attachment)
 
 
     def issue_create_handler(self):
@@ -120,7 +120,7 @@ class JiraActor():
         attach["fields"] = fields
         attachment.append(attach)
         slack = Slacker(self.slack_token)
-        resp = slack.chat.post_message(channel='<@{0}>'.format(assignee_slack_channel_id), text="", username="alice", as_user=False, attachments=attachment)
+        resp = slack.chat.post_message(channel=str(assignee_slack_channel_id), text="", username="alice", as_user=False, attachments=attachment)
 
             
 
