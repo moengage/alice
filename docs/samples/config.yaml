@@ -4,6 +4,7 @@ tokens:
   github: '' #give your local alice's GITHUB TOKEN
   slack: '' #give your local alice's slack TOKEN, make sure this token has access in your slack channels
   jenkins: '' #give your jekin's alice's jenkins TOKEN
+  jira: '' #give your local alice's JIRA TOKEN
 
 dev_ops_team: "@p1 @p2" #your devOps team slack names preceeded by @
 qa_team: "@p1 @p2"  #your QA team memebr slack names
