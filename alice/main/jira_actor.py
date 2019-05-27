@@ -27,7 +27,6 @@ class JiraActor():
     def fetch_users(self):
         if self.parsed_data.comment:
             self.tagged_users = re.findall("\[~(.*?)\]", self.parsed_data.comment)
-            print '*********** tagges users **********', self.tagged_users
             return self.tagged_users
         else:
             return []
@@ -48,7 +47,6 @@ class JiraActor():
                 raise Exception(response["content"], "Please check the provided Jira Token, ")
             response = json.loads(response['content'])
             self.jira_dict[user] = response.get('emailAddress')
-        print '*********** jira users **********', self.jira_dict
         return self.jira_dict
     
     def slack_jira_map(self):
@@ -56,7 +54,6 @@ class JiraActor():
             for item in self.jira_dict:
                 if self.slack_dict.has_key(self.jira_dict[item]):
                     self.js_map_dict[item] = self.slack_dict[self.jira_dict[item]]
-        print '************* jira slack map dict ************', self.js_map_dict
         return self.js_map_dict
 
     def send_to_slack(self):
@@ -72,9 +69,8 @@ class JiraActor():
         attachment = list()
         attachment.append(first_attach)
         slack = Slacker(self.slack_token)
-        resp = slack.chat.post_message(channel="@Nagaraj", text="", username="alice", as_user=False, attachments=attachment)
-        # for item in self.js_map_dict:
-        #     resp = slack.chat.post_message(channel=self.js_map_dict.get(item), text="", username="alice", as_user=False, attachments=attachment)
+        for item in self.js_map_dict:
+            resp = slack.chat.post_message(channel=self.js_map_dict.get(item), text="", username="alice", as_user=False, attachments=attachment)
 
     def issue_update_handler(self):
         assignee_slack_channel_id = self.slack_dict.get(self.parsed_data.assignee_email)
@@ -99,7 +95,7 @@ class JiraActor():
             attach["text"] = attach.get("text").format(issue_desc=self.parsed_data.issue_description)
             attachment.append(attach)
         slack = Slacker(self.slack_token)
-        resp = slack.chat.post_message(channel="@Nagaraj", text="", username="alice", as_user=False, attachments=attachment)
+        resp = slack.chat.post_message(channel='<@{0}>'.format(assignee_slack_channel_id), text="", username="alice", as_user=False, attachments=attachment)
 
 
     def issue_create_handler(self):
@@ -124,7 +120,7 @@ class JiraActor():
         attach["fields"] = fields
         attachment.append(attach)
         slack = Slacker(self.slack_token)
-        resp = slack.chat.post_message(channel="@Nagaraj", text="", username="alice", as_user=False, attachments=attachment)
+        resp = slack.chat.post_message(channel='<@{0}>'.format(assignee_slack_channel_id), text="", username="alice", as_user=False, attachments=attachment)
 
             
 

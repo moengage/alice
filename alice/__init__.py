@@ -29,15 +29,7 @@ def jira():
     if request.method == 'POST':
         payload = request.get_data()
         data = json.loads(unicode(payload, errors='replace'), strict=False)
-        if data.get("webhookEvent") ==  "jira:issue_created":
-            LOG.info("************ issue created data ************* %s" % data)
-        if data.get("webhookEvent") ==  "jira:issue_updated":
-            LOG.info("************ issue update data ************* %s" % data)
-        if data.get("webhookEvent") ==  "comment_created":
-            LOG.info("************ comment created data ************* %s" % data)
         parsed_data = JiraPayloadParser(request, data)
-        LOG.info("*********** data ********** %s" % parsed_data.comment)
-        LOG.info("*********** data ********** %s" % parsed_data.change_log)
         actor_obj = JiraActor(parsed_data)
         if parsed_data.webhook_event == "jira:issue_updated":
             actor_obj.get_slack_users()
