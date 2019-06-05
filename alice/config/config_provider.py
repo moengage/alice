@@ -6,7 +6,7 @@ from alice.helper.log_utils import LOG
 class ConfigProvider(object):
     # __metaclass__ = SingletonMetaClass
 
-    def __init__(self, repo):
+    def __init__(self, repo=None):
         config_file = os.environ["config"]
         #LOG.info("********** config file=" + config_file)
         LOG.info("********** config file={config_file}".format(config_file=config_file))
@@ -28,6 +28,14 @@ class ConfigProvider(object):
     @property
     def slackToken(self):
         return self.config.get('tokens').get("slack")
+
+    @property
+    def jiraToken(self):
+        return self.config.get('tokens').get("jira")
+
+    @property
+    def jiraDomain(self):
+        return self.config.get('jira_domain')
 
     @property
     def is_debug(self):

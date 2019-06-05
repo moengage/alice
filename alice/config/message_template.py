@@ -74,3 +74,20 @@ RELEASE_NOTES_REMINDER = "|Final Reminder| :raising_hand: \n Hi {msg}\n There ar
                          " \t\tcc: {qa_team}"
 
 DATA_SAVE_MERGED = ":beer: Title=\"{title}\",  Description=\"{desc}\" \nPR: {pr} By: @{by}"
+
+
+JIRA_COMMENT = {
+                    "pretext": "*{commenter}* commented on issue {issue_key}",
+                    "title": "{issue_key} - {issue_title}",
+                    "title_link": "{issue_url}",
+                    "text": "{final_text}",
+                    "color": "#7CD197"
+            }
+
+JIRA_ISSUE_UPDATE = {
+                        "pretext": "*{issue_updated_by}* updated {issue_key} `{field}` from `{from_string}` to `{to_string}`",
+                        "title": "{issue_key} - {issue_title}",
+                        "title_link": "{issue_url}",
+                        "text": "{issue_desc}",
+                        "color": "#7CD197"
+            }
