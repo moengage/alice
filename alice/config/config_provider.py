@@ -34,6 +34,10 @@ class ConfigProvider(object):
         return self.config.get('tokens').get("jira")
 
     @property
+    def jiraDomain(self):
+        return self.config.get('jira_domain')
+
+    @property
     def is_debug(self):
         return self.config.get("debug", False)
 

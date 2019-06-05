@@ -1,3 +1,4 @@
+# coding=utf-8
 from alice.config.config_provider import ConfigProvider
 from alice.helper.common_utils import CommonUtils
 from alice.helper.log_utils import LOG
@@ -10,10 +11,15 @@ class Base(object):
 class JiraPayloadParser(Base):
 
     def __init__(self, request, payload):
+        self.assignee = dict()
         self.request = request
         self.payload = payload
         self.issue = payload["issue"]
         self.config = ConfigProvider()
+
+        if isinstance(self.issue["fields"].get("assignee"), dict):
+            self.assignee = self.issue["fields"].get("assignee")
+
 
     @property
     def webhook_event(self):
@@ -21,7 +27,7 @@ class JiraPayloadParser(Base):
 
     @property
     def comment(self):
-        return self.payload.get("comment", {}).get("body")
+        return (self.payload.get("comment", {}).get("body")).encode(encoding="utf-8")
 
     @property
     def commenter(self):
@@ -29,15 +35,16 @@ class JiraPayloadParser(Base):
 
     @property
     def assignee_name(self):
-        return self.issue["fields"].get("assignee",{}).get("name")
+        return self.assignee.get("name")
 
     @property
     def assignee_key(self):
-        return self.issue["fields"].get("assignee",{}).get("key")
+        return self.assignee.get("key")
 
     @property
     def assignee_email(self):
-        return self.issue["fields"].get("assignee",{}).get("emailAddress")
+
+        return self.assignee.get("emailAddress")
 
     @property
     def change_log(self):
@@ -64,15 +71,20 @@ class JiraPayloadParser(Base):
         return self.issue['fields'].get('reporter', {}).get('displayName')
 
     @property
+    def issue_reporter_email(self):
+        return self.issue['fields'].get('reporter', {}).get('emailAddress')
+
+    @property
     def issue_description(self):
         desc = self.issue['fields'].get('description', '')
-        desc = desc.encode(encoding="utf-8")
+        if desc:
+            desc = desc.encode(encoding="utf-8")
         return desc
 
     @property
     def issue_updated_by(self):
         return self.payload.get('user', {}).get('displayName')
 
-        
-
-
+    @property
+    def issue_updated_by_email(self):
+        return self.payload.get('user', {}).get('emailAddress')

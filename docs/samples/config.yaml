@@ -6,6 +6,8 @@ tokens:
   jenkins: '' #give your jekin's alice's jenkins TOKEN
   jira: '' #give your local alice's JIRA TOKEN
 
+jira_domain: "" # give your jira domain name
+
 dev_ops_team: "@p1 @p2" #your devOps team slack names preceeded by @
 qa_team: "@p1 @p2"  #your QA team memebr slack names
 debug: true  #To test your setup with alice, set it false when you take live

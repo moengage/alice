@@ -21,22 +21,24 @@ def home():
     return "************ Welcome to the wonderful world of Alice ***********"
 
 
-# view to handel data coming from jira webhook
+# view to handle data coming from jira webhook
 @app.route("/alice/jira", methods=['GET', 'POST'])
-def jira():
+def jira_integration():
     if request.method == 'GET':
         return "************ listening from jira webhook ***********"
     if request.method == 'POST':
         payload = request.get_data()
+        print("************* payload ***************", payload)
         data = json.loads(unicode(payload, errors='replace'), strict=False)
+        print("************* data ***************", data)
         parsed_data = JiraPayloadParser(request, data)
         actor_obj = JiraActor(parsed_data)
         if parsed_data.webhook_event == "jira:issue_updated":
             actor_obj.get_slack_users()
-            actor_obj.issue_update_handler()
+            actor_obj.handle_issue_update()
         elif parsed_data.webhook_event == "jira:issue_created":
             actor_obj.get_slack_users()
-            actor_obj.issue_create_handler()
+            actor_obj.handle_issue_create()
         else:
             actor_obj.fetch_users()  # fetch users mentioned in jira comment which are jira user key
             actor_obj.fetch_email()  # fetch respective email of users mentioned in jira comment using jira user keys

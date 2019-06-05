@@ -1,28 +1,37 @@
-from alice.helper.api_manager import ApiManager
-from alice.helper.log_utils import LOG
-from alice.helper.constants import API_JIRA_USERS, API_JIRA_USERS_ACCOUNTID
-from alice.config.message_template import JIRA_COMMENT, JIRA_ISSUE_UPDATE
-from slacker import Slacker
+# coding=utf-8
 import json
 import re
+
 import requests
+from slacker import Slacker
+
+from alice.config.message_template import JIRA_COMMENT, JIRA_ISSUE_UPDATE
+from alice.helper.api_manager import ApiManager
+from alice.helper.constants import API_JIRA_USERS, API_JIRA_USERS_ACCOUNTID
+from alice.helper.log_utils import LOG
+
 
 class JiraActor():
     def __init__(self, parsed_data):
         self.parsed_data = parsed_data
         self.jira_token = parsed_data.config.jiraToken
         self.slack_token = parsed_data.config.slackToken
+        self.jira_domain = parsed_data.config.jiraDomain
         self.tagged_users = list()
         self.jira_dict = dict()
         self.js_map_dict = dict()
         self.slack_dict = dict()
+        self.description = ''
+
+        if parsed_data.issue_description:
+            self.description = parsed_data.issue_description
 
     def get_slack_users(self):
         slack = Slacker(self.slack_token)
         resp = slack.users.list()
         users = resp.body.get('members')
         for item in users:
-            self.slack_dict[item["profile"].get("email","bot@gmail.com")] = item["id"]
+            self.slack_dict[item["profile"].get("email")] = item["id"]
 
     def fetch_users(self):
         if self.parsed_data.comment:
@@ -39,9 +48,9 @@ class JiraActor():
         for user in self.tagged_users:
             if 'accountid:' in user:
                 account_id = user.replace('accountid:', '')
-                url = API_JIRA_USERS_ACCOUNTID.format(account_id=account_id)
+                url = API_JIRA_USERS_ACCOUNTID.format(account_id=account_id, jira_domain=self.jira_domain)
             else:
-                url = API_JIRA_USERS.format(user_key=user)
+                url = API_JIRA_USERS.format(user_key=user, jira_domain=self.jira_domain)
             response = ApiManager.get(url=url, headers=headers)
             if response["status_code"] != 200:
                 raise Exception(response["content"], "Please check the provided Jira Token, ")
@@ -72,33 +81,43 @@ class JiraActor():
         for item in self.js_map_dict:
             resp = slack.chat.post_message(channel=self.js_map_dict.get(item), text="", username="alice", as_user=False, attachments=attachment)
 
-    def issue_update_handler(self):
+    def handle_issue_update(self):
         assignee_slack_channel_id = self.slack_dict.get(self.parsed_data.assignee_email)
+        reporter_slack_channel_id = self.slack_dict.get(self.parsed_data.issue_reporter_email)
         LOG.info('*********** assigne slack channel id update handler ************ %s' % assignee_slack_channel_id)
+        LOG.info('*********** reporter slack channel id update handler ************ %s' % reporter_slack_channel_id)
         attachment = list()
         for change in self.parsed_data.change_log:
             attach = JIRA_ISSUE_UPDATE.copy()
-            if change.get('fromString'):
-                attach['pretext'] = attach.get("pretext").format(issue_updated_by=self.parsed_data.issue_updated_by,
-                                                                issue_key=self.parsed_data.issue_key,
-                                                                field=change.get('field'),
-                                                                from_string=change.get('fromString'),
-                                                                to_string=change.get('toString'))
-            else:
-                attach['pretext'] = "*{issue_updated_by}* updated {issue_key} `{field}` to `{to_string}`".format(
+            if change.get("field") == "description":
+                attach['pretext'] = "*{issue_updated_by}* updated {issue_key} `{field}`".format(
                                                                 issue_updated_by=self.parsed_data.issue_updated_by,
                                                                 issue_key=self.parsed_data.issue_key,
                                                                 field=change.get('field'),
-                                                                to_string=change.get('toString'))
+                                                                )
+            else:
+                if change.get('fromString'):
+                    attach['pretext'] = attach.get("pretext").format(issue_updated_by=self.parsed_data.issue_updated_by,
+                                                                    issue_key=self.parsed_data.issue_key,
+                                                                    field=change.get('field'),
+                                                                    from_string=change.get('fromString'),
+                                                                    to_string=change.get('toString'))
+                else:
+                    attach['pretext'] = "*{issue_updated_by}* updated {issue_key} `{field}` to `{to_string}`".format(
+                                                                    issue_updated_by=self.parsed_data.issue_updated_by,
+                                                                    issue_key=self.parsed_data.issue_key,
+                                                                    field=change.get('field'),
+                                                                    to_string=change.get('toString'))
             attach["title"] = attach.get("title").format(issue_key=self.parsed_data.issue_key, issue_title=self.parsed_data.issue_title)
             attach["title_link"] = attach.get("title_link").format(issue_url=self.parsed_data.issue_url)
-            attach["text"] = attach.get("text").format(issue_desc=self.parsed_data.issue_description)
+            attach["text"] = attach.get("text").format(issue_desc=self.description)
             attachment.append(attach)
         slack = Slacker(self.slack_token)
+        resp = slack.chat.post_message(channel=str(reporter_slack_channel_id), text="", username="alice", as_user=False, attachments=attachment)
         resp = slack.chat.post_message(channel=str(assignee_slack_channel_id), text="", username="alice", as_user=False, attachments=attachment)
 
 
-    def issue_create_handler(self):
+    def handle_issue_create(self):
         assignee_slack_channel_id = self.slack_dict.get(self.parsed_data.assignee_email)
         LOG.info('*********** assigne slack channel id create handler ************ %s' % assignee_slack_channel_id)
         attachment = list()
@@ -121,8 +140,3 @@ class JiraActor():
         attachment.append(attach)
         slack = Slacker(self.slack_token)
         resp = slack.chat.post_message(channel=str(assignee_slack_channel_id), text="", username="alice", as_user=False, attachments=attachment)
-
-            
-
-
-
