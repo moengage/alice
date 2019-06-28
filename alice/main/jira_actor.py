@@ -80,7 +80,7 @@ class JiraActor():
         slack = Slacker(self.slack_token)
         # resp = slack.chat.post_message(channel="@Nagaraj", text="", username="alice", as_user=False, attachments=attachment)
         for item in self.js_map_dict:
-            resp = slack.chat.post_message(channel=self.js_map_dict.get(item), text="", username="alice", as_user=True, attachments=attachment)
+            slack.chat.post_message(channel=self.js_map_dict.get(item), text="", username="alice", as_user=True, attachments=attachment)
 
     def handle_issue_update(self):
         assignee_slack_channel_id = self.slack_dict.get(self.parsed_data.assignee_email)
@@ -119,9 +119,9 @@ class JiraActor():
         slack = Slacker(self.slack_token)
         # resp = slack.chat.post_message(channel="@Nagaraj", text="", username="alice", as_user=True, attachments=attachment)
         if issue_updated_email_id == issue_reporter_email_id and issue_updated_email_id != assignee_email_id:
-            resp = slack.chat.post_message(channel=str(assignee_slack_channel_id), text="", username="alice", as_user=True, attachments=attachment)
+            slack.chat.post_message(channel=str(assignee_slack_channel_id), text="", username="alice", as_user=True, attachments=attachment)
         elif issue_updated_email_id == assignee_email_id and issue_updated_email_id != issue_reporter_email_id:
-            resp = slack.chat.post_message(channel=str(reporter_slack_channel_id), text="", username="alice", as_user=True, attachments=attachment)
+            slack.chat.post_message(channel=str(reporter_slack_channel_id), text="", username="alice", as_user=True, attachments=attachment)
         
 
 
@@ -148,4 +148,4 @@ class JiraActor():
         attachment.append(attach)
         slack = Slacker(self.slack_token)
         # resp = slack.chat.post_message(channel="@Nagaraj", text="", username="alice", as_user=True, attachments=attachment)
-        resp = slack.chat.post_message(channel=str(assignee_slack_channel_id), text="", username="alice", as_user=True, attachments=attachment)
+        slack.chat.post_message(channel=str(assignee_slack_channel_id), text="", username="alice", as_user=True, attachments=attachment)
