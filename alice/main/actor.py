@@ -11,11 +11,23 @@ from alice.helper.constants import THUMBS_UP_ICON
 from alice.helper.github_helper import GithubHelper
 from alice.helper.github_helper import PRFilesNotFoundException
 from alice.helper.slack_helper import SlackHelper
+from alice.helper.jenkins_helper import JenkinsHelper
 from alice.helper.log_utils import LOG
 from datetime import datetime
 import time
 import pytz
 import shutil
+import datetime
+import traceback
+
+from alice.helper.api_manager import ApiManager
+
+
+class PRFilesNotFoundException(Exception):
+    def __init__(self, pr_response):
+        self.pr_response = pr_response
+        super(PRFilesNotFoundException, self).__init__(str(self.pr_response))
+
 
 class Actor(Base):
     
@@ -23,6 +35,7 @@ class Actor(Base):
         self.pr = pr
         self.github = GithubHelper(self.pr)
         self.slack = SlackHelper(self.pr.config)
+        self.jenkins = JenkinsHelper(self.pr)
         self.change_requires_product_plus1 = False
         self.is_product_plus1 = False
         self.sensitive_file_touched = {}
@@ -60,6 +73,8 @@ class Actor(Base):
         """
         change_requires_product_plus1 = False
         sensitive_file_touched = {}
+        if self.pr.config.sensitiveFiles is None:
+            return sensitive_file_touched, change_requires_product_plus1
         try:
             files_contents = self.github.get_files()
             LOG.info("**** Reading files ****")
@@ -228,7 +243,6 @@ class Actor(Base):
             return {"msg": "skipped slack personally because not sensitive branch"}
         return {"msg": "skipped slack personally to %s because its not merge event" % self.created_by}
 
-
     def close_dangerous_pr(self):
         """
         close a Pull Request which is not supposed to be opened Ex. base=master head=feature
@@ -361,7 +375,6 @@ class Actor(Base):
             self.slack.postToSlack(channel=self.pr.config.alertChannelName, msg=msg)
             self.clean_up_for_next_cycle()
 
-
     def clean_up_for_next_cycle(self):
         """ backup & clean-up file for next release """
         shutil.copy(self.pr.config.releaseItemsFilePath, self.pr.config.backupFilesPath + '_'
@@ -370,5 +383,116 @@ class Actor(Base):
         clear_file(self.pr.config.releaseItemsFilePath)  # clear file for next release content
         # NOTE: user has to manually delete data added when in debug mode
 
+    def add_label_to_issue(self, repo, pr_no, list_labels):
+        """
+         Example : self.set_labels("MoEngage", 13319, ["Alice_test2"])
+         :return:
+         """
+        api_label = "https://api.github.com/repos/moengage/%s/issues/%s/labels" % (repo, str(pr_no))
+        headers = {"Authorization": "token " + self.github.GITHUB_TOKEN}
+        return ApiManager.post(api_label, headers, json.dumps(list_labels))
 
+    def diff_files_commits(self,repo):
+        return
 
+    def get_files_pull_request(self, files_endpoint):
+        """
+        Here we get files pages in paginated way as github has restricted the response to 300 files.
+        Inputo : url of pull request
+        :return:
+        """
+        files_list = []
+        page_no = 1
+        while True:
+            url_with_page = files_endpoint + "?page=%s" % page_no
+            headers = {"Authorization": "token " + self.github.GITHUB_TOKEN}
+            response = ApiManager.get(url_with_page, headers)
+            req = response["response"].request
+            self.print_curl(req)
+            res = json.loads(response["content"])
+            if not res or (isinstance(res, dict) and "limit exceeded" in res.get("message")):
+                break
+            files_list += res
+            page_no += 1
+        return files_list, ""  # For specific commit, it's inside "files" key
+
+    def get_files_commit(self, files_endpoint):
+        """
+        Input : url of pull request
+        :return:
+        TODO docstring
+        """
+        files_endpoint = self.pr.link
+        response = ApiManager.get(files_endpoint, {"Authorization": "token " + self.github.GITHUB_TOKEN})
+        res = json.loads(response.get("content"))
+        try:
+            return res.get("files"), res.get("commit").get("message")  # For specific commit, it's inside files
+        except Exception:
+            return res
+
+    def get_files(self, files_endpoint):
+        if "files" in files_endpoint:
+            files_content, message = self.get_files_pull_request(files_endpoint)
+        if "commits" in files_endpoint:
+            files_content, message = self.get_files_commit(files_endpoint)
+        if not self.is_pr_file_content_available(files_content):
+            raise PRFilesNotFoundException(files_content)
+        return files_content, message
+
+    def is_pr_file_content_available(self, response):
+        return not (isinstance(response, dict) and 'message' in response and response['message'] == "Not Found")
+
+    def hit_jenkins_job(self, jenkins_instance, token, job_name, pr_link, params_dict, pr_by_slack):
+        a = datetime.datetime.now()
+        print("**Hitting Job {0} on PR link {1}".format(job_name, pr_link))
+        try:
+            print("params_dict %s token=%s" % (params_dict, token))
+            queue_info = jenkins_instance.get_queue_info()
+            print("queue size=", len(queue_info))
+            build_response = jenkins_instance.build_job(job_name, params_dict, {'token': token})
+            print("*** triggerd the job", build_response)
+            queue_info = jenkins_instance.get_queue_info()
+            print("queue size=", len(queue_info))
+            print("1st queue_info=", queue_info[0])
+            b = datetime.datetime.now()
+            c = b - a
+            print(int(c.total_seconds()), " seconds")
+            msg = "<@{0}> started job, PR by={0} PR={1}".format(
+                pr_by_slack, pr_link)
+            print(msg)
+        except Exception, e:
+            print(e)
+            traceback.print_exc()
+            raise Exception(e)
+
+    def run_for_angular(self, context_angular, job_dir, repo, pr_by_slack_name, is_change_angular, jenkins_instance, token, pr_by_slack_uid):
+        self.jenkins.changeStatus(self.pr.statuses_url, "pending", context=context_angular,
+                     description="Hold on!",
+                     details_link="")
+        job_name = job_dir + "shield_dashboard_angular"
+        params_dict = dict(repo=repo, head_branch=self.pr.head_branch, base_branch=self.pr.base_branch, sha=self.pr.head_sha,
+                                           description="Syntax Validation [React Code]", author=pr_by_slack_name,
+                                           author_github=self.pr.opened_by, pr_no=self.pr.link_pretty,
+                                           shield_angular=is_change_angular)
+        self.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token, job_name=job_name,
+                                   pr_link=self.pr.link_pretty,
+                                   params_dict=params_dict, pr_by_slack=pr_by_slack_uid)
+
+    def run_for_react(self, job_dir, repo, pr_by_slack_name, jenkins_instance, token,pr_by_slack_uid):
+        job_name = job_dir + "shield_dashboard_react_linter"
+        params_dict = dict(repo=repo, head_branch=self.pr.head_branch, base_branch=self.pr.base_branch,
+                           sha=self.pr.head_sha,
+                           description="Syntax Validation [React Code]", author=pr_by_slack_name,
+                           author_github=self.pr.opened_by, pr_no=self.pr.link_pretty,
+                           shield_react=True)
+        self.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token, job_name=job_name,
+                                   pr_link=self.pr.link_pretty,
+                                   params_dict=params_dict, pr_by_slack=pr_by_slack_uid)
+
+    def print_curl(self, req):
+        method = req.method
+        uri = req.url
+        headers = ['"{0}: {1}"'.format(k, v) for k, v in req.headers.items()]
+        headers = " -H ".join(headers)
+        command = "curl -X {method} -H {headers} '{uri}'"
+        print("************* cURL=", command.format(method=method, headers=headers, uri=uri))

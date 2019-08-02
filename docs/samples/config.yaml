@@ -1,7 +1,7 @@
 ---
-organisation: '' #give your GITHUB organisation name
+organisation: 'Moengage' #give your GITHUB organisation name
 tokens:
-  github: '' #give your local alice's GITHUB TOKEN
+  github: '0e0396b6f30f02cac9f3f8a3f8eb20a57356ac69' #give your local alice's GITHUB TOKEN
   slack: '' #give your local alice's slack TOKEN, make sure this token has access in your slack channels
   jenkins: '' #give your jekin's alice's jenkins TOKEN
   jira: '' #give your local alice's JIRA TOKEN
@@ -30,7 +30,7 @@ repo_list:  #type:list ::all repo names for which alice should monitor
 #### Repo wise settings ####
 # Can keep adding repo specific input as per requirement
 repo:
-  REPO_1:  #your repo name
+  MoEngage:  #your repo name
     checks: #type:list ::add/remove these checks for REPO_1. if given none: will trigger all the checks
     - close_dangerous_pr #names are case sensitive
     - tech_review
@@ -48,6 +48,10 @@ repo:
     sensitive_files: #type:list ::the files you want to protect
     - f1   #any change merged in these files, dev ops team would be notified
     - f2
+    shield:
+      -
+      -
+        -
     product_team: "@p1 @p2 @p3" # the slack names space separated (each name to start with @)
     product_plus_required_dir_pattern: 'dashboard' #give directory name/path for which product review is a must
     product_team_github_names: # the github names of all PM's whose plus+1 should be considered mandatory

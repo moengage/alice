@@ -9,8 +9,6 @@ app = Flask(__name__)
 
 @app.route("/alice", methods=['POST'])
 def alice():
-    if request.method != 'POST':
-        abort(501)
     payload = request.get_data()
     data = json.loads(unicode(payload, errors='replace'), strict=False)
     merge_correctness = RunChecks().run_checks(request, data)

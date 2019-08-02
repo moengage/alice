@@ -6,6 +6,7 @@ from alice.helper.constants import ISSUE_LINK, EXTEND_ALICE
 from alice.helper.log_utils import LOG
 from alice.checker_impl import CheckImpl
 
+
 class RunChecks(object):
     def execute_check(self, ci, check):
         LOG.debug("************* Starting check=%s *****************" % check)
@@ -36,8 +37,8 @@ class RunChecks(object):
                     if 'invalid_auth' not in e:
                         raise Exception(str(e) + ISSUE_FOUND.format(issue_link=ISSUE_LINK))
             return response
-        LOG.info("skipped because '%s' is not sensitive branch" % ci.base_branch)
-        return {"msg": "skipped because '%s' is not sensitive branch" % ci.base_branch}
+        LOG.info("skipped because '%s' is not sensitive branch" % ci.pr.base_branch)
+        return {"msg": "skipped because '%s' is not sensitive branch" % ci.pr.base_branch}
 
 
 class CheckNotFoundException(Exception):

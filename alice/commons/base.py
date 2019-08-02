@@ -30,7 +30,8 @@ class PushPayloadParser(Base):
 
     @property
     def merged_by(self):
-        return self.pr["merged_by"]["login"]
+        return "paras"
+      #  return self.pr["merged_by"]["login"]
 
     @property
     def merged_by_slack(self):
@@ -78,6 +79,8 @@ class PushPayloadParser(Base):
 
     @property
     def is_sensitive_branch(self):
+        if self.config.sensitiveBranches is None:
+            return None
         return self.base_branch in self.config.sensitiveBranches
 
     @property
@@ -88,4 +91,30 @@ class PushPayloadParser(Base):
     def description(self):
         return self.pr["body"]
 
+    @property
+    def head_ref(self):
+        return self.pr["base"]
 
+    @property
+    def head_label(self):
+        return self.pr["head"]["label"]
+
+    @property
+    def ssh_url(self):
+        return self.pr["head"]["repo"]["ssh_url"]
+
+    @property
+    def link_pr(self):
+        return self.payload["pull_request"]["_links"]["html"]["href"]
+
+    @property
+    def statuses_url(self):
+        return self.payload["pull_request"]["statuses_url"]
+
+    @property
+    def head_sha(self):
+        return self.payload["pull_request"]["head"]["sha"]
+
+    @property
+    def base_sha(self):
+        return self.payload["pull_request"]["base"]["sha"]

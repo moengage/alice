@@ -25,3 +25,47 @@ ISSUE_LINK= "https://github.com/moengage/alice/issues/new"
 THUMBS_UP_ICON = "\ud83d\udc4d"
 SLACK_ICON = "https://cloud.githubusercontent.com/assets/12966925/25132384/021095fc-2467-11e7-95c0-78917bf4d52a.png"
 bot_name = "alice"
+
+
+
+"""
+alice 3.0 constants
+"""
+
+auto_revert = False
+ui_change = False
+base_api_cmd = "https://api.github.com/repos/moengage/"
+ui_repo = ["dashboard-ui"]
+
+context = "shield-syntax-validator-python"
+context_react = "shield-linter-react"
+context_angular = "shield-linter-angular"
+
+package_builder_branches_repo_wise = {
+    "dashboard-ui": ["qa", "master"]
+}
+python_repo = ["MoEngage", "MoeDataScience", "mongoengine", "inapp-rest-service", "mongo", "segmentation",
+              "commons",
+              "moengcache", "MoeAbTesting", "apns_client", "Bugsy_Backend", "product-management",
+              "product-recommendation", "s2s", "email-campaigns", "campaigns-core", "url_tracking"]
+
+file_path = "/opt/alice/release_items.txt"
+file_mergedBy = "/opt/alice/release_mergedby.txt"
+code_freeze_details_path = "/opt/alice/code_freeze_details.txt"
+release_freeze_details_path = "/opt/alice/release_freeze_details.txt"
+job_dir = "moe_repo_shield/"
+job_name = job_dir + "CI_SyntaxValidator"
+context_description = "Syntax Validation"
+action_commit_to_investigate = ["opened", "open", "reopened", "synchronize"]
+jenkins_instance = jenkins.Jenkins(JENKINS_BASE, username=username, password=token)
+JENKINS_BASE = "http://ci.moengage.com:8080"
+username = "mojenkins"
+token = "f08036fd9280e68561746179a7baf48f"
+
+sensitive_branches_repo_wise = {"moengage": ["dev", "qa", "master"],
+                                "dashboard-ui": ["dev", "qa", "master"],
+                                "segmentation": ["develop", "release", "master", "qa"],
+                                "commons": ["develop", "release", "master", "qa"],
+                                "product-management": ["develop", "release", "master", "qa"]
+                                }
+sensitive_branches_default = ["develop", "release", "master", "qa", "dev"]
