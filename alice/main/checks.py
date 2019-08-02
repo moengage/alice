@@ -58,6 +58,25 @@ class Checks(object):
     def set_labels(self, repo, pr_no, list_labels):
         return self.actor.add_label_to_issue(repo, pr_no, list_labels)
 
+    def get_diff_files(self, repo):
+        return self.actor.diff_files_commits(repo)
+
+    def print_curl_test(self, req):
+        return self.actor.print_curl(req)
+
+    def get_files_task(self, file_endpoint):
+        return self.actor.get_files(file_endpoint)
+
+    def pull_request_file(self, file_endpoint):
+        return self.actor.get_files_pull_request(file_endpoint)
+
+    def pull_request_commit(self, file_endpoint):
+        return self.actor.get_files_commit(file_endpoint)
+
+    def hit_jenkins(self, jenkins_instance, token, job_name, pr_link, params_dict, pr_by_slack):
+        return self.actor.hit_jenkins_job(jenkins_instance, token, job_name, pr_link, params_dict, pr_by_slack)
+
+
     def print_curl_test(self, req):
         return self.actor.print_curl(req)
 
@@ -103,4 +122,3 @@ class Checks(object):
     #
     # def ci_unit_tests(self):
     #     pass
-

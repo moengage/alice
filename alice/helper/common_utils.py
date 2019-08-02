@@ -6,8 +6,12 @@ import json
 from alice.helper.api_manager import ApiManager
 from alice.helper.constants import API_GITHUB_MEMBERS_LIST, API_GITHUB_USERS, SLACK_USER_LIST
 from alice.helper.file_utils import get_dict_from_config_file
+
 from alice.config.config_provider import ConfigProvider
 
+git_mappings = {
+    "paras" : "UL91SP77H"
+}
 slack_mappings = {}
 
 
@@ -90,4 +94,3 @@ class CommonUtils(object):
                 # "http://www.cutestpaw.com/wp-content/uploads/2011/11/My-Best-Friend.jpg"}
                 # "https://s-media-cache-ak0.pinimg.com/236x/d3/e9/fc/d3e9fc222c9bd0d12e0ff126acf7df00.jpg"}
                 # "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcTQMP3_ng13f2qtljxGA5U_1SvxLd0Z_y6u-AHlrWcwyXeHYzzV"}
-

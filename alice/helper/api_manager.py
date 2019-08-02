@@ -36,5 +36,3 @@ class ApiManager(object):
             return response
         else:
             return response
-
-
