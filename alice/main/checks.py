@@ -58,14 +58,26 @@ class Checks(object):
     def set_labels(self, repo, pr_no, list_labels):
         return self.actor.add_label_to_issue(repo, pr_no, list_labels)
 
-    def get_diff_files(self, repo):
-        return self.actor.diff_files_commits(repo)
-
     def print_curl_test(self, req):
         return self.actor.print_curl(req)
 
     def get_files_task(self, file_endpoint):
         return self.actor.get_files(file_endpoint)
+
+    def code_freeze_alert(self):
+        return self.actor.code_freeze()
+
+    def release_freeze_alert(self):
+        return self.actor.release_alert()
+
+    def notify_pm(self):
+        return self.actor.alert_pm()
+
+    def valid_contributors(self):
+        return self.actor.check_valid_contributor()
+
+    def git_diff_repo(self):
+        return self.actor.get_diff()
 
     def pull_request_file(self, file_endpoint):
         return self.actor.get_files_pull_request(file_endpoint)

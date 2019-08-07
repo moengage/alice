@@ -48,13 +48,10 @@ class SlackHelper(object):
             else:
                 print("Skipped: Posting in Slack because channel name was:", channel)
         except Exception as ex:
-            pass
-            # msg = "<@UL91SP77H> Error in alice channel name %s"%channel
-            # self.slack.chat.post_message(channel=ALICE_ERROR, text=msg, icon_url=self.icon, as_user=as_user, *args, **kwargs)
-            # LOG.error("Error while posting alert to slack, please check if: \n1. The provided slack/hubot token for alice is correct " \
-            #       "and it has access to the channel=%s" \
-            #       "\n2.The channel name is correct\n" %(channel))
-            # raise ex
+            LOG.error("Error while posting alert to slack, please check if: \n1. The provided slack/hubot token for alice is correct " \
+                  "and it has access to the channel=%s" \
+                  "\n2.The channel name is correct\n" %(channel))
+            raise ex
 
     def directSlack(self, person, msg=None, as_user=False, *args, **kwargs):
         if self.config.is_debug:

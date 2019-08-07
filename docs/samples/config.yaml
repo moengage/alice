@@ -1,5 +1,9 @@
 ---
 organisation: 'Moengage' #give your GITHUB organisation name
+jenkins :
+  JENKINS_BASE: "http://ci.moengage.com:8080"
+  username: "mojenkins"
+  token: "f08036fd9280e68561746179a7baf48f"
 tokens:
   github: '0e0396b6f30f02cac9f3f8a3f8eb20a57356ac69' #give your local alice's GITHUB TOKEN
   slack: '' #give your local alice's slack TOKEN, make sure this token has access in your slack channels
@@ -94,8 +98,6 @@ repo:
     - madhurjyaparashar
     - rkjas12
     - Madhukirankm
-    shields_check:
-    -
   REPO_2:
     checks: #type:list ::add/remove these checks for REPO_1. if given none: will trigger all the checks
     - tech_review

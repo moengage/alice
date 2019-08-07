@@ -57,8 +57,24 @@ job_name = job_dir + "CI_SyntaxValidator"
 context_description = "Syntax Validation"
 action_commit_to_investigate = ["opened", "open", "reopened", "synchronize"]
 
+# import jenkins
+# JENKINS_BASE = "http://ci.moengage.com:8080"
+# username = "mojenkins"
+# token = "f08036fd9280e68561746179a7baf48f"
+# jenkins_instance = jenkins.Jenkins(JENKINS_BASE, username=username, password=token)
+
+sensitive_branches_repo_wise = {"moengage": ["dev", "qa", "master"],
+                                "dashboard-ui": ["dev", "qa", "master"],
+                                "segmentation": ["develop", "release", "master", "qa"],
+                                "commons": ["develop", "release", "master", "qa"],
+                                "product-management": ["develop", "release", "master", "qa"]
+                                }
+
 sensitive_branches_default = ["develop", "release", "master", "qa", "dev"]
 
+release_freeze_details_path = "/opt/alice/release_freeze_details.txt"
+alice_product_team = ["@pooja"]
+alice_qa_team = ["@U067GM3DW"]
 bot_name = "Alice"
 applaud_list = ["Awesome", "Great Efforts", "Good work", "Appreciate your efforts", "Perfect"]
 post_checklist_msg = ["planned for VodQA? Click here to read more",
@@ -69,66 +85,21 @@ post_checklist_msg = ["planned for VodQA? Click here to read more",
                       "6 points you may want to check now"]
 code_freeze_details_path = "/opt/alice/code_freeze_details.txt"
 
+# valid_contributors = ["ajishnair", "shahp00ja",  "vandanamoriwal", "geetima12", "akgoel-mo", "naveenkumarkokku",
+#                       "prashanthegde9", "moeoperation", "BhuvanThejaChennuru", "kanikapuniya2", "siri-murthy",
+#                       "gagana11", "madhurjyaparashar", "rkjas12", "Madhukirankm"]
 
+pkg_people_to_notify = {"commons": "pooja"}  # ["@pooja"]
+alice_dev_team_MoEngage_repo = "@pooja"
+to_be_notified = "pooja"
+tech_leads_to_notify_always_slack = "<@pooja>"
+product_notify_slack = "<@pooja>"
+dev_ops_team = "<@pooja>"
+channel_name = "#tmp"
 merged_by_slack_name = ""
-
-close_action = ["close", "closed", "merge", "merged"]
-edited_action = ["edited"]
-open_action = ["open", "opened"]
+alice_tech_leads_MoEngage_Repo = ""
 
 organization_repo = 'moengage'
 master_branch = 'master'
 staging_branch = 'qa'
 dev_branch = 'dev'
-dev_branch_commons = 'develop'
-staging_branch_commons = 'release'
-ally_master_branch = 'ally/master'
-
-moengage_repo = 'MoEngage'
-dashboard = 'dashboard-ui'
-
-repo_site_url = 'https://api.github.com/'
-github_site_url = 'https://github.com/'
-
-repos_slack = ['segmentation', 'commons']
-
-ALICE_ERROR = "#shield-monitoring"
-
-sensitive_files_master = "releasenotes"
-sensitive_files_release = "changelog"
-
-integration_test_file_path = "delight/viewhandlers/dashboard_handler.py"
-integration_test_folder_path = ["delight/viewhandlers/saml/", "integration_tests/dashboard/"]
-
-
-DRONE_URL = "https://drone.moengage.com/api/repos/{owner}/{repo}/builds/{build_no}"
-
-DRONE_IGNORE_JOBS = ["clone", "Clone"]
-DRONE_CONTEXT = "continuous-integration/drone/pr"
-
-REPO_NOT_CLOSE = ["key-metrics",  "custom-segments", "value-suggestions", "dashboard-segmentation", "segmentation-uis",
-                  "saas", "MoeDataScience", "user-profile", "cards"]
-
-SKIP_SLACK_MESSAGE = ['dependabot[bot]']
-
-JAVA_REPO = ['MoeDataScience']
-syntax_java = "shield-java-compile"
-unit_java = "shield-unit-test"
-
-AMI_DEPENDENCY = "Block-PR"
-AMI_LABEL = "ami_dependency"
-
-RELEASE_CHECKLIST_REPOS = [moengage_repo, "email-campaigns"]
-
-jenkins_instance = jenkins.Jenkins(JENKINS_BASE, username=username, password=token)
-JENKINS_BASE = "http://ci.moengage.com:8080"
-username = "mojenkins"
-token = "f08036fd9280e68561746179a7baf48f"
-
-sensitive_branches_repo_wise = {"moengage": ["dev", "qa", "master"],
-                                "dashboard-ui": ["dev", "qa", "master"],
-                                "segmentation": ["develop", "release", "master", "qa"],
-                                "commons": ["develop", "release", "master", "qa"],
-                                "product-management": ["develop", "release", "master", "qa"]
-                                }
-sensitive_branches_default = ["develop", "release", "master", "qa", "dev"]

@@ -4,10 +4,10 @@ from parse import parse
 from alice.helper.file_utils import write_to_file_from_top, clear_file, read_from_file
 
 from alice.commons.base import Base
-from alice.config.message_template import MSG_BAD_START, MSG_AUTO_CLOSE, MSG_AMI_CHANGE, \
-    MSG_OPENED_TO_MAIN_BRANCH, MSG_OPENED_TO_PREVENTED_BRANCH, SPECIAL_COMMENT, GENERAL_COMMENT, \
-    MSG_RELEASE_PREPARATION, MSG_SENSITIVE_FILE_TOUCHED, MSG_QA_SIGN_OFF, MSG_CODE_CHANNEL, MSG_GUIDELINE_ON_MERGE, \
-    CODE_FREEZE_TEXT, RELEASE_NOTES_REMINDER, DATA_SAVE_MERGED
+from alice.config.message_template import MSG_BAD_START, MSG_NO_TECH_REVIEW, MSG_AUTO_CLOSE, MSG_OPENED_TO_MAIN_BRANCH, \
+    MSG_OPENED_TO_PREVENTED_BRANCH, SPECIAL_COMMENT, GENERAL_COMMENT, MSG_RELEASE_PREPARATION, \
+    MSG_SENSITIVE_FILE_TOUCHED, MSG_QA_SIGN_OFF, MSG_CODE_CHANNEL, MSG_GUIDELINE_ON_MERGE, CODE_FREEZE_TEXT, \
+    RELEASE_NOTES_REMINDER, DATA_SAVE_MERGED
 from alice.helper.constants import *
 from alice.helper.common_utils import CommonUtils
 from alice.config.message_template import MSG_NO_PRODUCT_REVIEW, ADDITIONAL_COMMENT
@@ -29,6 +29,8 @@ import pytz
 import shutil
 import datetime
 import traceback
+import random
+import requests
 
 from alice.helper.api_manager import ApiManager
 
@@ -188,11 +190,11 @@ class Actor(Base):
                 if self.pr.base_branch in self.pr.config.mainBranch:
                     guideline_comment = SPECIAL_COMMENT
                     guideline_comment = self.add_extra_comment(SPECIAL_COMMENT)
-                    self.slack.postToSlack(self.pr.opened_by_slack, guideline_comment["body"])
+                    self.slack.postToSlack(self.pr.opened_by)
                 else:
                     guideline_comment = GENERAL_COMMENT
                     guideline_comment = self.add_extra_comment(GENERAL_COMMENT)
-                self.github.comment_pr(self.pr.comments_section, guideline_comment["body"])
+                self.github.comment_pr(self.pr.comments_section, guideline_comment)
                 LOG.info("**** Added Comment of dev guidelines ***")
                 return {"msg": "Added Comment of dev guidelines"}
             return {"msg": "Skipped commenting because DEBUG is on "}
@@ -205,6 +207,8 @@ class Actor(Base):
             comments = comments + comment
         new_comment["body"] = comments
         return new_comment
+
+
 
     def notify_on_action(self):
         """
@@ -448,9 +452,6 @@ class Actor(Base):
         headers = {"Authorization": "token " + self.github.GITHUB_TOKEN}
         return ApiManager.post(api_label, headers, json.dumps(list_labels))
 
-    def diff_files_commits(self,repo):
-        return
-
     def get_files_pull_request(self, files_endpoint):
         """
         Here we get files pages in paginated way as github has restricted the response to 300 files.
@@ -522,9 +523,9 @@ class Actor(Base):
             raise Exception(e)
 
     def run_for_angular(self, context_angular, job_dir, repo, pr_by_slack_name, is_change_angular, jenkins_instance, token, pr_by_slack_uid):
-        self.jenkins.changeStatus(self.pr.statuses_url, "pending", context=context_angular,
-                     description="Hold on!",
-                     details_link="")
+        self.jenkins.change_status(self.pr.statuses_url, "pending", context=context_angular,
+                                   description="Hold on!",
+                                   details_link="")
         job_name = job_dir + "shield_dashboard_angular"
         params_dict = dict(repo=repo, head_branch=self.pr.head_branch, base_branch=self.pr.base_branch, sha=self.pr.head_sha,
                                            description="Syntax Validation [React Code]", author=pr_by_slack_name,
@@ -544,6 +545,189 @@ class Actor(Base):
         self.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token, job_name=job_name,
                                    pr_link=self.pr.link_pretty,
                                    params_dict=params_dict, pr_by_slack=pr_by_slack_uid)
+
+    def alert_pm(self):
+        if self.pr.action.find("close") != -1 and self.pr.is_merged == True and (
+                self.pr.base_branch == master_branch and self.pr.head_branch == staging_branch):
+
+            """ ********** Remind PM teams to update release notes for next release ************ """
+            for item in alice_product_team:
+                self.slack.postToSlack(item,
+                            "\n:bell: hi " + item + " master is updated & release is going live shortly. "
+                                                    "Hoping <https://docs.google.com/a/moengage.com/spreadsheets/d/1eW3y-GxGzu8Jde8z4EYC6fRh1Ve4TpbW5qv2-iWs1ks/edit?usp=sharing|Release Notes> have mention of all the items planned to go in \"Next Release\"",
+                            data={"username": bot_name}, parseFull=False)
+            """ for bot """
+            for item in alice_qa_team:
+                self.slack.postToSlack(item, "\n hi <" + item + "> " + random.choice(
+                    applaud_list) + " :+1: thank you for the QA signOff\n :bell:"
+                                    " <https://github.com/moengage/MoEngage/wiki/Post-Release-deployment-Check#for-qa-engineer|" + random.choice(
+                    post_checklist_msg) + ">",
+                            data={"username": bot_name}, parseFull=False)
+            write_to_file_from_top(release_freeze_details_path, ":clubs:" +
+              str(datetime.now(pytz.timezone('Asia/Calcutta')).strftime(
+                  '%B %d,%Y at %I.%M %p')) + " with <" + self.pr.link_pretty + "|master> code")  # on:" + str(datetime.datetime.now().strftime('%B %d, %Y @ %I.%M%p'))
+            clear_file(code_freeze_details_path)  # clear last code freeze
+
+    def check_valid_contributor(self):
+        if self.pr.action == "closed" and self.pr.is_merged == True and self.pr.base_branch == staging_branch and (
+                self.pr.merged_by not in self.pr.config.valid_contributors):
+            merged_by_slack_uid = CommonUtils.getSlackNicksFromGitNicks(self.pr.merged_by)
+            msg = "Very Bad <@" + merged_by_slack_uid + "> :rage4: :rage4: !! " + self.pr.link_pr \
+                  + " is merged directly into `" + self.pr.base_branch + \
+                  "`, but not by QA team, soon these kind of requests will be automatically reverted CC: " +\
+                  alice_dev_team_MoEngage_repo
+            print(msg)
+            print(self.slack.postToSlack(channel_name, msg, data={"username": bot_name}))
+
+    def code_freeze(self):
+
+        if (self.pr.base_branch == staging_branch and self.pr.head_branch == dev_branch) \
+                and (self.pr.action.find("opened") != -1 or self.pr.action.find("merged") != -1):
+
+            print("************ code freeze PR is opened from dev to QA, auto create PRs for dependent packages")
+            self.slack.postToSlack(channel_name,
+                        "@channel Freezing code now. Any pending merge? please reach QA team within 10 minutes",
+                        data={"username": bot_name}, parseFull=False)
+            self.freeze_other_repos("staging")
+
+    def freeze_other_repos(self, freeze_type):
+        """
+        :param freeze_type: staging(dev -> qa) or live (qa ->master)
+        """
+        timestamp = str(datetime.datetime.now(pytz.timezone('Asia/Calcutta')).strftime('%d/%m/%y %I.%M%p'))
+        repos = ["segmentation", "commons", "product-recommendation", "product-management", "inapp-rest-service",
+                 "campaigns-core", "s2s", "url_tracking", "email-campaigns"]
+
+        if freeze_type == "staging":
+            head = "develop"
+            base = "release"
+            title = "Code Freeze-" + timestamp
+            alert = "\n:bell: MoEngage Repo: Code freeze time:: Please freeze your package(s)"
+            body = "Please merge these for code freeze. Release testing is getting started with MoEngage repo freeze\n" \
+                   "cc: @prashanthegde9 @BhuvanThejaChennuru @gagana11 @geetima12",
+        elif freeze_type == "live":
+            head = "release"
+            base = "master"
+            title = "{head} -> {base} {time}".format(head=head, base=base, time=timestamp)
+            alert = "\n:bell: MoEngage Repo: Release time:: Please verify your package(s) if they needs to go live"
+            body = "RELEASENOTES.md at root"  # read release notes file
+
+        """ Announce on channel """
+        self.slack.postToSlack(channel_name, alert, data={"username": bot_name})
+
+        """Create PRs and post links"""
+        cnt = 1
+        for repo in repos:
+            if freeze_type == "live":
+                body = "[release notes](https://github.com/moengage/{repo}/blob/release/RELEASENOTES.md)".format(
+                    repo=repo)
+
+            pr_data = {
+                "title": title,
+                "body": body,
+                "head": head,
+                "base": base
+            }
+            pr_endpoint = "https://api.github.com/repos/moengage/" + repo + "/pulls"
+            response = requests.post(pr_endpoint, headers={
+                "Authorization": "token " + self.github.GITHUB_TOKEN}, data=json.dumps(pr_data))
+            res = json.loads(response.content)
+            if not res.get("errors"):
+                # for person in pkg_people_to_notify:
+                self.slack.postToSlack(channel_name,
+                            "%s *%s:* %s number <%s|%s>" % (cnt, repo, pkg_people_to_notify.get(repo, "@pooja"),
+                                                            res.get("html_url"), res.get("number")),
+                            data={"username": bot_name}, parseFull=False)
+            else:
+                try:
+                    error_message = res["errors"][0]["message"]
+                    custom_message = "%s) *%s:* %s %s <%s|check here> " % (
+                    cnt, repo, pkg_people_to_notify.get(repo, "@pooja"),
+                    "Pull Request is already open",
+                    "https://github.com/moengage/"
+                    + repo + "/compare/" + base + "..." + head)
+                    if "no commits" in error_message.lower():
+                        custom_message = "%s *%s:* %s %s <%s|check here> " % (
+                        cnt, repo, pkg_people_to_notify.get(repo, "@pooja"),
+                        error_message, "https://github.com/moengage/" + repo + "/compare/" + base + "..." + head)
+
+                    SlackHelper.postToSlack(channel_name, custom_message, data={"username": bot_name})
+                    SlackHelper.postToSlack("@pooja", ":warning: creating automatic PR for %s failed, response=\n%s"
+                                % (repo, json.dumps(res)))
+                except Exception, e:
+                    print e
+                    SlackHelper.postToSlack("@pooja",
+                                ":skull: error in sending failure message on PR creation failure, response=\n%s"
+                                % (repo, e.message))
+            cnt += 1
+
+    def release_alert(self):
+        if self.pr.action.find("close") != -1 and self.pr.is_merged == True and (
+                self.pr.base_branch == master_branch and self.pr.head_branch == staging_branch):
+
+
+            """ ************* inform channel *************** """
+            msg = "{2} QA passed :+1: `master` is <{1}|updated> for release \n cc: <@{0}> {3} {4} \n <!channel> ".format(
+                to_be_notified, self.pr.link_pretty,
+                dev_ops_team, tech_leads_to_notify_always_slack, product_notify_slack)
+
+            self.slack.postToSlack(channel_name, msg, data=CommonUtils.getBot(channel_name, merged_by_slack_name),
+                        parseFull=False)
+
+        if self.pr.action.find("open") != -1 and self.pr.base_branch == master_branch and self.pr.head_branch == staging_branch:
+
+            pr_by_slack_uid = CommonUtils.getSlackNicksFromGitNicks(self.pr.opened_by)
+            print "************ MoEngage repo:: PR opened to " + self.pr.base_branch + " Notify Alice & comment guidelines ****"
+            msg = "MoEngage repo:: <{link_pr}|{title_pr}> is opened to `{base_branch}` by:*<@{pr_by_slack}>* " \
+                .format(link_pr=self.pr.link_pr, title_pr=self.pr.title, pr_by_slack=pr_by_slack_uid, base_branch=self.pr.base_branch)
+
+            self.add_comment_to_master()
+
+            for item in alice_tech_leads_MoEngage_Repo:
+                self.slack.postToSlack(item, msg + "\n Please review and approve with +1, Release preparation starts...",
+                            data={"username": bot_name}, parseFull=False)
+            self.freeze_other_repos("live")
+
+            for item in alice_qa_team:
+                self.slack.postToSlack(item,
+                            "\n\n:bell: *Bugs clean time* :: please make out 20 minutes max to cleanup no longer valid old issues and share a rough number of issues we cleaned or require attention <https://docs.google.com/spreadsheets/d/1WeWLuIE7Dt5G8lWACZs21WO0B07-naQ7JlUb8cHcxVA/edit#gid=1591591107|sheet link>",
+                            data={"username": bot_name}, parseFull=False)
+            for item in alice_product_team:
+                self.slack.postToSlack(item,
+                            "\n:bell: Hi " + item + " *Release notes update required*: Current release is getting ready to go Live, please help us with next release planning by having \"Next Release\" <https://docs.google.com/a/moengage.com/spreadsheets/d/1eW3y-GxGzu8Jde8z4EYC6fRh1Ve4TpbW5qv2-iWs1ks/edit?usp=sharing|sheet> updated",
+                            data={"username": bot_name}, parseFull=False)
+
+    def add_comment_to_master(self):
+        guideline_comment = {
+            "body": "**Attention!** \n Release Checklist\n"
+                    "- [ ] Inform Yashwanth with the PR link\n"
+                    "- [ ] Check release notes(top or bottom), if anything is pending from any developer\n"
+                    "- [ ] No code/PR to be reverted? check release notes\n"
+                    "- [ ] [Unit Tests](http://ci.moengage.com/job/Unit_Tests/) Passed?\n"
+                    "- [ ] [Api functional tests](http://ci.moengage.com/view/API_Tests/job/Api_Tests/) passed?\n"
+                    "- [ ] [S2S Tests](http://ci.moengage.com/view/API_Tests/job/S2S_Tests/) passed?\n"
+                    "- [ ] [Transaction Tests](http://ci.moengage.com/view/API_Tests/job/Txn_Push_API_Tests/) passed?\n"
+                    "- [ ] QA report linked?\n"
+                    "- [ ] Release Notes linked?"
+        }
+        header = {"Authorization": "token " + self.github.GITHUB_TOKEN}
+        ApiManager.post(self.pr.comments_section, header, json.dumps(guideline_comment))
+        print("**** Added comment of Release guidelines")
+
+    def get_diff(self, repo):
+        from alice.helper.api_manager import ApiManager
+        """
+        First, It fetches commits of a repo, then we compare
+        top two commit of a repo and we get the file difference.
+        300 is rate limiting by Github, Pagination is also not working.
+        """
+        first_branch = str(self.pr.head_branch)
+        second_branch = str(self.pr.base_branch)
+        url = "https://api.github.com/repos/moengage/" + self.pr.repo + "/compare/" + first_branch \
+              + "..." + second_branch
+        header = {"Authorization": "token " + self.actor.github.GITHUB_TOKEN}
+        res = ApiManager.get(url, header)["response"].json()
+        return res["files"]
 
     def print_curl(self, req):
         method = req.method
