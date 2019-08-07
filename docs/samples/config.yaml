@@ -45,6 +45,7 @@ repo:
     - notify_on_sensitive_files_touched
     - notify_qa_sign_off
     - remind_direct_release_guideline_on_merge
+    - trigger_task_on_pr
     sensitive_branches: #type:list ::the branches you want to prevent
     - dev #change/add/remove as per your need
     - qa

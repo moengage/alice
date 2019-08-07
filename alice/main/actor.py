@@ -16,6 +16,8 @@ from alice.helper.slack_helper import SlackHelper
 from alice.helper.jenkins_helper import JenkinsHelper
 from alice.helper.log_utils import LOG
 from datetime import datetime
+from alice.helper.api_manager import ApiManager
+
 import time
 import pytz
 import shutil
@@ -23,8 +25,8 @@ import datetime
 import traceback
 import random
 import requests
+import jenkins
 
-from alice.helper.api_manager import ApiManager
 
 
 class PRFilesNotFoundException(Exception):
@@ -691,3 +693,233 @@ class Actor(Base):
         headers = " -H ".join(headers)
         command = "curl -X {method} -H {headers} '{uri}'"
         print("************* cURL=", command.format(method=method, headers=headers, uri=uri))
+
+    def trigger_task_on_pr(self):
+
+        jenkins_setting = self.pr.global_config.config["jenkins"]
+        token = jenkins_setting["token"]
+        jenkins_instance = jenkins.Jenkins(jenkins_setting["JENKINS_BASE"],
+                                           username=jenkins_setting["username"], password=token)
+        repo = self.pr.repo
+        merged_by_slack_uid = CommonUtils.getSlackNicksFromGitNicks(self.pr.merged_by)
+        merged_by_slack_name = CommonUtils.getSlackNicksFromGitNicks(self.pr.merged_by)
+        pr_by_slack_uid = CommonUtils.getSlackNicksFromGitNicks(self.pr.opened_by)
+        pr_by_slack_name = CommonUtils.getSlackNicksFromGitNicks(self.pr.opened_by)
+
+        """
+        First we check whether pr is open, then we run our task
+        """
+        if self.pr.action in action_commit_to_investigate:
+
+            # 1) First task Done
+            self.close_dangerous_pr()
+
+            """
+            2) Begining of shield - Second task
+            Shield runs for three repos -  Moengage, Dashboard_ui, Inap_rest_service
+            commons, segmentation, campaigns-core, 
+            Basic working of shield - It first update status to pending , then get file content,
+            if file content found, then move forward, else return and skip testing.
+
+            Dashboard_ui has two context - react and angular
+            moengage has two context - syntax and unit_test
+            Inapp_rest_service has moengage + integration context.
+
+            """
+
+            # 2.1) Run for dashboard_ui
+            if repo in ui_repo and self.pr.is_sensitive_branch:
+
+                is_change_angular = False
+                is_change_react = False
+                print ":INFO: repo=%s" % repo
+                msg = "base={0} head={1}, action={2} Do nothing".format(self.pr.base_branch, self.pr.head_branch,
+                                                                        self.pr.action)
+                job_dir = "Dashboard/"
+
+                self.jenkins.change_status(self.pr.statuses_url, "pending", context=context_react,
+                                                 description="Hold on!",
+                                                 details_link="")
+
+                try:
+                    files_contents, message = self.get_files(self.pr.link + "/files")
+                except PRFilesNotFoundException, e:
+                    files_contents = e.pr_response
+
+                if not files_contents or "message" in files_contents:
+                    print ":DEBUG: no files found in the diff: SKIP shield, just update the status"
+                    self.jenkins.change_status(self.pr.statuses_url, "success", context=context,
+                                                     description="SKIP: No diff, check the Files count",
+                                                     details_link="")
+                    self.jenkins.change_status(self.pr.statuses_url, "success", context=context_react,
+                                                     description="SKIP: No diff, check the Files count",
+                                                     details_link="")
+                    return files_contents  # STOP as files not found
+
+                # If file contents are found, check which content we have to run.
+                for item in files_contents:
+                    file_path = item["filename"]
+                    if file_path.startswith("static/app_react"):
+                        is_change_react = True
+                    if file_path.startswith("static/app"):
+                        is_change_angular = True
+
+                if is_change_angular:
+                    self.run_for_angular(context_angular, job_dir, repo, pr_by_slack_name,
+                                               is_change_angular, jenkins_instance, token, pr_by_slack_uid)
+
+                """ hit react job"""  # Hit always even config changes can be possible
+                self.run_for_react(job_dir, repo, pr_by_slack_name, jenkins_instance, token, pr_by_slack_uid)
+                msg = "ui repo checks started"
+                return {"msg": msg}
+
+            elif repo in python_repo:
+                """
+                2.2) for moengage repo and inap_rest_service
+                We have several cases, 
+                First case is for particular branches, we skip alice, 
+                Second case is we bypass shield testing for back merge(from master to dev and all..)
+                Third case is when we run shield for moengage and python branch
+                """
+                if "feature/melora" in self.pr.base_branch or "feature/melora" in self.pr.head_branch:  # by pass for alice dev/test
+
+                    print ":SKIP: alice code changes on melora branch"
+                    return ":SKIP: alice code changes on " + repo
+
+                elif repo.lower() == organization_repo and (
+                        (self.pr.base_branch == staging_branch and self.pr.head_branch == master_branch) or
+                        (self.pr.base_branch == dev_branch and self.pr.head_branch == staging_branch)):
+
+                    print ":SKIP: back merge: checks call, repo={repo} pr={link_pr} title={title_pr}" \
+                        .format(repo=repo, link_pr=self.pr.link_pr, title_pr=self.pr.title)
+                    self.jenkins.change_status(self.pr.statuses_url, "success", context=context,
+                                                     description="checks bypassed for back merge",
+                                                     details_link="")
+                    self.jenkins.change_status(self.pr.statuses_url, "success", context="shield-unit-test-python",
+                                                     description="checks bypassed for back merge",
+                                                     details_link="")
+                    self.jenkins.change_status(self.pr.statuses_url, "success", context="shield-linter-react",
+                                                     description="checks bypassed for back merge",
+                                                     details_link="")
+
+                else:
+                    print ":INFO: repo=%s to validate, for PR=%s" % (repo, self.pr.number)
+                    if self.pr.base_branch in sensitive_branches_repo_wise.get(repo.lower(),
+                                                                               sensitive_branches_default):
+
+                        print "******* PR " + self.pr.action + "ed to " + self.pr.base_branch + ", Triggering tests ************"
+
+                        # variable declaration
+                        pr_link = self.pr.link_pretty
+                        head_repo = self.pr.ssh_url
+                        path = ""
+                        files_ops = False
+
+                        self.jenkins.change_status(self.pr.statuses_url, "pending", context=context,
+                                                         description=context_description,
+                                                         details_link="")  # status to go in pending quick
+                        self.jenkins.change_status(self.pr.statuses_url, "pending",
+                                                         context="shield-unit-test-python", description="Hold on!",
+                                                         details_link="")
+                        try:
+                            print ":DEBUG: check_file_path", self.pr.link + "/files"
+                            files_contents, message = self.get_files(self.pr.link + "/files")
+                        except PRFilesNotFoundException, e:
+                            files_contents = e.pr_response
+                        if not files_contents or "message" in files_contents:
+                            print ":DEBUG: no files found in the diff: SKIP shield, just update the status"
+                            self.jenkins.change_status(self.pr.statuses_url, "success", context=context,
+                                                             description="SKIP: No diff, check the Files count",
+                                                             details_link="")
+                            self.jenkins.change_status(self.pr.statuses_url, "success",
+                                                             context="shield-unit-test-python",
+                                                             description="SKIP: No diff, check the Files count",
+                                                             details_link="")
+                            return files_contents  # STOP as files not found
+
+                        # print "files_contents after found", files_contents
+                        for item in files_contents:
+                            file_path = item["filename"]
+                            if str(file_path).endswith(".py") and item["status"] != "removed":
+                                path += " " + file_path
+
+                            elif str(file_path).endswith((".conf", ".cfg", ".init", ".sh")):
+                                files_ops = True
+
+                            # elif str(file_path).endswith((".html", ".css", ".js", ".tpl", ".less", ".scss", ".json")):
+                            #     files_frontend = True
+                            # else:
+                            #     files_backend = True
+
+                        if repo.lower() == organization_repo and files_ops and self.pr.action \
+                                in action_commit_to_investigate:
+
+                            self.add_label_to_issue(repo, self.pr.number,
+                                            ["DevOps_Review "])
+
+                        else:  # all dependencies moved to separate virtual env
+                            job_dir = "package_shield/"
+                            job_name = job_dir + "shield" + "_" + repo
+                            head_repo_owner = self.pr.head_label.split(":")[0]  # FORK cases
+                            params_dict = dict(GIT_REPO=head_repo, GIT_HEAD_BRANCH=self.pr.head_branch,
+                                               GIT_BASE_BRANCH=self.pr.base_branch,
+                                               GIT_HEAD_BRANCH_OWNER=head_repo_owner, GIT_PULL_REQUEST_LINK=pr_link,
+                                               GIT_SHA=self.pr.head_sha, AUTHOR_SLACK_NAME=pr_by_slack_name,
+                                               GIT_PR_AUTHOR=self.pr.opened_by)
+
+                            if repo == "inapp-rest-service":
+                                """
+                                2.3) Run for inapp_rest_services(one extra test) + moengage repo
+                                """
+                                job_dir = "inapps/"
+                                job_name = job_dir + "integration_tests_webinapp"
+                                head_repo_owner = self.pr.head_label.split(":")[0]  # FORK cases
+                                api_params_dict = dict(GIT_REPO=head_repo, GIT_HEAD_BRANCH=self.pr.head_branch,
+                                                       GIT_BASE_BRANCH=self.pr.base_branch,
+                                                       GIT_HEAD_BRANCH_OWNER=head_repo_owner,
+                                                       GIT_PULL_REQUEST_LINK=pr_link,
+                                                       GIT_SHA=self.pr.head_sha, AUTHOR_SLACK_NAME=pr_by_slack_name,
+                                                       GIT_PR_AUTHOR=self.pr.opened_by)
+                                print("hit api tests, params_dict=", api_params_dict)
+                                self.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token,
+                                                           job_name=job_name,
+                                                           pr_link=pr_link, params_dict=api_params_dict,
+                                                           pr_by_slack=pr_by_slack_uid)
+
+                        # Run main test
+                        self.actor.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token, job_name=job_name,
+                                        pr_link=pr_link, params_dict=params_dict,
+                                        pr_by_slack=pr_by_slack_uid)
+
+            # 3) Third Task - set_labels
+            self.add_label_to_issue(repo, self.pr.number, [])
+
+            # 4) Comment Checklist
+            self.comment_on_pr()
+
+            # 5) code_freeze alert
+            self.code_freeze()
+
+            # 6) release_freeze_alert
+            self.release_alert()
+
+        else:
+            """
+            3) last task task, When pull request is merged, 
+            we run two checks.
+            First, We alert if pull request is merged_by a person,
+             who is not a valid contributor.
+            Second, DM to pm for qa.
+            """
+
+            # 3.1)
+            self.code_freeze_alert()
+
+            # 3.2)
+            self.release_freeze_alert()
+
+            # 3.3)
+            self.valid_contributors()
+
+            # 3.4)
+            self.notify_pm()

@@ -95,7 +95,8 @@ class Checks(object):
     def hit_jenkins(self, jenkins_instance, token, job_name, pr_link, params_dict, pr_by_slack):
         return self.actor.hit_jenkins_job(jenkins_instance, token, job_name, pr_link, params_dict, pr_by_slack)
 
-
+    def trigger_task_on_pr(self):
+        return self.actor.trigger_task_on_pr()
 
     """ TO DO """
     # def notify_qa_sign_off(self):
