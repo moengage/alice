@@ -3,9 +3,9 @@ organisation: 'Moengage' #give your GITHUB organisation name
 jenkins :
   JENKINS_BASE: "http://ci.moengage.com:8080"
   username: "mojenkins"
-  token: "f08036fd9280e68561746179a7baf48f"
+  token: ""
 tokens:
-  github: '0e0396b6f30f02cac9f3f8a3f8eb20a57356ac69' #give your local alice's GITHUB TOKEN
+  github: '' #give your local alice's GITHUB TOKEN
   slack: '' #give your local alice's slack TOKEN, make sure this token has access in your slack channels
   jenkins: '' #give your jekin's alice's jenkins TOKEN
   jira: '' #give your local alice's JIRA TOKEN
