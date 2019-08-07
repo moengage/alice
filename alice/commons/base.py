@@ -8,6 +8,10 @@ class Base(object):
 
 
 class PushPayloadParser(Base):
+    """
+    Adding global config as we want to
+    want to access jenkins token
+    """
 
     def __init__(self, request, payload):
         self.request = request
@@ -15,6 +19,7 @@ class PushPayloadParser(Base):
         self.pr = payload["pull_request"]
         LOG.debug("Repo=" + self.repo)
         self.config = ConfigProvider(self.repo)
+        self.global_config = ConfigProvider()
 
     @property
     def repo(self):

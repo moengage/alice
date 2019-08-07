@@ -22,7 +22,6 @@ class SlackHelper(object):
                   "\n2.The channel name is correct\n" %(channel))
             raise ex
 
-
     def directSlack(self, person, msg=None, as_user=False, *args, **kwargs):
         if self.config.is_debug:
             person = self.config.debug_folks

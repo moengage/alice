@@ -41,6 +41,8 @@ SPECIAL_COMMENT = {
             "- [ ] Release Notes linked?"
 }
 
+ADDITIONAL_COMMENT = [ "- [ ] Testing comments\n", "- Testing comments 2\n"]
+
 DOC_CHECK_NOT_FOUND = "\"{check_name}\" Check is not found (please cross check the checks defined in config file). \n" \
                       "If you wish to implement this new check yourself, please read here: " + Blinking_Colors.OKBLUE + \
                       "{doc_link}" + Blinking_Colors.END

@@ -10,7 +10,7 @@ class ApiManager(object):
 
     @staticmethod
     def post(url, headers, data=None):
-        response = requests.post(url,headers=headers, data=data)
+        response = requests.post(url, headers=headers, data=data)
         return {"status_code": response.status_code, "content": response.content, "response": response}
 
 

@@ -57,10 +57,12 @@ job_dir = "moe_repo_shield/"
 job_name = job_dir + "CI_SyntaxValidator"
 context_description = "Syntax Validation"
 action_commit_to_investigate = ["opened", "open", "reopened", "synchronize"]
-jenkins_instance = jenkins.Jenkins(JENKINS_BASE, username=username, password=token)
-JENKINS_BASE = "http://ci.moengage.com:8080"
-username = "mojenkins"
-token = "f08036fd9280e68561746179a7baf48f"
+
+# import jenkins
+# JENKINS_BASE = "http://ci.moengage.com:8080"
+# username = "mojenkins"
+# token = "f08036fd9280e68561746179a7baf48f"
+# jenkins_instance = jenkins.Jenkins(JENKINS_BASE, username=username, password=token)
 
 sensitive_branches_repo_wise = {"moengage": ["dev", "qa", "master"],
                                 "dashboard-ui": ["dev", "qa", "master"],
@@ -68,4 +70,39 @@ sensitive_branches_repo_wise = {"moengage": ["dev", "qa", "master"],
                                 "commons": ["develop", "release", "master", "qa"],
                                 "product-management": ["develop", "release", "master", "qa"]
                                 }
+
 sensitive_branches_default = ["develop", "release", "master", "qa", "dev"]
+
+release_freeze_details_path = "/opt/alice/release_freeze_details.txt"
+alice_product_team = ["@pooja"]
+alice_qa_team = ["@U067GM3DW"]
+bot_name = "Alice"
+applaud_list = ["Awesome", "Great Efforts", "Good work", "Appreciate your efforts", "Perfect"]
+post_checklist_msg = ["planned for VodQA? Click here to read more",
+                      "here is your post release activities list", "had your vodQA? :thinking_face:",
+                      "Click here for your checklist", "Scheduled Automation class?",
+                      "Did you check *Let's Shine* here?",
+                      "on your behalf, I have reminded PMs to update the release notes for next release. here is your checklist",
+                      "6 points you may want to check now"]
+code_freeze_details_path = "/opt/alice/code_freeze_details.txt"
+
+# valid_contributors = ["ajishnair", "shahp00ja",  "vandanamoriwal", "geetima12", "akgoel-mo", "naveenkumarkokku",
+#                       "prashanthegde9", "moeoperation", "BhuvanThejaChennuru", "kanikapuniya2", "siri-murthy",
+#                       "gagana11", "madhurjyaparashar", "rkjas12", "Madhukirankm"]
+
+pkg_people_to_notify = {"commons": "pooja"}  # ["@pooja"]
+alice_dev_team_MoEngage_repo = "@pooja"
+to_be_notified = "pooja"
+tech_leads_to_notify_always_slack = "<@pooja>"
+product_notify_slack = "<@pooja>"
+dev_ops_team = "<@pooja>"
+channel_name = "#tmp"
+merged_by_slack_name = ""
+alice_tech_leads_MoEngage_Repo = ""
+
+organization_repo = 'moengage'
+master_branch = 'master'
+staging_branch = 'qa'
+dev_branch = 'dev'
+
+
