@@ -444,7 +444,7 @@ class Actor(Base):
          Example : self.set_labels("MoEngage", 13319, ["Alice_test2"])
          :return:
          """
-        api_label = "https://api.github.com/repos/moengage/%s/issues/%s/labels" % (repo, str(pr_no))
+        api_label = repo_site_url + "repos/moengage/%s/issues/%s/labels" % (repo, str(pr_no))
         headers = {"Authorization": "token " + self.github.GITHUB_TOKEN}
         return ApiManager.post(api_label, headers, json.dumps(list_labels))
 
@@ -624,7 +624,7 @@ class Actor(Base):
                 "head": head,
                 "base": base
             }
-            pr_endpoint = "https://api.github.com/repos/moengage/" + repo + "/pulls"
+            pr_endpoint = repo_site_url + "repos/moengage/" + repo + "/pulls"
             response = requests.post(pr_endpoint, headers={
                 "Authorization": "token " + self.github.GITHUB_TOKEN}, data=json.dumps(pr_data))
             res = json.loads(response.content)
@@ -640,12 +640,12 @@ class Actor(Base):
                     custom_message = "%s) *%s:* %s %s <%s|check here> " % (
                     cnt, repo, pkg_people_to_notify.get(repo, "@pooja"),
                     "Pull Request is already open",
-                    "https://github.com/moengage/"
+                    repo_site_url + "moengage/"
                     + repo + "/compare/" + base + "..." + head)
                     if "no commits" in error_message.lower():
                         custom_message = "%s *%s:* %s %s <%s|check here> " % (
                         cnt, repo, pkg_people_to_notify.get(repo, "@pooja"),
-                        error_message, "https://github.com/moengage/" + repo + "/compare/" + base + "..." + head)
+                        error_message, repo_site_url + "moengage/" + repo + "/compare/" + base + "..." + head)
 
                     SlackHelper.postToSlack(channel_name, custom_message, data={"username": bot_name})
                     SlackHelper.postToSlack("@pooja", ":warning: creating automatic PR for %s failed, response=\n%s"
@@ -719,7 +719,7 @@ class Actor(Base):
         """
         first_branch = str(self.pr.head_branch)
         second_branch = str(self.pr.base_branch)
-        url = "https://api.github.com/repos/moengage/" + self.pr.repo + "/compare/" + first_branch \
+        url = repo_site_url + "repos/moengage/" + self.pr.repo + "/compare/" + first_branch \
               + "..." + second_branch
         header = {"Authorization": "token " + self.actor.github.GITHUB_TOKEN}
         res = ApiManager.get(url, header)["response"].json()

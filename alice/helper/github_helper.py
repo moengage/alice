@@ -38,7 +38,7 @@ class GithubHelper(object):
 
     def comment_pr(self, comment_section, comment):
         resp = ApiManager.post(comment_section, self.headers, json.dumps(comment))
-        LOG.debug(resp["content"])
+        LOG.debug(resp.content)
 
     def modify_pr(self, msg, state):
         time.sleep(4)
@@ -47,8 +47,7 @@ class GithubHelper(object):
             "state": state
         }
         resp = ApiManager.post(self.pr_api_link, self.headers, json.dumps(data))
-        print("ALice have auto closed the PR,", self.pr_api_link,resp["content"])
-        LOG.debug(resp["content"])
+        LOG.debug(resp.content)
 
     def get_reviews(self):
         url = self.pr_api_link + "/" + EP_REVIEWS
@@ -75,4 +74,3 @@ class GithubHelper(object):
         comments_end_point = API_GITHUB_ISSUES.format(org=self.pr.config.organisation, repo=self.pr.repo) \
                              + "/" + str(self.pr.number) + "/" + EP_COMMENTS
         return ApiManager.get(comments_end_point, self.headers)
-
