@@ -6,6 +6,7 @@ jenkins :
   token: ""
 tokens:
   github: '' #give your local alice's GITHUB TOKEN
+  github_alternate : '' #Alternate token to be used when we get rate limiting through prev token
   slack: '' #give your local alice's slack TOKEN, make sure this token has access in your slack channels
   jenkins: '' #give your jekin's alice's jenkins TOKEN
   jira: '' #give your local alice's JIRA TOKEN
