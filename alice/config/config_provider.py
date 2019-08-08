@@ -26,6 +26,10 @@ class ConfigProvider(object):
         return self.config.get('tokens').get("github")
 
     @property
+    def github_alternate_token(self):
+        return self.config.get('tokens').get("github_alternate")
+
+    @property
     def slackToken(self):
         return self.config.get('tokens').get("slack")
 

@@ -35,8 +35,7 @@ class GithubHelper(object):
                                                  " the organisation or the repository")
 
     def comment_pr(self, comment_section, comment):
-        resp = requests.post(comment_section, headers=self.headers,
-                             data=json.dumps(comment))
+        resp = ApiManager.post(comment_section, self.headers, json.dumps(comment))
         LOG.debug(resp.content)
 
     def modify_pr(self, msg, state):
@@ -44,13 +43,13 @@ class GithubHelper(object):
             "title": msg,
             "state": state
         }
-        resp = requests.post(self.pr_api_link, json.dumps(data), headers=self.headers)
+        resp = ApiManager.post(self.pr_api_link, self.headers, json.dumps(data))
         LOG.debug(resp.content)
 
     def get_reviews(self):
         url = self.pr_api_link + "/" + EP_REVIEWS
         self.headers["Accept"] = API_GITHUB_REVIEW_ACCEPT_KEY
-        return requests.get(url, headers=self.headers)
+        return ApiManager.get(url, headers=self.headers)
 
     def get_files_requests(self):
         url = self.pr_api_link + "/files"

@@ -1,6 +1,5 @@
 from alice.main.checks import Checks
-import requests
-import json
+
 
 class PRFilesNotFoundException(Exception):
     def __init__(self, pr_response):

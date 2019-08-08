@@ -105,4 +105,5 @@ master_branch = 'master'
 staging_branch = 'qa'
 dev_branch = 'dev'
 
+repo_site_url = 'https://api.github.com/'
 
