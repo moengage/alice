@@ -2,7 +2,7 @@
 organisation: 'Moengage' #give your GITHUB organisation name
 jenkins :
   JENKINS_BASE: "http://ci.moengage.com:8080"
-  username: "mojenkins"
+  username: ""
   token: ""
 tokens:
   github: '' #give your local alice's GITHUB TOKEN
