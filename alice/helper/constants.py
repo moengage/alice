@@ -58,11 +58,6 @@ job_name = job_dir + "CI_SyntaxValidator"
 context_description = "Syntax Validation"
 action_commit_to_investigate = ["opened", "open", "reopened", "synchronize"]
 
-# import jenkins
-# JENKINS_BASE = "http://ci.moengage.com:8080"
-# username = "mojenkins"
-# token = "f08036fd9280e68561746179a7baf48f"
-# jenkins_instance = jenkins.Jenkins(JENKINS_BASE, username=username, password=token)
 
 sensitive_branches_repo_wise = {"moengage": ["dev", "qa", "master"],
                                 "dashboard-ui": ["dev", "qa", "master"],
