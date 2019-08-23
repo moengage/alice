@@ -13,8 +13,8 @@ class RunChecks(object):
         response = getattr(ci, check)()
         LOG.debug("for check= %s, response= %s"%(check, response))
 
-    def run_checks(self, request, data):
-        ci = CheckImpl(PushPayloadParser(request, payload=data))
+    def run_checks(self, data):
+        ci = CheckImpl(PushPayloadParser(payload=data))
         response = {}
         checks = ci.pr.config.checks
         if ci.pr.is_sensitive_branch:

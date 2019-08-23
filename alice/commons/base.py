@@ -13,8 +13,7 @@ class PushPayloadParser(Base):
     want to access jenkins token
     """
 
-    def __init__(self, request, payload):
-        self.request = request
+    def __init__(self, payload):
         self.payload = payload
         self.pr = payload["pull_request"]
         LOG.debug("Repo=" + self.repo)
@@ -35,8 +34,7 @@ class PushPayloadParser(Base):
 
     @property
     def merged_by(self):
-        return "paras"
-      #  return self.pr["merged_by"]["login"]
+        return self.pr["merged_by"]["login"]
 
     @property
     def merged_by_slack(self):
