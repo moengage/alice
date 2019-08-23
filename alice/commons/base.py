@@ -34,8 +34,7 @@ class PushPayloadParser(Base):
 
     @property
     def merged_by(self):
-        return "paras"
-      #  return self.pr["merged_by"]["login"]
+        return self.pr["merged_by"]["login"]
 
     @property
     def merged_by_slack(self):

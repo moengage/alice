@@ -57,7 +57,6 @@ job_name = job_dir + "CI_SyntaxValidator"
 context_description = "Syntax Validation"
 action_commit_to_investigate = ["opened", "open", "reopened", "synchronize"]
 
-
 sensitive_branches_repo_wise = {"moengage": ["dev", "qa", "master"],
                                 "dashboard-ui": ["dev", "qa", "master"],
                                 "segmentation": ["develop", "release", "master", "qa"],

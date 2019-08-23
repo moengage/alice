@@ -18,11 +18,12 @@ from alice.config.config_provider import ConfigProvider
 
 app = Flask(__name__)
 
+
 @app.route("/alice", methods=['POST'])
 def alice():
     payload = request.get_data()
     data = json.loads(unicode(payload, errors='replace'), strict=False)
-    merge_correctness = RunChecks().run_checks(request, data)
+    merge_correctness = RunChecks().run_checks(data)
     return jsonify(merge_correctness)
 
 def verify_request_drone(header):
