@@ -28,7 +28,6 @@ import requests
 import jenkins
 
 
-
 class PRFilesNotFoundException(Exception):
     def __init__(self, pr_response):
         self.pr_response = pr_response

@@ -1,5 +1,6 @@
 ---
 organisation: 'Moengage' #give your GITHUB organisation name
+jenkins :
   JENKINS_BASE: ""
   username: ""
   token: ""
