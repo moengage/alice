@@ -46,7 +46,7 @@ class CommonUtils(object):
 
         for item in users["members"]:
             slack_mappings[item["name"]] = item["profile"].get("email","bot@gmail.com")
-        print slack_mappings
+        print(slack_mappings)
 
     @staticmethod
     def getSlackNicksFromGitNicks(key):

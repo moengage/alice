@@ -32,7 +32,7 @@ class RunChecks(object):
                         except AttributeError:
                             LOG.debug("Exception in Run Checks", exc_info=traceback)
                             raise CheckNotFoundException(check)
-                except Exception, e:
+                except Exception as e:
                     LOG.debug("Exception in Run Checks", exc_info=traceback)
                     if 'invalid_auth' not in e:
                         raise Exception(str(e) + ISSUE_FOUND.format(issue_link=ISSUE_LINK))

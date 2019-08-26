@@ -4,18 +4,30 @@ from alice.main.runner import RunChecks
 from alice.helper.log_utils import LOG
 from alice.commons.base_jira import JiraPayloadParser
 from alice.main.jira_actor import JiraActor
-from alice.celery1 import app as celery_app
+
+from celery import Celery
 
 app = Flask(__name__)
+app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
+app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/0'
+celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+celery.conf.update(app.config)
 
 
 @app.route("/alice", methods=['POST'])
 def alice():
-    from celery1 import run_task
     payload = request.get_data()
     data = json.loads(unicode(payload, errors='replace'), strict=False)
-    merge_correctness = RunChecks().run_checks(data)
-    return jsonify(merge_correctness)
+    run.delay(data)
+    # merge_correctness = RunChecks().run_checks(data)
+    # return jsonify(merge_correctness)
+
+
+@celery.task
+def run(data):
+    with app.app_context():
+        merge_correctness = RunChecks().run_checks(data)
+        return jsonify(merge_correctness)
 
 
 @app.route("/", methods=['GET', 'POST'])

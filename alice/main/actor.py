@@ -92,7 +92,7 @@ class Actor(Base):
                     LOG.info("product change found marking ui_change to True")
                     change_requires_product_plus1 = True
                     # break
-        except PRFilesNotFoundException, e:
+        except PRFilesNotFoundException as e:
             LOG.exception(e)
         return sensitive_file_touched, change_requires_product_plus1
 
@@ -354,7 +354,7 @@ class Actor(Base):
             try:
                 msg  = read_from_file(self.pr.config.releaseItemsFilePath)
                 LOG.debug("final msg =" + msg)
-            except Exception, e:
+            except Exception as e:
                 return {"msg": "Skipped posting code-freeze because no details found in file %s"
                                % self.pr.config.releaseItemsFilePath}
 
@@ -473,7 +473,7 @@ class Actor(Base):
             msg = "<@{0}> started job, PR by={0} PR={1}".format(
                 pr_by_slack, pr_link)
             print(msg)
-        except Exception, e:
+        except Exception as e:
             print(e)
             traceback.print_exc()
             raise Exception(e)
@@ -610,8 +610,8 @@ class Actor(Base):
                     SlackHelper.postToSlack(channel_name, custom_message, data={"username": bot_name})
                     SlackHelper.postToSlack("@pooja", ":warning: creating automatic PR for %s failed, response=\n%s"
                                 % (repo, json.dumps(res)))
-                except Exception, e:
-                    print e
+                except Exception as e:
+                    print(e)
                     SlackHelper.postToSlack("@pooja",
                                 ":skull: error in sending failure message on PR creation failure, response=\n%s"
                                 % (repo, e.message))
@@ -633,7 +633,7 @@ class Actor(Base):
         if self.pr.action.find("open") != -1 and self.pr.base_branch == master_branch and self.pr.head_branch == staging_branch:
 
             pr_by_slack_uid = CommonUtils.getSlackNicksFromGitNicks(self.pr.opened_by)
-            print "************ MoEngage repo:: PR opened to " + self.pr.base_branch + " Notify Alice & comment guidelines ****"
+            print("************ MoEngage repo:: PR opened to " + self.pr.base_branch + " Notify Alice & comment guidelines ****")
             msg = "MoEngage repo:: <{link_pr}|{title_pr}> is opened to `{base_branch}` by:*<@{pr_by_slack}>* " \
                 .format(link_pr=self.pr.link_pr, title_pr=self.pr.title, pr_by_slack=pr_by_slack_uid, base_branch=self.pr.base_branch)
 
@@ -731,7 +731,7 @@ class Actor(Base):
 
                 is_change_angular = False
                 is_change_react = False
-                print ":INFO: repo=%s" % repo
+                print(":INFO: repo=%s" % repo)
                 msg = "base={0} head={1}, action={2} Do nothing".format(self.pr.base_branch, self.pr.head_branch,
                                                                         self.pr.action)
                 job_dir = "Dashboard/"
@@ -742,11 +742,11 @@ class Actor(Base):
 
                 try:
                     files_contents, message = self.get_files(self.pr.link + "/files")
-                except PRFilesNotFoundException, e:
+                except PRFilesNotFoundException as e:
                     files_contents = e.pr_response
 
                 if not files_contents or "message" in files_contents:
-                    print ":DEBUG: no files found in the diff: SKIP shield, just update the status"
+                    print(":DEBUG: no files found in the diff: SKIP shield, just update the status")
                     self.jenkins.change_status(self.pr.statuses_url, "success", context=context,
                                                      description="SKIP: No diff, check the Files count",
                                                      details_link="")
@@ -782,15 +782,15 @@ class Actor(Base):
                 """
                 if "feature/melora" in self.pr.base_branch or "feature/melora" in self.pr.head_branch:  # by pass for alice dev/test
 
-                    print ":SKIP: alice code changes on melora branch"
+                    print(":SKIP: alice code changes on melora branch")
                     return ":SKIP: alice code changes on " + repo
 
                 elif repo.lower() == organization_repo and (
                         (self.pr.base_branch == staging_branch and self.pr.head_branch == master_branch) or
                         (self.pr.base_branch == dev_branch and self.pr.head_branch == staging_branch)):
 
-                    print ":SKIP: back merge: checks call, repo={repo} pr={link_pr} title={title_pr}" \
-                        .format(repo=repo, link_pr=self.pr.link_pr, title_pr=self.pr.title)
+                    print(":SKIP: back merge: checks call, repo={repo} pr={link_pr} title={title_pr}" \
+                        .format(repo=repo, link_pr=self.pr.link_pr, title_pr=self.pr.title))
                     self.jenkins.change_status(self.pr.statuses_url, "success", context=context,
                                                      description="checks bypassed for back merge",
                                                      details_link="")
@@ -802,11 +802,11 @@ class Actor(Base):
                                                      details_link="")
 
                 else:
-                    print ":INFO: repo=%s to validate, for PR=%s" % (repo, self.pr.number)
+                    print(":INFO: repo=%s to validate, for PR=%s" % (repo, self.pr.number))
                     if self.pr.base_branch in sensitive_branches_repo_wise.get(repo.lower(),
                                                                                sensitive_branches_default):
 
-                        print "******* PR " + self.pr.action + "ed to " + self.pr.base_branch + ", Triggering tests ************"
+                        print("******* PR " + self.pr.action + "ed to " + self.pr.base_branch + ", Triggering tests ************")
 
                         # variable declaration
                         pr_link = self.pr.link_pretty
@@ -821,12 +821,12 @@ class Actor(Base):
                                                          context="shield-unit-test-python", description="Hold on!",
                                                          details_link="")
                         try:
-                            print ":DEBUG: check_file_path", self.pr.link + "/files"
+                            print(":DEBUG: check_file_path", self.pr.link + "/files")
                             files_contents, message = self.get_files(self.pr.link + "/files")
-                        except PRFilesNotFoundException, e:
+                        except PRFilesNotFoundException as e:
                             files_contents = e.pr_response
                         if not files_contents or "message" in files_contents:
-                            print ":DEBUG: no files found in the diff: SKIP shield, just update the status"
+                            print(":DEBUG: no files found in the diff: SKIP shield, just update the status")
                             self.jenkins.change_status(self.pr.statuses_url, "success", context=context,
                                                              description="SKIP: No diff, check the Files count",
                                                              details_link="")
@@ -836,7 +836,6 @@ class Actor(Base):
                                                              details_link="")
                             return files_contents  # STOP as files not found
 
-                        # print "files_contents after found", files_contents
                         for item in files_contents:
                             file_path = item["filename"]
                             if str(file_path).endswith(".py") and item["status"] != "removed":

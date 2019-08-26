@@ -16,8 +16,8 @@ class JenkinsHelper(object):
         }
         token = self.pr.global_config.config["tokens"]["github"]
         response = ApiManager.post(status_url_link, {"Authorization": "token " + "%s"%token}, json.dumps(payload))
-        print "*** modified status to "+status
-        print response["response"].content
+        print("*** modified status to "+status)
+        print(response["response"].content)
         return response["response"].content
 
     def after_merge(self, job_dir, repo, pr_no, title_pr, pr_by_slack_uid, merged_by_slack_uid, base_branch, head_branch):
