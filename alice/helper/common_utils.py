@@ -48,7 +48,7 @@ class CommonUtils(object):
         users = json.loads(response["content"])
 
         for item in users["members"]:
-            slack_mappings[item["name"]] = item["profile"].get("email", "bot@gmail.com")
+            slack_mappings[item["name"]] = item["profile"].get("email","bot@gmail.com")
         print(slack_mappings)
 
     @staticmethod
