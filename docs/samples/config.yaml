@@ -5,7 +5,7 @@ jenkins :
   username: ""
   token: ""
 tokens:
-  github: '9d63048d0ca15e6d519986d6a3369fdb13634fcd' #give your local alice's GITHUB TOKEN
+  github: '' #give your local alice's GITHUB TOKEN
   github_alternate : '' #Alternate token to be used when we get rate limiting through prev token
   slack: '' #give your local alice's slack TOKEN, make sure this token has access in your slack channels
   jenkins: '' #give your jekin's alice's jenkins TOKEN
