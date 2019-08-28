@@ -5,29 +5,15 @@ from alice.helper.log_utils import LOG
 from alice.commons.base_jira import JiraPayloadParser
 from alice.main.jira_actor import JiraActor
 
-from celery import Celery
-
 app = Flask(__name__)
-app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
-app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/0'
-celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
-celery.conf.update(app.config)
 
 
 @app.route("/alice", methods=['POST'])
 def alice():
     payload = request.get_data()
-    data = json.loads(unicode(payload, errors='replace'), strict=False)
-    run.delay(data)
-    # merge_correctness = RunChecks().run_checks(data)
-    # return jsonify(merge_correctness)
-
-
-@celery.task
-def run(data):
-    with app.app_context():
-        merge_correctness = RunChecks().run_checks(data)
-        return jsonify(merge_correctness)
+    payload = json.loads(payload)
+    merge_correctness = RunChecks().run_checks(payload)
+    return jsonify(merge_correctness)
 
 
 @app.route("/", methods=['GET', 'POST'])
@@ -43,7 +29,7 @@ def jira_integration():
     if request.method == 'POST':
         payload = request.get_data()
         print("************* payload ***************", payload)
-        data = json.loads(unicode(payload, errors='replace'), strict=False)
+        data = json.loads(payload)
         print("************* data ***************", data)
         parsed_data = JiraPayloadParser(request, data)
         actor_obj = JiraActor(parsed_data)

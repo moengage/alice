@@ -9,10 +9,11 @@ formatter = logging.Formatter(
     '[in %(pathname)s:%(lineno)d]')
 handler.setFormatter(formatter)
 LOG.addHandler(handler)
-config_file = os.environ["config"]
+config_file = os.environ.get("config")
 config = get_dict_from_config_file(config_file)
 debug = config.get('debug', False)
 if debug:
     LOG.setLevel(logging.DEBUG)
 else:
     LOG.setLevel(logging.INFO)
+

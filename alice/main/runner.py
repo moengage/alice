@@ -11,6 +11,7 @@ class RunChecks(object):
     def execute_check(self, ci, check):
         LOG.debug("************* Starting check=%s *****************" % check)
         response = getattr(ci, check)()
+        print(check)
         LOG.debug("for check= %s, response= %s"%(check, response))
 
     def run_checks(self, data):
