@@ -7,8 +7,8 @@ build/
 *.egg
 .egg-info/
 trail
-
-
+alice/dump.rdb
+dump.rdb
 
 # Created by https://www.gitignore.io/api/flask,python,visualstudiocode
 # Edit at https://www.gitignore.io/?templates=flask,python,visualstudiocode
