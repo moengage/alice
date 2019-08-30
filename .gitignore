@@ -9,6 +9,8 @@ build/
 trail
 alice/dump.rdb
 dump.rdb
+.DS_Store
+*/.DS_Store
 
 # Created by https://www.gitignore.io/api/flask,python,visualstudiocode
 # Edit at https://www.gitignore.io/?templates=flask,python,visualstudiocode
