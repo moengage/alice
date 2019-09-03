@@ -23,7 +23,7 @@ def get_dict_from_yaml(file_path):
     data = {}
     with open(file_path, 'r') as stream:
         try:
-            data = yaml.load(stream)
+            data = yaml.load(stream, yaml.Loader)
         except yaml.YAMLError as exc:
             LOG.error("\nPlease validate your config file, if it is correct. Can use http://www.yamllint.com/ to debug quicker")
             raise (exc)

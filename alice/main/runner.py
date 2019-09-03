@@ -35,7 +35,7 @@ class RunChecks(object):
                             raise CheckNotFoundException(check)
                 except Exception as e:
                     LOG.debug("Exception in Run Checks", exc_info=traceback)
-                    if 'invalid_auth' not in e:
+                    if 'invalid_auth' not in str(e):
                         raise Exception(str(e) + ISSUE_FOUND.format(issue_link=ISSUE_LINK))
             return response
         LOG.info("skipped because '%s' is not sensitive branch" % ci.pr.base_branch)
