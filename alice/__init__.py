@@ -23,10 +23,10 @@ def verify_request(payload, token):
     # payload = bytes(payload, 'utf-8')
     digest = hmac.new(key, msg=payload, digestmod=hashlib.sha1)
     signature = digest.hexdigest()
-    print("sha1=" + signature, "\n\n\n\n\n")
     if hmac.compare_digest(signature, token):
         print("hi")
-    return 1/0
+    else:
+        print("bye")
 
 
 @app.route("/alice", methods=['POST'])

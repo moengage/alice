@@ -894,7 +894,27 @@ class Actor(Base):
                             self.add_label_to_issue(repo, self.pr.number,
                                             ["DevOps_Review "])
 
-                        else:  # all dependencies moved to separate virtual env
+                        # Run Jenkins for moengage repo
+                        if repo == "MoEngage":
+
+                            for job in self.pr.config.shield_job:
+                                job = job + "_" + self.pr.repo
+                                params_dict = dict(repo=head_repo, head_branch=self.pr.head_branch,
+                                                   base_branch=self.pr.head_branch,
+                                                   pr_no=pr_link, lint_path=path,
+                                                   additional_flags="", msg="", machine="", sha=self.pr.head_sha,
+                                                   author=pr_by_slack_name,
+                                                   author_github=self.pr.opened_by,
+                                                   )
+                                self.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token, job_name=job,
+                                                     pr_link=pr_link, params_dict=params_dict,
+                                                     pr_by_slack=pr_by_slack_uid)
+
+                        else:
+                            # run Jenkins for all other repo's
+                            pr_link = self.pr.link_pretty
+                            head_repo = self.pr.ssh_url
+
                             job_dir = "package_shield/"
                             job_name = job_dir + "shield" + "_" + repo
                             head_repo_owner = self.pr.head_label.split(":")[0]  # FORK cases
@@ -903,6 +923,10 @@ class Actor(Base):
                                                GIT_HEAD_BRANCH_OWNER=head_repo_owner, GIT_PULL_REQUEST_LINK=pr_link,
                                                GIT_SHA=self.pr.head_sha, AUTHOR_SLACK_NAME=pr_by_slack_name,
                                                GIT_PR_AUTHOR=self.pr.opened_by)
+                            self.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token,
+                                                 job_name=job_name,
+                                                 pr_link=pr_link, params_dict=params_dict,
+                                                 pr_by_slack=pr_by_slack_uid)
 
                             if repo == "inapp-rest-service":
                                 """
@@ -919,21 +943,9 @@ class Actor(Base):
                                                        GIT_PR_AUTHOR=self.pr.opened_by)
                                 print("hit api tests, params_dict=", api_params_dict)
                                 self.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token,
-                                                           job_name=job_name,
-                                                           pr_link=pr_link, params_dict=api_params_dict,
-                                                           pr_by_slack=pr_by_slack_uid)
-
-                        # Run main test
-                        for job in self.pr.config.shield_job:
-                            job = job + "_" + self.pr.repo
-                            params_dict = dict(repo=head_repo, head_branch=self.pr.head_branch, base_branch=self.pr.head_branch,
-                                 pr_no=pr_link, lint_path=path,
-                                 additional_flags="", msg="", machine="", sha=self.pr.head_sha, author=pr_by_slack_name,
-                                 author_github=self.pr.opened_by,
-                                 )
-                            self.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token, job_name=job,
-                                        pr_link=pr_link, params_dict=params_dict,
-                                        pr_by_slack=pr_by_slack_uid)
+                                                     job_name=job_name,
+                                                     pr_link=pr_link, params_dict=api_params_dict,
+                                                     pr_by_slack=pr_by_slack_uid)
 
             # 3) Third Task - set_labels
             self.add_label_to_issue(repo, self.pr.number, [])
