@@ -969,13 +969,13 @@ class Actor(Base):
             """
 
             # 3.1)
-            self.code_freeze_alert()
+            self.code_freeze()
 
             # 3.2)
-            self.release_freeze_alert()
+            self.release_alert()
 
             # 3.3)
-            self.valid_contributors()
+            self.check_valid_contributor()
 
             # 3.4)
-            self.notify_pm()
+            self. alert_pm()
