@@ -98,8 +98,8 @@ repo:
     - madhurjyaparashar
     - rkjas12
     - Madhukirankm
-  shields_check:
-  -
+    shields_check:
+    -
   REPO_2:
     checks: #type:list ::add/remove these checks for REPO_1. if given none: will trigger all the checks
     - tech_review
