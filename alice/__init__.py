@@ -22,23 +22,30 @@ def verify_request(payload, token):
     key = bytes('fHA3ogLICKad4JLU7jY9juYqZHQjBIXa608NLtFd', 'utf-8')
     # payload = bytes(payload, 'utf-8')
     digest = hmac.new(key, msg=payload, digestmod=hashlib.sha1)
-    signature = digest.hexdigest()
+    signature = "sha1=" + digest.hexdigest()
     if hmac.compare_digest(signature, token):
-        print("hi")
+        return True
     else:
-        print("bye")
+        return False
 
 
 @app.route("/alice", methods=['POST'])
 def alice():
     payload = request.get_data()
-    verify_request(payload, request.headers['X-Hub-Signature'])
+
+    if not verify_request(payload, request.headers['X-Hub-Signature']):
+        return {"401": "Not Authorized"}
+
     payload = json.loads(payload)
+
+    if not payload["pull_request"]:
+        return {"Not a Pull request"}
+
     merge_correctness = RunChecks().run_checks(payload)
     return jsonify(merge_correctness)
 
 
-@app.route("/", methods=['GET', 'POST'])
+@app.route("/", methods=['GET'])
 def home():
     return "************ Welcome to the wonderful world of Alice ***********"
 
@@ -52,6 +59,10 @@ def jira_integration():
         payload = request.get_data()
         print("************* payload ***************", payload)
         data = json.loads(payload)
+
+        if not verify_request(payload, request.headers['X-Hub-Signature']):
+            return {"401": "Not Authorized"}
+
         print("************* data ***************", data)
         parsed_data = JiraPayloadParser(request, data)
         actor_obj = JiraActor(parsed_data)
