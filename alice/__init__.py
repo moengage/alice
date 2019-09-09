@@ -8,9 +8,25 @@ from alice.main.jira_actor import JiraActor
 app = Flask(__name__)
 
 
+def verify_request(payload, token):
+    import hmac
+    import hashlib
+    import base64
+
+    key = bytes('fHA3ogLICKad4JLU7jY9juYqZHQjBIXa608NLtFd', 'utf-8')
+    # payload = bytes(payload, 'utf-8')
+    digest = hmac.new(key, msg=payload, digestmod=hashlib.sha1)
+    signature = digest.hexdigest()
+    print("sha1=" + signature, "\n\n\n\n\n")
+    if hmac.compare_digest(signature, token):
+        print("hi")
+    return 1/0
+
+
 @app.route("/alice", methods=['POST'])
 def alice():
     payload = request.get_data()
+    verify_request(payload, request.headers['X-Hub-Signature'])
     payload = json.loads(payload)
     merge_correctness = RunChecks().run_checks(payload)
     return jsonify(merge_correctness)

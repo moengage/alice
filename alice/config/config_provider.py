@@ -82,6 +82,10 @@ class ConfigProvider(object):
         return self.repo.get('dev_branch')
 
     @property
+    def shield_job(self):
+        return self.repo.get('shields_check')
+
+    @property
     def debug_folks(self):
         return self.config.get('debug_alice', {}).get('debug_folks')
 
