@@ -739,8 +739,8 @@ class Actor(Base):
         jenkins_instance = jenkins.Jenkins(jenkins_setting["JENKINS_BASE"],
                                            username=jenkins_setting["username"], password=token)
         repo = self.pr.repo
-        merged_by_slack_uid = CommonUtils.getSlackNicksFromGitNicks(self.pr.merged_by)
-        merged_by_slack_name = CommonUtils.getSlackNicksFromGitNicks(self.pr.merged_by)
+        # merged_by_slack_uid = CommonUtils.getSlackNicksFromGitNicks(self.pr.merged_by)
+        # merged_by_slack_name = CommonUtils.getSlackNicksFromGitNicks(self.pr.merged_by)
         pr_by_slack_uid = CommonUtils.getSlackNicksFromGitNicks(self.pr.opened_by)
         pr_by_slack_name = CommonUtils.getSlackNicksFromGitNicks(self.pr.opened_by)
 
@@ -924,7 +924,14 @@ class Actor(Base):
                                                            pr_by_slack=pr_by_slack_uid)
 
                         # Run main test
-                        self.actor.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token, job_name=job_name,
+                        for job in self.pr.config.shield_job:
+                            job = job + "_" + self.pr.repo
+                            params_dict = dict(repo=head_repo, head_branch=self.pr.head_branch, base_branch=self.pr.head_branch,
+                                 pr_no=pr_link, lint_path=path,
+                                 additional_flags="", msg="", machine="", sha=self.pr.head_sha, author=pr_by_slack_name,
+                                 author_github=self.pr.opened_by,
+                                 )
+                            self.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token, job_name=job,
                                         pr_link=pr_link, params_dict=params_dict,
                                         pr_by_slack=pr_by_slack_uid)
 

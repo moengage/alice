@@ -18,9 +18,8 @@ qa_team: "@p1 @p2"  #your QA team memebr slack names
 debug: true  #To test your setup with alice, set it false when you take live
 debug_alice: #in debug mode all the alerts to go in specific channel/person to avoid spamming any
   debug_channel: "#tmp"  #your slack channel name preceded by #
-  debug_folk: ""
   debug_folks:
-  - "" #your slack name so all alerts comes to you for debugging
+  - "@Rahul"#your slack name so all alerts comes to you for debugging
 user_map:   #key value map GITHUB_NAME: SLACK_NAME of each member in team, used to notify them
   p00ja: pooja  #replace with your mapping, add more how many needed
   abhi: abhinav
@@ -99,6 +98,8 @@ repo:
     - madhurjyaparashar
     - rkjas12
     - Madhukirankm
+  shields_check:
+  -
   REPO_2:
     checks: #type:list ::add/remove these checks for REPO_1. if given none: will trigger all the checks
     - tech_review
