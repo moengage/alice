@@ -13,30 +13,6 @@ class SlackHelper(object):
         self.slack = Slacker(self.config.slackToken)
         self.icon = SLACK_ICON
 
-    def post_to_slack_infra(self, channel, msg=None, data=None, parseFull=None, as_user=True, *args, **kwargs):
-        """
-        For posting as image and name change, as_user should be False and you should provide username and as_user
-        """
-        LOG.info("\n************** NOTIFYING ******************\n"
-                 "**************  %s      *************\n"
-                 "Message= %s\n"
-                 "******************************************* " % (channel, msg))
-        if data is not None:
-            as_user = data["username"]
-            icon = data["icon_url"]
-        else:
-            as_user = as_user
-            icon = self.icon
-        try:
-            self.slack.chat.post_message(channel=channel, text=msg, icon_url=icon, username=as_user, as_user=False, *args,
-                                         **kwargs)
-        except Exception as ex:
-            LOG.error(
-                "Error while posting alert to slack, please check if: \n1. The provided slack/hubot token for alice is correct " \
-                "and it has access to the channel=%s" \
-                "\n2.The channel name is correct\n" % (channel))
-            raise ex
-
     def postToSlack(self, channel, msg=None, data=None, parseFull=None, as_user=True, *args, **kwargs):
         LOG.info("\n************** NOTIFYING ******************\n"
                     "**************  %s      *************\n"

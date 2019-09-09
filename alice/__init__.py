@@ -15,9 +15,15 @@ app = Flask(__name__)
 
 
 def verify_request(payload, token):
-    import hmac
-    import hashlib
-    import base64
+    import hmac, hashlib, os
+    from alice.helper.file_utils import get_dict_from_config_file
+
+    #Setting for testing alice through postman
+    config_file = os.environ.get("config")
+    config = get_dict_from_config_file(config_file)
+    debug = config.get('debug', False)
+    if debug:
+        return True
 
     key = bytes('fHA3ogLICKad4JLU7jY9juYqZHQjBIXa608NLtFd', 'utf-8')
     # payload = bytes(payload, 'utf-8')
@@ -32,19 +38,16 @@ def verify_request(payload, token):
 @app.route("/alice", methods=['POST'])
 def alice():
     payload = request.get_data()
-
-    try:
-        r = request.headers['X-Hub-Signature']
-    except:
-        return {"X-Hub-Signature Header missing"}
+    if 'X-Hub-Signature' not in request.headers:
+        return jsonify("X-Hub-Signature Header missing")
 
     if not verify_request(payload, request.headers['X-Hub-Signature']):
-        return {"401": "Not Authorized"}
+        return jsonify("Not Authorized")
 
     payload = json.loads(payload)
 
-    if not payload["pull_request"]:
-        return {"Not a Pull request"}
+    if "pull_request" not in payload:
+        return jsonify("Not a Pull request")
 
     merge_correctness = RunChecks().run_checks(payload)
     return jsonify(merge_correctness)
