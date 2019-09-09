@@ -27,6 +27,11 @@ def verify_request(payload, token):
 def alice():
     payload = request.get_data()
 
+    try:
+        r = request.headers['X-Hub-Signature']
+    except:
+        return {"X-Hub-Signature Header missing"}
+
     if not verify_request(payload, request.headers['X-Hub-Signature']):
         return {"401": "Not Authorized"}
 
