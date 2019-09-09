@@ -19,7 +19,7 @@ debug: true  #To test your setup with alice, set it false when you take live
 debug_alice: #in debug mode all the alerts to go in specific channel/person to avoid spamming any
   debug_channel: "#tmp"  #your slack channel name preceded by #
   debug_folks:
-  - "@Rahul"#your slack name so all alerts comes to you for debugging
+  - "<@UL91SP77H>" #your slack name so all alerts comes to you for debugging
 user_map:   #key value map GITHUB_NAME: SLACK_NAME of each member in team, used to notify them
   p00ja: pooja  #replace with your mapping, add more how many needed
   abhi: abhinav

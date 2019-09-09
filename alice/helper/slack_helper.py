@@ -9,7 +9,7 @@ class SlackHelper(object):
         self.slack = Slacker(self.config.slackToken)
         self.icon = SLACK_ICON
 
-    def postToSlack(self, channel, msg=None, as_user=True, *args, **kwargs):
+    def postToSlack(self, channel, msg=None, data=None, parseFull=None, as_user=True, *args, **kwargs):
         LOG.info("\n************** NOTIFYING ******************\n"
                     "**************  %s      *************\n"
                     "Message= %s\n"
