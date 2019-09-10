@@ -902,7 +902,7 @@ class Actor(Base):
                             for job in self.pr.config.shield_job:
                                 job = job + "_" + self.pr.repo
                                 params_dict = dict(repo=head_repo, head_branch=self.pr.head_branch,
-                                                   base_branch=self.pr.head_branch,
+                                                   base_branch=self.pr.base_branch,
                                                    pr_no=pr_link, lint_path=path,
                                                    additional_flags="", msg="", machine="", sha=self.pr.head_sha,
                                                    author=pr_by_slack_name,
