@@ -97,5 +97,6 @@ organization_repo = 'moengage'
 master_branch = 'master'
 staging_branch = 'qa'
 dev_branch = 'dev'
+moengage_repo = 'MoEngage'
 
 repo_site_url = 'https://api.github.com/'

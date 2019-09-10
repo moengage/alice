@@ -895,7 +895,9 @@ class Actor(Base):
                                             ["DevOps_Review "])
 
                         # Run Jenkins for moengage repo
-                        if repo == "MoEngage":
+                        if repo == moengage_repo:
+                            # For moengage repo we have to hit jenkins
+                            # and we have some extra tasks also
 
                             for job in self.pr.config.shield_job:
                                 job = job + "_" + self.pr.repo
@@ -909,6 +911,19 @@ class Actor(Base):
                                 self.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token, job_name=job,
                                                      pr_link=pr_link, params_dict=params_dict,
                                                      pr_by_slack=pr_by_slack_uid)
+
+                            # 3) Third Task - set_labels
+                            self.add_label_to_issue(repo, self.pr.number, [])
+
+                            # 4) Comment Checklist
+                            self.comment_on_pr()
+
+                            # 5) code_freeze alert
+                            self.code_freeze()
+
+                            # 6) release_freeze_alert
+                            self.release_alert()
+
 
                         else:
                             # run Jenkins for all other repo's
@@ -947,35 +962,23 @@ class Actor(Base):
                                                      pr_link=pr_link, params_dict=api_params_dict,
                                                      pr_by_slack=pr_by_slack_uid)
 
-            # 3) Third Task - set_labels
-            self.add_label_to_issue(repo, self.pr.number, [])
-
-            # 4) Comment Checklist
-            self.comment_on_pr()
-
-            # 5) code_freeze alert
-            self.code_freeze()
-
-            # 6) release_freeze_alert
-            self.release_alert()
-
         else:
             """
-            3) last task task, When pull request is merged,
+            3) last task task, When pull request is merged/closed,
             we run two checks.
             First, We alert if pull request is merged_by a person,
              who is not a valid contributor.
             Second, DM to pm for qa.
             """
+            if repo == moengage_repo:
+                # 3.1)
+                self.code_freeze()
 
-            # 3.1)
-            self.code_freeze()
+                # 3.2)
+                self.release_alert()
 
-            # 3.2)
-            self.release_alert()
+                # 3.3)
+                self.check_valid_contributor()
 
-            # 3.3)
-            self.check_valid_contributor()
-
-            # 3.4)
-            self. alert_pm()
+                # 3.4)
+                self. alert_pm()
