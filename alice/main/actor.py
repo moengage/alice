@@ -702,7 +702,7 @@ class Actor(Base):
         if self.pr.is_sensitive_branch and self.pr.repo in [moengage_repo, dashboard]:
 
             msg = "Title=\"{0}\",  Description=\"{1}\" \nPR: {2}\n from {3} into `{4}` By: <@{5}>, mergedBy: <@{6}>\n".format(
-                self.pr.title, self.pr.body, self.pr.link_pr, self.pr.head_branch, self.pr.base_branch,
+                self.pr.title, self.pr.description, self.pr.link_pr, self.pr.head_branch, self.pr.base_branch,
                 pr_by_slack_uid, merged_by_slack_uid)
             self.slack.postToSlack(self.pr.config.alert_channel_on_merge, msg, data={"username": bot_name})
 
