@@ -937,7 +937,7 @@ class Actor(Base):
 
             print("from 'dev' to 'qa', posting release items to slack")
             write_to_file_from_top(code_freeze_details_path, ":clubs:" + str(
-                datetime.now(pytz.timezone('Asia/Calcutta')).strftime(
+                datetime.datetime.now(pytz.timezone('Asia/Calcutta')).strftime(
                     '%B %d at %I.%M %p')) + " with <" + self.pr.link_pretty + "|PR>")
 
             msg = ""
