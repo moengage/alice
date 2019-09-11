@@ -1,6 +1,6 @@
 import simplejson as json
-import json as jon
 from parse import parse
+
 from alice.helper.file_utils import write_to_file_from_top, clear_file, read_from_file
 
 from alice.commons.base import Base
@@ -53,10 +53,6 @@ class Actor(Base):
             self.merged_by = self.pr.config.getSlackName(self.pr.merged_by)
             self.save_data_for_later()
         self.sensitive_file_touched, self.change_requires_product_plus1 = self.parse_files_and_set_flags()
-        self.channel_name = self.pr.config.constants.get('channel_name')
-        self.alert_pr_channel = self.pr.config.constants.get('pr_alert_channel_name') #seperated as all alerts were spamming channels
-        self.file_content = ''
-        self.file_content_message = ''
 
     def save_data_for_later(self):
         """
@@ -203,8 +199,6 @@ class Actor(Base):
         new_comment["body"] = comments
         return new_comment
 
-
-
     def notify_on_action(self):
         """
         notify respective folk(s) on particular action. Ex. on open notify to lead (or on merged, can configure that)
@@ -259,39 +253,26 @@ class Actor(Base):
         close a Pull Request which is not supposed to be opened Ex. base=master head=feature
         :return: relevant response dict
         """
-        master_branch = self.pr.config.mainBranch
-        qa_branch = self.pr.config.testBranch
-        head_branch = self.head_branch
+        if self.pr.is_opened or self.pr.is_reopened:
 
-        if self.base_branch in master_branch and head_branch != qa_branch:
+            master_branch = self.pr.config.mainBranch
+            qa_branch = self.pr.config.testBranch
+            head_branch = self.head_branch
+            if self.base_branch == master_branch and head_branch != qa_branch:
 
-            if head_branch.lower().startswith("patch") or head_branch.lower().startswith("hotfix") or head_branch.lower().startswith("Hotfix"):
-                print("*** SKIP closing, Its a patch from head_branch=", head_branch)
-                msg = "PR opened to %s from %s" % (master_branch, head_branch)
-                return {"msg": msg}
+                if head_branch.lower().startswith("patch"):
+                    print("*** SKIP closing, Its a patch from head_branch=", head_branch)
+                    msg = "PR opened to %s from %s" % (master_branch, head_branch)
+                    return {"msg": msg}
 
-            if self.pr.pr_state == "closed":
-                """
-                This condition happens when we edit a PR to change its base branch to master, then we call
-                close dangerous pr.
-                Now, close dangerous pr first uses action "EDIT", to edit title and then close PR, now calling
-                "EDIT" causes recursion, so this condition is base condition in recursion
-                """
-                msg = "PR is already closed"
-                return 0
-
-            if self.pr.repo in REPO_NOT_CLOSE:
-                print("Repo closing skipped as Asked by tech leads")
-                return 1
-
-            msg = MSG_AUTO_CLOSE.format(tested_branch=qa_branch, main_branch=master_branch, pr_link=self.pr.link_pr)
-            msg_to_github = "AUTO CLOSED : " + self.pr.title
-            print("ALice is AUTO CLOSING PR")
-            self.github.modify_pr(msg_to_github, "closed")
-            self.slack.postToSlack(self.alert_pr_channel, self.get_slack_name_for_git_name(self.created_by) + ": " + msg)
-            LOG.info("closed dangerous PR %s" % self.pr.link_pretty)
-            return 0
-        return 1
+                msg = MSG_AUTO_CLOSE.format(tested_branch=qa_branch, main_branch=master_branch)
+                self.github.modify_pr(msg, "closed")
+                self.slack.postToSlack(self.pr.config.alertChannelName, "@" + self.created_by + ": " + msg)
+                LOG.info("closed dangerous PR %s" % self.pr.link_pretty)
+                return {"msg": "closed dangerous PR %s" % self.pr.link_pretty}
+            return {"msg": "skipped closing PR=%s because not raised to mainBranch %s" % (self.pr.link_pretty,
+                                                                                          master_branch)}
+        return {"msg": "skipped closing PR because not a opened PR"}
 
     def notify_if_sensitive_modified(self):
         """
@@ -299,39 +280,20 @@ class Actor(Base):
         We only check for release note when merging into MASTER
         and changelog when merging into RELEASE
         """
-        if self.pr.action in action_commit_to_investigate and self.pr.repo != moengage_repo:
-            print("Checking Sensitive Files")
-            commit_id = self.pr.head_sha
-            base_url = "https://api.github.com/repos/moengage/{}".format(self.pr.repo) + "/commits/{}".format(commit_id)
-            header = {"Authorization": "token " + "%s" % self.github.GITHUB_TOKEN}
-            flag = 0
-            channel_name = self.pr.config.constants.get('channel_name')
-            commit_id_url = self.pr.link_pr + "/commits/%s"%commit_id
-            if self.pr.base_branch in master_branch:
-                response = ApiManager.get(base_url, header)
-                data = json.loads(response["content"])
-                if "files" in data:
-                    file_data = data["files"]
-                    for file in file_data:
-                        if file["filename"] == sensitive_files_master:
-                            flag = 1
-                    if flag == 1:
-                        msg = MSG_SENSITIVE_FILE_TOUCHED.format(file=sensitive_files_master, pr=self.pr.link_pr
-                                                                , id=commit_id_url)
-                        self.slack.postToSlack(channel_name, msg=msg)
-
-            elif self.pr.base_branch == staging_branch_commons and self.pr.head_branch == dev_branch_commons:
-                response = ApiManager.get(base_url, header)
-                data = json.loads(response["content"])
-                if "files" in data:
-                    file_data = data["files"]
-                    for file in file_data:
-                        if file["filename"] == sensitive_files_release:
-                            flag = 1
-                    if flag == 1:
-                        msg = MSG_SENSITIVE_FILE_TOUCHED.format(file=sensitive_files_release, pr=self.pr.link_pr
-                                                                , id=commit_id_url)
-                        self.slack.postToSlack(channel_name, msg=msg)
+        if self.pr.is_merged:
+            if self.sensitive_file_touched.get("is_found"):
+                msg = MSG_SENSITIVE_FILE_TOUCHED.format(
+                    notify_folks=self.pr.config.devOpsTeamToBeNotified, file=self.sensitive_file_touched["file_name"],
+                    pr=self.pr.link_pretty, pr_by=self.created_by, pr_number=self.pr.number)
+                self.slack.postToSlack(self.pr.config.alertChannelName, msg)
+                LOG.info("informed %s because sensitive files are touched in pr=%s" %
+                         (self.pr.config.devOpsTeamToBeNotified, self.pr.link_pretty))
+                return {
+                    "msg": "informed %s because sensitive files are touched" % self.pr.config.devOpsTeamToBeNotified}
+            return {"msg": "Skipped sensitive files alerts because no sensitive file being touched"}
+        return {
+            "msg": "Skipped sensitive files alerts because its not PR merge event %s" %
+                   self.pr.config.devOpsTeamToBeNotified}
 
     def notify_qa_sign_off(self):
         """
@@ -354,7 +316,6 @@ class Actor(Base):
                                    str(datetime.datetime.now(pytz.timezone('Asia/Calcutta')).strftime(
                                        '%B %d at %I.%M %p')) + " with <" + self.pr.link_pretty + "|master> code")
             clear_file(self.pr.config.codeFreezeDetailsPath)
-            self.alert_pm()
 
     def notify_channel_on_merge(self):
         """
@@ -364,7 +325,7 @@ class Actor(Base):
         if self.pr.is_merged:
             LOG.debug("**** Repo=%s, new merge came to=%s, setting trace to=%s channel"
                       % (self.pr.repo, self.pr.base_branch, self.pr.config.codeChannelName))
-            msg = MSG_CODE_CHANNEL.format(title=self.pr.title, desc=self.pr.description, pr=self.pr.link_pr,
+            msg = MSG_CODE_CHANNEL.format(title=self.pr.title, desc=self.pr.description, pr=self.pr.link,
                                           head_branch=self.pr.head_branch, base_branch=self.pr.base_branch,
                                           pr_by=self.get_slack_name_for_git_name(self.created_by),
                                           merge_by=self.get_slack_name_for_git_name(self.merged_by))
@@ -381,7 +342,7 @@ class Actor(Base):
         gathers accumulated data after last qa_signOff and send an attachment into channel announcing details of code freeze
         :return: relevant response dict
         """
-        if self.pr.action in close_action and self.pr.is_merged and (self.pr.base_branch == self.pr.config.testBranch \
+        if self.pr.is_merged and (self.pr.base_branch == self.pr.config.testBranch \
                                   and self.pr.head_branch == self.pr.config.devBranch):
             LOG.debug("*** PR merged from {dev_branch} to {qa_branch}, posting release items to slack".
                       format(dev_branch=self.pr.config.devBranch, qa_branch=self.pr.config.testBranch))
@@ -517,20 +478,22 @@ class Actor(Base):
             traceback.print_exc()
             raise Exception(e)
 
-    def run_for_angular(self, context_angular, job_dir, repo, pr_by_slack_name, is_change_angular, jenkins_instance, token, pr_by_slack_uid):
+    def run_for_angular(self, context_angular, job_dir, repo, pr_by_slack_name, is_change_angular, jenkins_instance,
+                        token, pr_by_slack_uid):
         self.jenkins.change_status(self.pr.statuses_url, "pending", context=context_angular,
                                    description="Hold on!",
                                    details_link="")
         job_name = job_dir + "shield_dashboard_angular"
-        params_dict = dict(repo=repo, head_branch=self.pr.head_branch, base_branch=self.pr.base_branch, sha=self.pr.head_sha,
-                                           description="Syntax Validation [React Code]", author=pr_by_slack_name,
-                                           author_github=self.pr.opened_by, pr_no=self.pr.link_pretty,
-                                           shield_angular=is_change_angular)
+        params_dict = dict(repo=repo, head_branch=self.pr.head_branch, base_branch=self.pr.base_branch,
+                           sha=self.pr.head_sha,
+                           description="Syntax Validation [React Code]", author=pr_by_slack_name,
+                           author_github=self.pr.opened_by, pr_no=self.pr.link_pretty,
+                           shield_angular=is_change_angular)
         self.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token, job_name=job_name,
-                                   pr_link=self.pr.link_pretty,
-                                   params_dict=params_dict, pr_by_slack=pr_by_slack_uid)
+                             pr_link=self.pr.link_pretty,
+                             params_dict=params_dict, pr_by_slack=pr_by_slack_uid)
 
-    def run_for_react(self, job_dir, repo, pr_by_slack_name, jenkins_instance, token,pr_by_slack_uid):
+    def run_for_react(self, job_dir, repo, pr_by_slack_name, jenkins_instance, token, pr_by_slack_uid):
         job_name = job_dir + "shield_dashboard_react_linter"
         params_dict = dict(repo=repo, head_branch=self.pr.head_branch, base_branch=self.pr.base_branch,
                            sha=self.pr.head_sha,
@@ -538,8 +501,8 @@ class Actor(Base):
                            author_github=self.pr.opened_by, pr_no=self.pr.link_pretty,
                            shield_react=True)
         self.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token, job_name=job_name,
-                                   pr_link=self.pr.link_pretty,
-                                   params_dict=params_dict, pr_by_slack=pr_by_slack_uid)
+                             pr_link=self.pr.link_pretty,
+                             params_dict=params_dict, pr_by_slack=pr_by_slack_uid)
 
     def alert_pm(self):
         if self.pr.action.find("close") != -1 and self.pr.is_merged == True and (
@@ -548,19 +511,19 @@ class Actor(Base):
             """ ********** Remind PM teams to update release notes for next release ************ """
             for item in alice_product_team:
                 self.slack.postToSlack(item,
-                            "\n:bell: hi " + item + " master is updated & release is going live shortly. "
-                                                    "Hoping <https://docs.google.com/a/moengage.com/spreadsheets/d/1eW3y-GxGzu8Jde8z4EYC6fRh1Ve4TpbW5qv2-iWs1ks/edit?usp=sharing|Release Notes> have mention of all the items planned to go in \"Next Release\"",
-                            data={"username": bot_name}, parseFull=False)
+                                       "\n:bell: hi " + item + " master is updated & release is going live shortly. "
+                                                               "Hoping <https://docs.google.com/a/moengage.com/spreadsheets/d/1eW3y-GxGzu8Jde8z4EYC6fRh1Ve4TpbW5qv2-iWs1ks/edit?usp=sharing|Release Notes> have mention of all the items planned to go in \"Next Release\"",
+                                       data={"username": bot_name}, parseFull=False)
             """ for bot """
             for item in alice_qa_team:
                 self.slack.postToSlack(item, "\n hi <" + item + "> " + random.choice(
                     applaud_list) + " :+1: thank you for the QA signOff\n :bell:"
                                     " <https://github.com/moengage/MoEngage/wiki/Post-Release-deployment-Check#for-qa-engineer|" + random.choice(
                     post_checklist_msg) + ">",
-                            data={"username": bot_name}, parseFull=False)
+                                       data={"username": bot_name}, parseFull=False)
             write_to_file_from_top(release_freeze_details_path, ":clubs:" +
-              str(datetime.now(pytz.timezone('Asia/Calcutta')).strftime(
-                  '%B %d,%Y at %I.%M %p')) + " with <" + self.pr.link_pretty + "|master> code")  # on:" + str(datetime.datetime.now().strftime('%B %d, %Y @ %I.%M%p'))
+                                   str(datetime.now(pytz.timezone('Asia/Calcutta')).strftime(
+                                       '%B %d,%Y at %I.%M %p')) + " with <" + self.pr.link_pretty + "|master> code")  # on:" + str(datetime.datetime.now().strftime('%B %d, %Y @ %I.%M%p'))
             clear_file(code_freeze_details_path)  # clear last code freeze
 
     def check_valid_contributor(self):
@@ -569,7 +532,7 @@ class Actor(Base):
             merged_by_slack_uid = CommonUtils.getSlackNicksFromGitNicks(self.pr.merged_by)
             msg = "Very Bad <@" + merged_by_slack_uid + "> :rage4: :rage4: !! " + self.pr.link_pr \
                   + " is merged directly into `" + self.pr.base_branch + \
-                  "`, but not by QA team, soon these kind of requests will be automatically reverted CC: " +\
+                  "`, but not by QA team, soon these kind of requests will be automatically reverted CC: " + \
                   alice_dev_team_MoEngage_repo
             print(msg)
             print(self.slack.postToSlack(channel_name, msg, data={"username": bot_name}))
@@ -578,11 +541,10 @@ class Actor(Base):
 
         if (self.pr.base_branch == staging_branch and self.pr.head_branch == dev_branch) \
                 and (self.pr.action.find("opened") != -1 or self.pr.action.find("merged") != -1):
-
             print("************ code freeze PR is opened from dev to QA, auto create PRs for dependent packages")
             self.slack.postToSlack(channel_name,
-                        "@channel Freezing code now. Any pending merge? please reach QA team within 10 minutes",
-                        data={"username": bot_name}, parseFull=False)
+                                   "@channel Freezing code now. Any pending merge? please reach QA team within 10 minutes",
+                                   data={"username": bot_name}, parseFull=False)
             self.freeze_other_repos("staging")
 
     def freeze_other_repos(self, freeze_type):
@@ -630,67 +592,70 @@ class Actor(Base):
             if not res.get("errors"):
                 # for person in pkg_people_to_notify:
                 self.slack.postToSlack(channel_name,
-                            "%s *%s:* %s number <%s|%s>" % (cnt, repo, pkg_people_to_notify.get(repo, "@pooja"),
-                                                            res.get("html_url"), res.get("number")),
-                            data={"username": bot_name}, parseFull=False)
+                                       "%s *%s:* %s number <%s|%s>" % (
+                                       cnt, repo, pkg_people_to_notify.get(repo, "@pooja"),
+                                       res.get("html_url"), res.get("number")),
+                                       data={"username": bot_name}, parseFull=False)
             else:
                 try:
                     error_message = res["errors"][0]["message"]
                     custom_message = "%s) *%s:* %s %s <%s|check here> " % (
-                    cnt, repo, pkg_people_to_notify.get(repo, "@pooja"),
-                    "Pull Request is already open",
-                    repo_site_url + "moengage/"
-                    + repo + "/compare/" + base + "..." + head)
+                        cnt, repo, pkg_people_to_notify.get(repo, "@pooja"),
+                        "Pull Request is already open",
+                        repo_site_url + "moengage/"
+                        + repo + "/compare/" + base + "..." + head)
                     if "no commits" in error_message.lower():
                         custom_message = "%s *%s:* %s %s <%s|check here> " % (
-                        cnt, repo, pkg_people_to_notify.get(repo, "@pooja"),
-                        error_message, repo_site_url + "moengage/" + repo + "/compare/" + base + "..." + head)
+                            cnt, repo, pkg_people_to_notify.get(repo, "@pooja"),
+                            error_message, repo_site_url + "moengage/" + repo + "/compare/" + base + "..." + head)
 
                     SlackHelper.postToSlack(channel_name, custom_message, data={"username": bot_name})
                     SlackHelper.postToSlack("@pooja", ":warning: creating automatic PR for %s failed, response=\n%s"
-                                % (repo, json.dumps(res)))
+                                            % (repo, json.dumps(res)))
                 except Exception as e:
                     print(e)
                     SlackHelper.postToSlack("@pooja",
-                                ":skull: error in sending failure message on PR creation failure, response=\n%s"
-                                % (repo, e.message))
+                                            ":skull: error in sending failure message on PR creation failure, response=\n%s"
+                                            % (repo, e.message))
             cnt += 1
 
     def release_alert(self):
         if self.pr.action.find("close") != -1 and self.pr.is_merged == True and (
                 self.pr.base_branch == master_branch and self.pr.head_branch == staging_branch):
-
-
             """ ************* inform channel *************** """
             msg = "{2} QA passed :+1: `master` is <{1}|updated> for release \n cc: <@{0}> {3} {4} \n <!channel> ".format(
                 to_be_notified, self.pr.link_pretty,
                 dev_ops_team, tech_leads_to_notify_always_slack, product_notify_slack)
 
             self.slack.postToSlack(channel_name, msg, data=CommonUtils.getBot(channel_name, merged_by_slack_name),
-                        parseFull=False)
+                                   parseFull=False)
 
-        if self.pr.action.find("open") != -1 and self.pr.base_branch == master_branch and self.pr.head_branch == staging_branch:
+        if self.pr.action.find(
+                "open") != -1 and self.pr.base_branch == master_branch and self.pr.head_branch == staging_branch:
 
             pr_by_slack_uid = CommonUtils.getSlackNicksFromGitNicks(self.pr.opened_by)
-            print("************ MoEngage repo:: PR opened to " + self.pr.base_branch + " Notify Alice & comment guidelines ****")
+            print(
+                "************ MoEngage repo:: PR opened to " + self.pr.base_branch + " Notify Alice & comment guidelines ****")
             msg = "MoEngage repo:: <{link_pr}|{title_pr}> is opened to `{base_branch}` by:*<@{pr_by_slack}>* " \
-                .format(link_pr=self.pr.link_pr, title_pr=self.pr.title, pr_by_slack=pr_by_slack_uid, base_branch=self.pr.base_branch)
+                .format(link_pr=self.pr.link_pr, title_pr=self.pr.title, pr_by_slack=pr_by_slack_uid,
+                        base_branch=self.pr.base_branch)
 
             self.add_comment_to_master()
 
             for item in alice_tech_leads_MoEngage_Repo:
-                self.slack.postToSlack(item, msg + "\n Please review and approve with +1, Release preparation starts...",
-                            data={"username": bot_name}, parseFull=False)
+                self.slack.postToSlack(item,
+                                       msg + "\n Please review and approve with +1, Release preparation starts...",
+                                       data={"username": bot_name}, parseFull=False)
             self.freeze_other_repos("live")
 
             for item in alice_qa_team:
                 self.slack.postToSlack(item,
-                            "\n\n:bell: *Bugs clean time* :: please make out 20 minutes max to cleanup no longer valid old issues and share a rough number of issues we cleaned or require attention <https://docs.google.com/spreadsheets/d/1WeWLuIE7Dt5G8lWACZs21WO0B07-naQ7JlUb8cHcxVA/edit#gid=1591591107|sheet link>",
-                            data={"username": bot_name}, parseFull=False)
+                                       "\n\n:bell: *Bugs clean time* :: please make out 20 minutes max to cleanup no longer valid old issues and share a rough number of issues we cleaned or require attention <https://docs.google.com/spreadsheets/d/1WeWLuIE7Dt5G8lWACZs21WO0B07-naQ7JlUb8cHcxVA/edit#gid=1591591107|sheet link>",
+                                       data={"username": bot_name}, parseFull=False)
             for item in alice_product_team:
                 self.slack.postToSlack(item,
-                            "\n:bell: Hi " + item + " *Release notes update required*: Current release is getting ready to go Live, please help us with next release planning by having \"Next Release\" <https://docs.google.com/a/moengage.com/spreadsheets/d/1eW3y-GxGzu8Jde8z4EYC6fRh1Ve4TpbW5qv2-iWs1ks/edit?usp=sharing|sheet> updated",
-                            data={"username": bot_name}, parseFull=False)
+                                       "\n:bell: Hi " + item + " *Release notes update required*: Current release is getting ready to go Live, please help us with next release planning by having \"Next Release\" <https://docs.google.com/a/moengage.com/spreadsheets/d/1eW3y-GxGzu8Jde8z4EYC6fRh1Ve4TpbW5qv2-iWs1ks/edit?usp=sharing|sheet> updated",
+                                       data={"username": bot_name}, parseFull=False)
 
     def add_comment_to_master(self):
         guideline_comment = {
@@ -732,6 +697,273 @@ class Actor(Base):
         command = "curl -X {method} -H {headers} '{uri}'"
         print("************* cURL=", command.format(method=method, headers=headers, uri=uri))
 
+    def broadcast_message(self, pr_by_slack_uid, merged_by_slack_uid):
+
+        if self.pr.is_sensitive_branch and self.pr.repo in [moengage_repo, dashboard]:
+
+            msg = "Title=\"{0}\",  Description=\"{1}\" \nPR: {2}\n from {3} into `{4}` By: <@{5}>, mergedBy: <@{6}>\n".format(
+                self.pr.title, self.pr.body, self.pr.link_pr, self.pr.head_branch, self.pr.base_branch,
+                pr_by_slack_uid, merged_by_slack_uid)
+            self.slack.postToSlack(self.pr.config.alert_channel_on_merge, msg, data={"username": bot_name})
+
+    def dashboard_builder(self, pr_by_slack_uid, merged_by_slack_uid, jenkins_instance, token):
+        repo = self.pr.repo
+
+        if self.pr.base_branch in package_builder_branches_repo_wise.get(repo.lower()):
+            """ Cases
+            head    base
+            dev     qa                      staging build
+            qa      master                  prod  build
+            patch   master                  prod  build
+            feature qa                      staging
+            feature master                  nothing
+            feature dev                     nothing
+            f1           f2                 nothing
+            """
+            release_type = ""
+            dashboard_job_name = ""
+            job_dir = "Dashboard/"
+
+            if self.pr.base_branch == "qa":
+                release_type = "minor"
+                dashboard_job_name = job_dir + "dashboard_builder_staging"
+            elif self.pr.base_branch == "master" and self.pr.head_branch.startswith("patch"):
+                release_type = "patch"
+                dashboard_job_name = job_dir + "dashboard_builder_prod"
+            elif self.pr.base_branch == "master" and self.pr.head_branch == "qa":
+                release_type = "major"
+                dashboard_job_name = job_dir + "dashboard_builder_prod"
+            else:
+                msg = "******  NOT TO BUILD CASE base_branch=%s head_branch=%s" % (
+                self.pr.base_branch, self.pr.head_branch)
+                print(msg)
+                return {"msg": msg}
+
+            sha = self.pr.statuses_url.rsplit("/", 1)[1]
+
+            bump_version_job_dict = dict(release_type=release_type, repo=repo, pr_no=self.pr.number,
+                                         pr_title=self.pr.title,
+                                         pr_by_slack=pr_by_slack_uid, approved_by=merged_by_slack_uid,
+                                         merged_by_slack=merged_by_slack_uid, sha=sha, base_branch=self.pr.base_branch,
+                                         head_branch=self.pr.head_branch, is_ui_change=True)
+            self.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token, job_name=dashboard_job_name,
+                                 pr_link=self.pr.link_pretty, params_dict=bump_version_job_dict,
+                                 pr_by_slack=pr_by_slack_uid)
+            msg = "dashboard builder started"
+        return {"msg": msg}
+
+    def after_merge_check(self, pr_by_slack_uid, merged_by_slack_uid):
+        """
+        When pull request is merged, we run notify on slack ,
+         whether it was merged correctly or not
+        """
+        repo = self.pr.repo
+        sha = self.pr.statuses_url.rsplit("/", 1)[1]
+
+        if self.pr.is_sensitive_branch and self.pr.action in close_action:
+            if (self.pr.base_branch == "qa" and self.pr.head_branch == "master") or (
+                    self.pr.base_branch == "dev" and self.pr.head_branch == "qa"):
+
+                print(":SKIP: back merge: ignore status alert, repo={repo} pr={link_pr} title={title_pr}".
+                      format(repo=repo, link_pr=self.pr.link_pr, title_pr=self.pr.title))
+            else:
+
+                print(":DEBUG: merged into sensitive branch, checking PR's checks status")
+                checks_status_url = base_api_cmd + repo + "/status/" + sha
+
+                res_status = ApiManager.get(checks_status_url, headers={"Authorization": "token " + CommonUtils.GIT_TOKEN})
+
+                status_dict = json.loads(res_status["content"])
+                print(":DEBUG: status response content", status_dict)
+                msg_start = repo + " repo: PR <{link_pr}|{title_pr}> is merged into `{base_branch}` "
+                msg_end = " Merged by:*<@{merged_by_slack}>*, Author:*<@{pr_by_slack}>*"
+
+                if self.pr.merged_by != "moeoperation":
+                    if status_dict["state"] == "failure":
+
+                        status_list = status_dict["statuses"]
+                        context_description = ""
+                        err_syntax_tests = ""
+                        for item in status_list:
+                            if item["context"].find("unit-tests") != -1 and item["state"] == "failure":
+                                context_description = item["description"]
+
+                            if item["context"] == "shield-syntax-validator-python" and item["state"] == "failure":
+
+                                err_syntax_tests = item["description"]
+
+                        if context_description.lower().find("miss coverage") != -1:
+
+                            actual_coverage = parse("{}Coverage: {actual_coverage} is {} {two} {}", context_description).named["actual_coverage"]
+                            msg = msg_start.format(link_pr=self.pr.link_pr, title_pr=self.pr.title, base_branch=self.pr.base_branch) \
+                                  + " with *{actual_coverage}* coverage.".format(actual_coverage=actual_coverage) \
+                                  + msg_end.format(pr_by_slack=pr_by_slack_uid, merged_by_slack=merged_by_slack_uid)
+
+                            self.slack.postToSlack(self.pr.config.alert_channel_on_low_coverage, msg, data={"username": bot_name}, parseFull=False)
+                            print(":INFO: missed coverage found and still merged, logged in into ci-rules-bypassed channel " + self.pr.link_pr)
+
+                        else:
+
+                            rule_broken = ""
+                            if err_syntax_tests:
+                                rule_broken = rule_broken + "*Syntax status:* " + err_syntax_tests + "\n"
+
+                            if context_description:
+                                rule_broken = rule_broken + "*Unit tests status:* " + context_description
+
+                            msg = msg_start.format(link_pr=self.pr.link_pr, title_pr=self.pr.title, base_branch=self.pr.base_branch) \
+                                  + "\n{rule} ".format(rule=rule_broken) \
+                                  + msg_end.format(pr_by_slack=pr_by_slack_uid, merged_by_slack=merged_by_slack_uid)
+
+                            self.slack.postToSlack(self.pr.config.alert_channel_on_rule_broken, msg, data={"username": bot_name}, parseFull=False)
+                            print(":INFO: check fails and still merged, notified pooja " + self.pr.link_pr)
+
+                    elif status_dict["state"] == "pending":
+
+                        msg = "Very Bad :rage1: <@%s> you have misused 'admin' power by merging *without waiting for checks to complete*." % merged_by_slack_uid \
+                              + msg_start.format(link_pr=self.pr.link_pr, title_pr=self.pr.title, base_branch=self.pr.base_branch) \
+                              + "unchecked code is prone to break in production. cc: <@pooja> <@satya>"
+
+                        self.slack.postToSlack(self.pr.config.alert_channel_on_rule_broken, msg, data={"username": bot_name},
+                                    parseFull=False)
+                        print(":INFO: check is still running but PR is merged by force. notified pooja " + self.pr.link_pr)
+                    else:
+                        print(":DEBUG: good merge, all checks looks pass pr=" + self.pr.link_pretty)
+
+    def alert_on_slack(self, pr_by_slack_uid):
+        """
+        Post to slack when pr is opened or closed
+        """
+
+        repo = self.pr.repo
+        if repo in repos_slack:
+
+            cc_team = self.pr.config.alert_channel_on_dev_segmentation
+            code_merge_channel = self.pr.config.alert_channel_on_merge_segmentation
+
+            if repo == "commons":
+                cc_team = self.pr.config.alert_channel_on_dev_segmentation + " @pruthvi"
+                code_merge_channel = self.pr.config.alert_channel_on_merge_common
+
+            if self.pr.action in open_action and self.pr.is_sensitive_branch:
+
+                print("***** " + repo + ":: PR opened to develop/release/qa/master, Notify Alice & comment guidelines ****")
+                msg = repo + " repo:: <{link_pr}|{title_pr}> is {action} to `{base_branch}` by:*<@{pr_by_slack}>* " \
+                    .format(link_pr=self.pr.link_pr, title_pr=self.pr.title, pr_by_slack=pr_by_slack_uid,
+                            base_branch=self.pr.base_branch, action=self.pr.action)
+
+                self.slack.postToSlack('@' + self.pr.config.alert_to_notify, msg, data={"username": bot_name}, parseFull=False)
+                return {"msg": msg}
+
+            if self.pr.action in close_action and self.pr.is_merged and self.pr.is_sensitive_branch:
+
+                print("**** Repo=" + repo + ", new merge came to " + self.pr.base_branch + " set trace to " + code_merge_channel + " channel")
+                merged_by_slack_uid = CommonUtils.getSlackNicksFromGitNicks(self.pr.merged_by)
+
+                msg = "Title=\"{0}\",  Description=\"{1}\" \nPR: {2}\n from {3} into `{4}` By: *<@{5}>*, mergedBy: <@{6}>\n".format(
+                    self.pr.title, self.pr.description, self.pr.link_pr,
+                    self.pr.head_branch, self.pr.base_branch, pr_by_slack_uid, merged_by_slack_uid)
+
+                self.slack.postToSlack(code_merge_channel, msg, data={"username": bot_name})  # code-merged
+
+            if self.pr.action in close_action and self.pr.is_merged and self.pr.base_branch == "release" \
+                    and (self.pr.merged_by not in valid_contributors_segmentation_repo):
+
+                print("**** Repo=" + repo + ", merged in branch=" + self.pr.base_branch +
+                      " and is not authentic, alert the culprit " + self.pr.merged_by + " to channel")
+                merged_by_slack_uid = CommonUtils.getSlackNicksFromGitNicks(self.pr.merged_by)
+                msg = "Very Bad <@" + merged_by_slack_uid + "> :rage4: :rage4: !! " + self.pr.link_pr  + " is merged directly into " + \
+                      self.pr.base_branch + "`, but not by Akshay/Pruthvi/Pooja, soon these kind of requests will be automatically reverted CC: " + \
+                      cc_team
+                print(msg)
+
+                self.slack.postToSlack(self.pr.config.alert_channel, msg, data={"username": bot_name})
+
+    def bump_version(self, pr_by_slack_uid, merged_by_slack_uid, jenkins_instance, token):
+        repo = self.pr.repo
+        sha = self.pr.statuses_url.rsplit("/", 1)[1]
+
+        if repo == moengage_repo:
+
+            if self.pr.base_branch == master_branch and self.pr.head_branch == staging_branch:
+
+                """ ********** Bump Version ************** """
+                print(":DEBUG: before hitting patch job is_ui_change=", ui_change)
+                bump_version_job_dict = dict(release_type="major", repo=repo, pr_no=self.pr.number, pr_title=self.pr.title,
+                pr_by_slack = pr_by_slack_uid, approved_by = merged_by_slack_uid,
+                merged_by_slack = merged_by_slack_uid, sha = sha, head_branch = self.pr.head_branch,
+                is_ui_change = ui_change)
+
+                self.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token, job_name="VersionBumper_MoEngage",
+                                     pr_link = self.pr.link_pretty, params_dict = bump_version_job_dict, pr_by_slack = pr_by_slack_uid)
+
+            if self.pr.base_branch == master_branch and self.pr.head_branch.startswith("patch"):
+                msg = "MoEngage Repo: A patch came from head=" + self.pr.head_branch
+                print(msg)
+
+                """ ********** Bump Version ************** """
+                checks_status_url = "%s%s/pulls/%s/reviews" % (base_api_cmd, repo, self.pr.number)
+                print("**** get reviews if there is any approval api=***", checks_status_url)
+                res_status = ApiManager.get(checks_status_url, headers={"Authorization": "token " + self.github.GITHUB_TOKEN})
+                print("res_status=", res_status["content"])
+                review_list = json.loads(res_status["content"])
+                approved_by_list = []
+                for item in review_list:
+                    print(item)
+                    if str(item["state"]).lower() == "approved":
+                        approved_by_list.append(item["user"]["login"])
+
+                approved_by = ""
+                for name in approved_by_list:
+                    approved_by += CommonUtils.getSlackNicksFromGitNicks(name) + " "
+
+                bump_version_job_dict = dict(release_type="patch", repo=repo, pr_no=self.pr.number, pr_title=self.pr.title,
+                                             pr_by_slack=pr_by_slack_uid, approved_by=approved_by,
+                                             merged_by_slack=merged_by_slack_uid, sha=sha, head_branch=self.pr.head_branch,
+                                             is_ui_change=ui_change)
+                print(":DEBUG: before hitting patch job is_ui_change=", ui_change)
+                self.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token, job_name="VersionBumper_MoEngage",
+                                params_dict=bump_version_job_dict, pr_link=self.pr.link_pretty, pr_by_slack=pr_by_slack_uid)
+
+    def post_to_slack_qa(self):
+        """
+        Posting release items to slack when merging to qa
+        """
+        if self.pr.base_branch == staging_branch and self.pr.head_branch == dev_branch:
+
+            print("from 'dev' to 'qa', posting release items to slack")
+            write_to_file_from_top(code_freeze_details_path, ":clubs:" + str(
+                datetime.now(pytz.timezone('Asia/Calcutta')).strftime(
+                    '%B %d at %I.%M %p')) + " with <" + self.pr.link_pretty + "|PR>")
+
+            msg = ""
+            with open(file_path) as f:
+                msg = f.read()
+                # print 'loop msg=' + msg
+                f.close()
+
+            print("final msg 30 chars=" + msg[:30])
+            if msg:
+                # postAttachmentToSlack("#experiment",msg,data={"username": "github-bot"})
+                self.slack.postAttachmentToSlack(channel_name, self.pr.link_pretty, msg, data={"username": bot_name}, parseFull=False)
+
+                shutil.copy(file_path, '/opt/alice/release_items_' + str(
+                    datetime.now().strftime('%m-%d-%Y:%I.%M%p')) + '.txt')  # take backup beforing clearing
+
+                if not self.pr.config.is_debug:
+                    open(file_path, 'w').close()  # clear file for next release content
+
+            name = ""
+            with open(file_mergedBy) as f:
+                name = f.read()
+                f.close()
+            print("final name list =" + name)
+            if name:
+                time.sleep(10)
+                # postFinalWarningToSlack("#experiment",name,data={"username": "github-bot"})
+                self.slack.postFinalWarningToSlack(channel_name, name, data={"username": bot_name})
+                open(file_mergedBy, 'w').close()
+
     def trigger_task_on_pr(self):
 
         jenkins_setting = self.pr.global_config.config["jenkins"]
@@ -739,7 +971,11 @@ class Actor(Base):
         jenkins_instance = jenkins.Jenkins(jenkins_setting["JENKINS_BASE"],
                                            username=jenkins_setting["username"], password=token)
         repo = self.pr.repo
-        # merged_by_slack_uid = CommonUtils.getSlackNicksFromGitNicks(self.pr.merged_by)
+        merged_by_slack_uid = ""
+
+        if self.pr.is_merged:
+            merged_by_slack_uid = CommonUtils.getSlackNicksFromGitNicks(self.pr.merged_by)
+
         # merged_by_slack_name = CommonUtils.getSlackNicksFromGitNicks(self.pr.merged_by)
         pr_by_slack_uid = CommonUtils.getSlackNicksFromGitNicks(self.pr.opened_by)
         pr_by_slack_name = CommonUtils.getSlackNicksFromGitNicks(self.pr.opened_by)
@@ -776,8 +1012,8 @@ class Actor(Base):
                 job_dir = "Dashboard/"
 
                 self.jenkins.change_status(self.pr.statuses_url, "pending", context=context_react,
-                                                 description="Hold on!",
-                                                 details_link="")
+                                           description="Hold on!",
+                                           details_link="")
 
                 try:
                     files_contents, message = self.get_files(self.pr.link + "/files")
@@ -787,11 +1023,11 @@ class Actor(Base):
                 if not files_contents or "message" in files_contents:
                     print(":DEBUG: no files found in the diff: SKIP shield, just update the status")
                     self.jenkins.change_status(self.pr.statuses_url, "success", context=context,
-                                                     description="SKIP: No diff, check the Files count",
-                                                     details_link="")
+                                               description="SKIP: No diff, check the Files count",
+                                               details_link="")
                     self.jenkins.change_status(self.pr.statuses_url, "success", context=context_react,
-                                                     description="SKIP: No diff, check the Files count",
-                                                     details_link="")
+                                               description="SKIP: No diff, check the Files count",
+                                               details_link="")
                     return files_contents  # STOP as files not found
 
                 # If file contents are found, check which content we have to run.
@@ -804,7 +1040,7 @@ class Actor(Base):
 
                 if is_change_angular:
                     self.run_for_angular(context_angular, job_dir, repo, pr_by_slack_name,
-                                               is_change_angular, jenkins_instance, token, pr_by_slack_uid)
+                                         is_change_angular, jenkins_instance, token, pr_by_slack_uid)
 
                 """ hit react job"""  # Hit always even config changes can be possible
                 self.run_for_react(job_dir, repo, pr_by_slack_name, jenkins_instance, token, pr_by_slack_uid)
@@ -829,16 +1065,16 @@ class Actor(Base):
                         (self.pr.base_branch == dev_branch and self.pr.head_branch == staging_branch)):
 
                     print(":SKIP: back merge: checks call, repo={repo} pr={link_pr} title={title_pr}" \
-                        .format(repo=repo, link_pr=self.pr.link_pr, title_pr=self.pr.title))
+                          .format(repo=repo, link_pr=self.pr.link_pr, title_pr=self.pr.title))
                     self.jenkins.change_status(self.pr.statuses_url, "success", context=context,
-                                                     description="checks bypassed for back merge",
-                                                     details_link="")
+                                               description="checks bypassed for back merge",
+                                               details_link="")
                     self.jenkins.change_status(self.pr.statuses_url, "success", context="shield-unit-test-python",
-                                                     description="checks bypassed for back merge",
-                                                     details_link="")
+                                               description="checks bypassed for back merge",
+                                               details_link="")
                     self.jenkins.change_status(self.pr.statuses_url, "success", context="shield-linter-react",
-                                                     description="checks bypassed for back merge",
-                                                     details_link="")
+                                               description="checks bypassed for back merge",
+                                               details_link="")
 
                 else:
                     print(":INFO: repo=%s to validate, for PR=%s" % (repo, self.pr.number))
@@ -854,11 +1090,11 @@ class Actor(Base):
                         files_ops = False
 
                         self.jenkins.change_status(self.pr.statuses_url, "pending", context=context,
-                                                         description=context_description,
-                                                         details_link="")  # status to go in pending quick
+                                                   description=context_description,
+                                                   details_link="")  # status to go in pending quick
                         self.jenkins.change_status(self.pr.statuses_url, "pending",
-                                                         context="shield-unit-test-python", description="Hold on!",
-                                                         details_link="")
+                                                   context="shield-unit-test-python", description="Hold on!",
+                                                   details_link="")
                         try:
                             print(":DEBUG: check_file_path", self.pr.link + "/files")
                             files_contents, message = self.get_files(self.pr.link + "/files")
@@ -867,12 +1103,12 @@ class Actor(Base):
                         if not files_contents or "message" in files_contents:
                             print(":DEBUG: no files found in the diff: SKIP shield, just update the status")
                             self.jenkins.change_status(self.pr.statuses_url, "success", context=context,
-                                                             description="SKIP: No diff, check the Files count",
-                                                             details_link="")
+                                                       description="SKIP: No diff, check the Files count",
+                                                       details_link="")
                             self.jenkins.change_status(self.pr.statuses_url, "success",
-                                                             context="shield-unit-test-python",
-                                                             description="SKIP: No diff, check the Files count",
-                                                             details_link="")
+                                                       context="shield-unit-test-python",
+                                                       description="SKIP: No diff, check the Files count",
+                                                       details_link="")
                             return files_contents  # STOP as files not found
 
                         for item in files_contents:
@@ -890,9 +1126,8 @@ class Actor(Base):
 
                         if repo.lower() == organization_repo and files_ops and self.pr.action \
                                 in action_commit_to_investigate:
-
                             self.add_label_to_issue(repo, self.pr.number,
-                                            ["DevOps_Review "])
+                                                    ["DevOps_Review "])
 
                         # Run Jenkins for moengage repo
                         if repo == moengage_repo:
@@ -962,14 +1197,36 @@ class Actor(Base):
                                                      pr_link=pr_link, params_dict=api_params_dict,
                                                      pr_by_slack=pr_by_slack_uid)
 
+                            self.alert_on_slack(pr_by_slack_uid)
+
         else:
             """
+            3) When pull request is closed and merged ,
+                we run following tasks-
+                1) Build dashboad
+                2) Broadcast message if pushed in sensitive branches
+                3) After pr is merged post to slack whether pr was merged correctly or not.
             3) last task task, When pull request is merged/closed,
             we run two checks.
             First, We alert if pull request is merged_by a person,
              who is not a valid contributor.
             Second, DM to pm for qa.
             """
+
+            if self.pr.action in close_action and self.pr.is_merged:
+
+                if repo in ui_repo:
+                    """
+                    For frontend repo run dashboard builder.
+                    """
+                    self.dashboard_builder(pr_by_slack_uid, merged_by_slack_uid, jenkins_instance, token)
+
+                self.broadcast_message(pr_by_slack_uid, merged_by_slack_uid)
+                self.after_merge_check(pr_by_slack_uid, merged_by_slack_uid)
+                self.bump_version(pr_by_slack_uid, merged_by_slack_uid, jenkins_instance, token)
+                self.post_to_slack_qa()
+
+
             if repo == moengage_repo:
                 # 3.1)
                 self.code_freeze()
@@ -981,4 +1238,4 @@ class Actor(Base):
                 self.check_valid_contributor()
 
                 # 3.4)
-                self. alert_pm()
+                self.alert_pm()

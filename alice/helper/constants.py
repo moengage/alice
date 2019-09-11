@@ -93,10 +93,22 @@ channel_name = "#tmp"
 merged_by_slack_name = ""
 alice_tech_leads_MoEngage_Repo = ""
 
+close_action = ["close", "closed"]
+open_action = ["open", "opened"]
+
+
 organization_repo = 'moengage'
 master_branch = 'master'
 staging_branch = 'qa'
 dev_branch = 'dev'
+
 moengage_repo = 'MoEngage'
+dashboard = 'dashboard-ui'
+
+channel_low_cover = "@pooja"
 
 repo_site_url = 'https://api.github.com/'
+
+repos_slack = ['segmentation', 'commons']
+
+valid_contributors_segmentation_repo = ["akgoel-mo", "shahp00ja", "pruthvintss", "moeoperation", "mshekhar-mE", "jyothiMoen"]

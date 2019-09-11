@@ -6,7 +6,7 @@ import json
 from alice.helper.api_manager import ApiManager
 from alice.helper.constants import API_GITHUB_MEMBERS_LIST, API_GITHUB_USERS, SLACK_USER_LIST
 from alice.helper.file_utils import get_dict_from_config_file
-git_mappings = {}
+from alice.helper.constants import git_mappings
 slack_mappings = {}
 
 

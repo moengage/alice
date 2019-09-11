@@ -18,8 +18,17 @@ qa_team: "@p1 @p2"  #your QA team memebr slack names
 debug: true  #To test your setup with alice, set it false when you take live
 debug_alice: #in debug mode all the alerts to go in specific channel/person to avoid spamming any
   debug_channel: "#tmp"  #your slack channel name preceded by #
+  debug_folk: ""
   debug_folks:
-  - "UL91SP77H" #your slack name so all alerts comes to you for debugging
+  - "" #your slack name so all alerts comes to you for debugging
+  debug_code_merge: ""
+  debug_low_coverage: ""
+  debug_rule_broken: ""
+  debug_commons: ""
+  debug_segment: ""
+  debug_segment_dev: ""
+  debug_dev: ""
+  debug_weekly: ""
 user_map:   #key value map GITHUB_NAME: SLACK_NAME of each member in team, used to notify them
   p00ja: pooja  #replace with your mapping, add more how many needed
   abhi: abhinav
