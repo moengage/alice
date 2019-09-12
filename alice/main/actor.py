@@ -441,7 +441,7 @@ class Actor(Base):
         """
         files_endpoint = self.pr.link
         response = ApiManager.get(files_endpoint, {"Authorization": "token " + self.github.GITHUB_TOKEN})
-        res = json.loads(response.get("content"))
+        res = json.loads(response["content"])
         try:
             return res.get("files"), res.get("commit").get("message")  # For specific commit, it's inside files
         except Exception:
@@ -590,6 +590,9 @@ class Actor(Base):
                 "base": base
             }
             pr_endpoint = repo_site_url + "repos/moengage/" + repo + "/pulls"
+            # response = requests.get(pr_endpoint, headers={
+            #     "Authorization": "token " + self.github.GITHUB_TOKEN})
+            data = json.dumps(pr_data)
             response = requests.post(pr_endpoint, headers={
                 "Authorization": "token " + self.github.GITHUB_TOKEN}, data=json.dumps(pr_data))
             res = json.loads(response.content)

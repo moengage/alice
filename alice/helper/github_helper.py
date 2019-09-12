@@ -23,7 +23,7 @@ class GithubHelper(object):
 
     def __init__(self, pr):
         self.GITHUB_TOKEN = pr.config.githubToken
-        self.pr_api_link =  pr.link
+        self.pr_api_link = pr.link
         self.headers = {"Authorization": "token " + self.GITHUB_TOKEN}
         self.pr = pr
 
@@ -36,7 +36,7 @@ class GithubHelper(object):
 
     def comment_pr(self, comment_section, comment):
         resp = ApiManager.post(comment_section, self.headers, json.dumps(comment))
-        LOG.debug(resp.content)
+        LOG.debug(resp["content"])
 
     def modify_pr(self, msg, state):
         data = {
@@ -44,7 +44,7 @@ class GithubHelper(object):
             "state": state
         }
         resp = ApiManager.post(self.pr_api_link, self.headers, json.dumps(data))
-        LOG.debug(resp.content)
+        LOG.debug(resp["content"])
 
     def get_reviews(self):
         url = self.pr_api_link + "/" + EP_REVIEWS
