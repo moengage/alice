@@ -564,8 +564,8 @@ class Actor(Base):
             base = "release"
             title = "Code Freeze-" + timestamp
             alert = "\n:bell: MoEngage Repo: Code freeze time:: Please freeze your package(s)"
-            body = "Please merge these for code freeze. Release testing is getting started with MoEngage repo freeze\n" \
-                   "cc: @prashanthegde9 @BhuvanThejaChennuru @gagana11 @geetima12",
+            body = "Please merge these for code freeze. Release testing is getting started with MoEngage repo freeze\n " \
+                   "cc: @prashanthegde9 @BhuvanThejaChennuru @gagana11 @geetima12"
         elif freeze_type == "live":
             head = "release"
             base = "master"
@@ -599,32 +599,39 @@ class Actor(Base):
             if not res.get("errors"):
                 # for person in pkg_people_to_notify:
                 self.slack.postToSlack(channel_name,
-                                       "%s *%s:* %s number <%s|%s>" % (
-                                       cnt, repo, pkg_people_to_notify.get(repo, "@pooja"),
+                                       "%s) *%s:* %s number <%s|%s>" % (
+                                       cnt, repo, self.notify_person(repo, self.pr.config.is_debug),
                                        res.get("html_url"), res.get("number")),
                                        data={"username": bot_name}, parseFull=False)
             else:
                 try:
                     error_message = res["errors"][0]["message"]
                     custom_message = "%s) *%s:* %s %s <%s|check here> " % (
-                        cnt, repo, pkg_people_to_notify.get(repo, "@pooja"),
+                        cnt, repo, self.notify_person(repo, self.pr.config.is_debug),
                         "Pull Request is already open",
                         repo_site_url + "moengage/"
                         + repo + "/compare/" + base + "..." + head)
                     if "no commits" in error_message.lower():
-                        custom_message = "%s *%s:* %s %s <%s|check here> " % (
-                            cnt, repo, pkg_people_to_notify.get(repo, "@pooja"),
+                        custom_message = "%s) *%s:* %s %s <%s|check here> " % (
+                            cnt, repo, self.notify_person(repo, self.pr.config.is_debug),
                             error_message, repo_site_url + "moengage/" + repo + "/compare/" + base + "..." + head)
 
-                    SlackHelper.postToSlack(channel_name, custom_message, data={"username": bot_name})
-                    SlackHelper.postToSlack("@pooja", ":warning: creating automatic PR for %s failed, response=\n%s"
+                    self.slack.postToSlack(channel = channel_name, msg = custom_message, data={"username": bot_name})
+                    self.slack.postToSlack(channel = channel_name,msg = "@pooja" +  ":warning: creating automatic PR for %s failed, response=\n%s"
                                             % (repo, json.dumps(res)))
                 except Exception as e:
                     print(e)
-                    SlackHelper.postToSlack("@pooja",
+                    self.slack.postToSlack("@pooja",
                                             ":skull: error in sending failure message on PR creation failure, response=\n%s"
                                             % (repo, e.message))
             cnt += 1
+
+    def notify_person(self, repo, debug):
+        if debug:
+            return pkg_people_to_notify_debug.get(repo, "@pooja")
+        else:
+            return pkg_people_to_notify(repo, "@pooja")
+
 
     def release_alert(self):
         if self.pr.action.find("close") != -1 and self.pr.is_merged == True and (

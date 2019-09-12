@@ -84,7 +84,10 @@ code_freeze_details_path = "/opt/alice/code_freeze_details.txt"
 #                       "prashanthegde9", "moeoperation", "BhuvanThejaChennuru", "kanikapuniya2", "siri-murthy",
 #                       "gagana11", "madhurjyaparashar", "rkjas12", "Madhukirankm"]
 
-pkg_people_to_notify = {"commons": "pooja"}  # ["@pooja"]
+
+
+pkg_people_to_notify_debug = {"commons": "pooja"}  # ["@pooja"]
+
 alice_dev_team_MoEngage_repo = "@pooja"
 to_be_notified = "pooja"
 tech_leads_to_notify_always_slack = "<@pooja>"
