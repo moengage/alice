@@ -38,11 +38,11 @@ class PushPayloadParser(Base):
 
     @property
     def merged_by_slack(self):
-        return CommonUtils.getSlackNicksFromGitNicks(self.merged_by)
+        return CommonUtils.get_slack_nicks_from_git(self.merged_by)
 
     @property
     def opened_by_slack(self):
-        return CommonUtils.getSlackNicksFromGitNicks(self.opened_by)
+        return CommonUtils.get_slack_nicks_from_git(self.opened_by)
 
     @property
     def link_pretty(self):

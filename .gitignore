@@ -12,7 +12,7 @@ dump.rdb
 .DS_Store
 */.DS_Store
 alice/config.yaml
-
+alice/constants.ini
 # Created by https://www.gitignore.io/api/flask,python,visualstudiocode
 # Edit at https://www.gitignore.io/?templates=flask,python,visualstudiocode
 

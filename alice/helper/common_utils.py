@@ -2,10 +2,12 @@
 import simplejson as json
 import pkg_resources
 import os
+import json
 from alice.helper.api_manager import ApiManager
 from alice.helper.constants import API_GITHUB_MEMBERS_LIST, API_GITHUB_USERS, SLACK_USER_LIST
 from alice.helper.file_utils import get_dict_from_config_file
-from alice.helper.constants import git_mappings
+from alice.config.config_provider import ConfigProvider
+
 slack_mappings = {}
 
 
@@ -16,9 +18,11 @@ class CommonUtils(object):
     GIT_TOKEN = config.get('tokens').get("github")
     SLACK_TOKEN = config.get('tokens').get("slack")
     organisation = config.get('organisation')
+    constants = ConfigProvider().constants
 
     @staticmethod
-    def getGithubUsers():
+    def get_github_users():
+        git_mappings = json.loads(CommonUtils.constants.get('git_mappings'))
         if git_mappings:
             return git_mappings
         users = []
@@ -38,29 +42,30 @@ class CommonUtils(object):
         return git_mappings
 
     @staticmethod
-    def getSlackUsers():
+    def get_slack_users():
         if slack_mappings:
             return slack_mappings
         response = ApiManager.get(SLACK_USER_LIST + CommonUtils.SLACK_TOKEN, headers={})
         users = json.loads(response["content"])
 
         for item in users["members"]:
-            slack_mappings[item["name"]] = item["profile"].get("email","bot@gmail.com")
+            slack_mappings[item["name"]] = item["profile"].get("email", "bot@gmail.com")
         print(slack_mappings)
 
     @staticmethod
-    def getSlackNicksFromGitNicks(key):
+    def get_slack_nicks_from_git(key):
+        git_mappings = json.loads(CommonUtils.constants.get('git_mappings'))
         if key in git_mappings:
             return git_mappings[key]
         return key
 
     @staticmethod
-    def readResourceJson(module, path):
-        json_string = CommonUtils.readResourceString(module, path)
+    def read_resource_json(module, path):
+        json_string = CommonUtils.read_resource_string(module, path)
         return json.loads(json_string)
 
     @staticmethod
-    def readResourceString(module, path):
+    def read_resource_string(module, path):
         return pkg_resources.resource_string(module, path)
 
 

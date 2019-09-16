@@ -1,6 +1,7 @@
 import os
 from alice.helper.file_utils import get_dict_from_config_file, get_dict_from_yaml
 from alice.helper.log_utils import LOG
+from configparser import ConfigParser
 
 
 class ConfigProvider(object):
@@ -8,11 +9,17 @@ class ConfigProvider(object):
 
     def __init__(self, repo=None):
         config_file = os.environ["config"]
-        #LOG.info("********** config file=" + config_file)
+        # LOG.info("********** config file=" + config_file)
         LOG.info("********** config file={config_file}".format(config_file=config_file))
         # absolute path to keep file anywhere
         self.config = get_dict_from_config_file(config_file)
         self.repo_name = repo
+        config = ConfigParser()
+        config.read('/Users/parasjain/Desktop/alice/alice/alice/constants.ini')
+        if self.is_debug:
+            self.constants = dict(config.items('testing_config'))
+        else:
+            self.constants = dict(config.items('config'))
 
     def __str__(self):
         return "Alice - Common Config Provider"
@@ -96,62 +103,6 @@ class ConfigProvider(object):
     @property
     def debug_channel(self):
         return self.config.get('debug_alice', {}).get('debug_channel')
-
-    @property
-    def alert_channel_on_merge_common(self):
-        if self.is_debug:
-            return self.config.get('debug_alice', {}).get('debug_channel')
-        else:
-            return self.config.get('debug_alice', {}).get('debug_commons')
-
-    @property
-    def alert_to_notify(self):
-        if self.is_debug:
-            return self.config.get('debug_alice', {}).get('debug_folk')
-        else:
-            return self.config.get('debug_alice', {}).get('debug_dev')
-
-    @property
-    def alert_channel(self):
-        if self.is_debug:
-            return self.config.get('debug_alice', {}).get('debug_channel')
-        else:
-            return self.config.get('debug_alice', {}).get('debug_weekly')
-
-    @property
-    def alert_channel_on_dev_segmentation(self):
-        if self.is_debug:
-            return self.config.get('debug_alice', {}).get('debug_folk')
-        else:
-            return self.config.get('debug_alice', {}).get('debug_segment_dev')
-
-    @property
-    def alert_channel_on_merge_segmentation(self):
-        if self.is_debug:
-            return self.config.get('debug_alice', {}).get('debug_channel')
-        else:
-            return self.config.get('debug_alice', {}).get('debug_segment')
-
-    @property
-    def alert_channel_on_low_coverage(self):
-        if self.is_debug:
-            return self.config.get('debug_alice', {}).get('debug_folk')
-        else:
-            return self.config.get('debug_alice', {}).get('debug_low_coverage')
-
-    @property
-    def alert_channel_on_rule_broken(self):
-        if self.is_debug:
-            return self.config.get('debug_alice', {}).get('debug_folk')
-        else:
-            return self.config.get('debug_alice', {}).get('debug_rule_broken')
-
-    @property
-    def alert_channel_on_merge(self):
-        if self.is_debug:
-            return self.config.get('debug_alice', {}).get('debug_channel')
-        else:
-            return self.config.get('debug_alice', {}).get("debug_code_merge")
 
     @property
     def alertChannelName(self):
