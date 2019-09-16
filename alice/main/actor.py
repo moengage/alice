@@ -534,7 +534,7 @@ class Actor(Base):
         if self.pr.action == "closed" and self.pr.is_merged == True and self.pr.base_branch == staging_branch and (
                 self.pr.merged_by not in self.pr.config.valid_contributors):
             merged_by_slack_uid = CommonUtils.get_slack_nicks_from_git(self.pr.merged_by)
-            alice_dev_team_MoEngage_repo = self.pr.config.constants.get('alice_dev_team_MoEngage_repo')
+            alice_dev_team_MoEngage_repo = self.pr.config.constants.get('alice_dev_team_moengage_repo')
             msg = "Very Bad <@" + merged_by_slack_uid + "> :rage4: :rage4: !! " + self.pr.link_pr \
                   + " is merged directly into `" + self.pr.base_branch + \
                   "`, but not by QA team, soon these kind of requests will be automatically reverted CC: " + \
@@ -655,7 +655,7 @@ class Actor(Base):
 
             self.add_comment_to_master()
 
-            alice_tech_leads_MoEngage_Repo = json.loads(self.pr.config.constants.get('alice_tech_leads_MoEngage_Repo'))
+            alice_tech_leads_MoEngage_Repo = json.loads(self.pr.config.constants.get('alice_tech_leads_moengage_repo'))
             for item in alice_tech_leads_MoEngage_Repo:
                 self.slack.postToSlack(item,
                                        msg + "\n Please review and approve with +1, Release preparation starts...",
@@ -720,7 +720,7 @@ class Actor(Base):
             msg = "Title=\"{0}\",  Description=\"{1}\" \nPR: {2}\n from {3} into `{4}` By: <@{5}>, mergedBy: <@{6}>\n".format(
                 self.pr.title, self.pr.description, self.pr.link_pr, self.pr.head_branch, self.pr.base_branch,
                 pr_by_slack_uid, merged_by_slack_uid)
-            channel_repo = self.pr.config.constants.get('code_merge_MoEngage')
+            channel_repo = self.pr.config.constants.get('code_merge_moengage')
             self.slack.postToSlack(channel_repo, msg, data={"username": bot_name})
 
     def dashboard_builder(self, pr_by_slack_uid, merged_by_slack_uid, jenkins_instance, token):

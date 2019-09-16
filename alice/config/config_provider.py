@@ -15,7 +15,9 @@ class ConfigProvider(object):
         self.config = get_dict_from_config_file(config_file)
         self.repo_name = repo
         config = ConfigParser()
-        config.read('/Users/parasjain/Desktop/alice/alice/alice/constants.ini')
+        file_path = os.path.dirname(os.path.abspath(__file__))
+        file_path = file_path[:file_path.rfind('/')] + '/constants.ini'
+        config.read(file_path)
         if self.is_debug:
             self.constants = dict(config.items('testing_config'))
         else:
