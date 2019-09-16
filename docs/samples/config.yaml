@@ -21,14 +21,6 @@ debug_alice: #in debug mode all the alerts to go in specific channel/person to a
   debug_folk: ""
   debug_folks:
   - "" #your slack name so all alerts comes to you for debugging
-  debug_code_merge: ""
-  debug_low_coverage: ""
-  debug_rule_broken: ""
-  debug_commons: ""
-  debug_segment: ""
-  debug_segment_dev: ""
-  debug_dev: ""
-  debug_weekly: ""
 user_map:   #key value map GITHUB_NAME: SLACK_NAME of each member in team, used to notify them
   p00ja: pooja  #replace with your mapping, add more how many needed
   abhi: abhinav

@@ -6,7 +6,8 @@ import json
 from alice.helper.api_manager import ApiManager
 from alice.helper.constants import API_GITHUB_MEMBERS_LIST, API_GITHUB_USERS, SLACK_USER_LIST
 from alice.helper.file_utils import get_dict_from_config_file
-from alice.helper.constants import git_mappings
+from alice.config.config_provider import ConfigProvider
+
 slack_mappings = {}
 
 
@@ -48,15 +49,8 @@ class CommonUtils(object):
         users = json.loads(response["content"])
 
         for item in users["members"]:
-            slack_mappings[item["name"]] = item["profile"].get("email","bot@gmail.com")
+            slack_mappings[item["name"]] = item["profile"].get("email", "bot@gmail.com")
         print(slack_mappings)
-
-    @staticmethod
-    def get_slack_nicks_from_git_name_nicks(key):
-        name_mapping = json.loads(CommonUtils.constants.get('git_mappings_with_slack_name'))
-        if key in name_mapping:
-            return name_mapping[key]
-        return key
 
     @staticmethod
     def get_slack_nicks_from_git(key):

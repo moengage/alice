@@ -1,13 +1,14 @@
 import simplejson as json
-from parse import parse
+import json as jon
 
+from parse import parse
 from alice.helper.file_utils import write_to_file_from_top, clear_file, read_from_file
 
 from alice.commons.base import Base
-from alice.config.message_template import MSG_BAD_START, MSG_NO_TECH_REVIEW, MSG_AUTO_CLOSE, MSG_OPENED_TO_MAIN_BRANCH, \
-    MSG_OPENED_TO_PREVENTED_BRANCH, SPECIAL_COMMENT, GENERAL_COMMENT, MSG_RELEASE_PREPARATION, \
-    MSG_SENSITIVE_FILE_TOUCHED, MSG_QA_SIGN_OFF, MSG_CODE_CHANNEL, MSG_GUIDELINE_ON_MERGE, CODE_FREEZE_TEXT, \
-    RELEASE_NOTES_REMINDER, DATA_SAVE_MERGED
+from alice.config.message_template import MSG_BAD_START, MSG_NO_TECH_REVIEW, MSG_AUTO_CLOSE, \
+    MSG_OPENED_TO_MAIN_BRANCH, MSG_OPENED_TO_PREVENTED_BRANCH, SPECIAL_COMMENT, GENERAL_COMMENT, \
+    MSG_RELEASE_PREPARATION, MSG_SENSITIVE_FILE_TOUCHED, MSG_QA_SIGN_OFF, MSG_CODE_CHANNEL, MSG_GUIDELINE_ON_MERGE, \
+    CODE_FREEZE_TEXT, RELEASE_NOTES_REMINDER, DATA_SAVE_MERGED
 from alice.helper.constants import *
 from alice.helper.common_utils import CommonUtils
 from alice.config.message_template import MSG_NO_PRODUCT_REVIEW, ADDITIONAL_COMMENT
@@ -53,6 +54,7 @@ class Actor(Base):
             self.merged_by = self.pr.config.getSlackName(self.pr.merged_by)
             self.save_data_for_later()
         self.sensitive_file_touched, self.change_requires_product_plus1 = self.parse_files_and_set_flags()
+        self.channel_name = self.pr.config.constants.get('channel_name')
 
     def save_data_for_later(self):
         """
@@ -509,12 +511,14 @@ class Actor(Base):
                 self.pr.base_branch == master_branch and self.pr.head_branch == staging_branch):
 
             """ ********** Remind PM teams to update release notes for next release ************ """
+            alice_product_team = json.loads(self.pr.config.constants.get('alice_product_team'))
             for item in alice_product_team:
                 self.slack.postToSlack(item,
                                        "\n:bell: hi " + item + " master is updated & release is going live shortly. "
                                                                "Hoping <https://docs.google.com/a/moengage.com/spreadsheets/d/1eW3y-GxGzu8Jde8z4EYC6fRh1Ve4TpbW5qv2-iWs1ks/edit?usp=sharing|Release Notes> have mention of all the items planned to go in \"Next Release\"",
                                        data={"username": bot_name}, parseFull=False)
             """ for bot """
+            alice_qa_team = json.loads(self.pr.config.constants.get('alice_qa_team'))
             for item in alice_qa_team:
                 self.slack.postToSlack(item, "\n hi <" + item + "> " + random.choice(
                     applaud_list) + " :+1: thank you for the QA signOff\n :bell:"
@@ -529,20 +533,21 @@ class Actor(Base):
     def check_valid_contributor(self):
         if self.pr.action == "closed" and self.pr.is_merged == True and self.pr.base_branch == staging_branch and (
                 self.pr.merged_by not in self.pr.config.valid_contributors):
-            merged_by_slack_uid = CommonUtils.getSlackNicksFromGitNicks(self.pr.merged_by)
+            merged_by_slack_uid = CommonUtils.get_slack_nicks_from_git(self.pr.merged_by)
+            alice_dev_team_MoEngage_repo = self.pr.config.constants.get('alice_dev_team_MoEngage_repo')
             msg = "Very Bad <@" + merged_by_slack_uid + "> :rage4: :rage4: !! " + self.pr.link_pr \
                   + " is merged directly into `" + self.pr.base_branch + \
                   "`, but not by QA team, soon these kind of requests will be automatically reverted CC: " + \
                   alice_dev_team_MoEngage_repo
             print(msg)
-            print(self.slack.postToSlack(channel_name, msg, data={"username": bot_name}))
+            print(self.slack.postToSlack(self.channel_name, msg, data={"username": bot_name}))
 
     def code_freeze(self):
 
         if (self.pr.base_branch == staging_branch and self.pr.head_branch == dev_branch) \
                 and (self.pr.action.find("opened") != -1 or self.pr.action.find("merged") != -1):
             print("************ code freeze PR is opened from dev to QA, auto create PRs for dependent packages")
-            self.slack.postToSlack(channel_name,
+            self.slack.postToSlack(self.channel_name,
                                    "@channel Freezing code now. Any pending merge? please reach QA team within 10 minutes",
                                    data={"username": bot_name}, parseFull=False)
             self.freeze_other_repos("staging")
@@ -570,7 +575,7 @@ class Actor(Base):
             body = "RELEASENOTES.md at root"  # read release notes file
 
         """ Announce on channel """
-        self.slack.postToSlack(channel_name, alert, data={"username": bot_name})
+        self.slack.postToSlack(self.channel_name, alert, data={"username": bot_name})
 
         """Create PRs and post links"""
         cnt = 1
@@ -592,28 +597,29 @@ class Actor(Base):
             response = requests.post(pr_endpoint, headers={
                 "Authorization": "token " + self.github.GITHUB_TOKEN}, data=json.dumps(pr_data))
             res = json.loads(response.content)
+            notify_people = json.loads(self.pr.config.constants.get('pkg_people_to_notify'))
             if not res.get("errors"):
                 # for person in pkg_people_to_notify:
-                self.slack.postToSlack(channel_name,
+                self.slack.postToSlack(self.channel_name,
                                        "%s) *%s:* %s number <%s|%s>" % (
-                                       cnt, repo, self.notify_person(repo, self.pr.config.is_debug),
+                                       cnt, repo, notify_people.get(repo, "@pooja"),
                                        res.get("html_url"), res.get("number")),
                                        data={"username": bot_name}, parseFull=False)
             else:
                 try:
                     error_message = res["errors"][0]["message"]
                     custom_message = "%s) *%s:* %s %s <%s|check here> " % (
-                        cnt, repo, self.notify_person(repo, self.pr.config.is_debug),
+                        cnt, repo, notify_people.get(repo, "@pooja"),
                         "Pull Request is already open",
                         repo_site_url + "moengage/"
                         + repo + "/compare/" + base + "..." + head)
                     if "no commits" in error_message.lower():
                         custom_message = "%s) *%s:* %s %s <%s|check here> " % (
-                            cnt, repo, self.notify_person(repo, self.pr.config.is_debug),
+                            cnt, repo, notify_people.get(repo, "@pooja"),
                             error_message, repo_site_url + "moengage/" + repo + "/compare/" + base + "..." + head)
 
-                    self.slack.postToSlack(channel = channel_name, msg = custom_message, data={"username": bot_name})
-                    self.slack.postToSlack(channel = channel_name,msg = "@pooja" +  ":warning: creating automatic PR for %s failed, response=\n%s"
+                    self.slack.postToSlack(channel = self.channel_name, msg = custom_message, data={"username": bot_name})
+                    self.slack.postToSlack(channel = self.channel_name,msg = "@pooja" +  ":warning: creating automatic PR for %s failed, response=\n%s"
                                             % (repo, json.dumps(res)))
                 except Exception as e:
                     print(e)
@@ -622,28 +628,25 @@ class Actor(Base):
                                             % (repo, e.message))
             cnt += 1
 
-    def notify_person(self, repo, debug):
-        if debug:
-            return pkg_people_to_notify_debug.get(repo, "@pooja")
-        else:
-            return pkg_people_to_notify(repo, "@pooja")
-
-
     def release_alert(self):
         if self.pr.action.find("close") != -1 and self.pr.is_merged == True and (
                 self.pr.base_branch == master_branch and self.pr.head_branch == staging_branch):
             """ ************* inform channel *************** """
+            product_notify_slack = self.pr.config.constants.get('product_notify_slack')
+            tech_leads_to_notify_always_slack = self.pr.config.constants.get('tech_leads_to_notify_always_slack')
+            dev_ops_team = self.pr.config.constants.get('dev_ops_team')
+            to_notify = self.pr.config.constants.get('to_be_notified')
             msg = "{2} QA passed :+1: `master` is <{1}|updated> for release \n cc: <@{0}> {3} {4} \n <!channel> ".format(
-                to_be_notified, self.pr.link_pretty,
+                to_notify, self.pr.link_pretty,
                 dev_ops_team, tech_leads_to_notify_always_slack, product_notify_slack)
 
-            self.slack.postToSlack(channel_name, msg, data=CommonUtils.getBot(channel_name, merged_by_slack_name),
+            self.slack.postToSlack(self.channel_name, msg, data=CommonUtils.getBot(self.channel_name, merged_by_slack_name),
                                    parseFull=False)
 
         if self.pr.action.find(
                 "open") != -1 and self.pr.base_branch == master_branch and self.pr.head_branch == staging_branch:
 
-            pr_by_slack_uid = CommonUtils.getSlackNicksFromGitNicks(self.pr.opened_by)
+            pr_by_slack_uid = CommonUtils.get_slack_nicks_from_git(self.pr.opened_by)
             print(
                 "************ MoEngage repo:: PR opened to " + self.pr.base_branch + " Notify Alice & comment guidelines ****")
             msg = "MoEngage repo:: <{link_pr}|{title_pr}> is opened to `{base_branch}` by:*<@{pr_by_slack}>* " \
@@ -652,16 +655,19 @@ class Actor(Base):
 
             self.add_comment_to_master()
 
+            alice_tech_leads_MoEngage_Repo = json.loads(self.pr.config.constants.get('alice_tech_leads_MoEngage_Repo'))
             for item in alice_tech_leads_MoEngage_Repo:
                 self.slack.postToSlack(item,
                                        msg + "\n Please review and approve with +1, Release preparation starts...",
                                        data={"username": bot_name}, parseFull=False)
             self.freeze_other_repos("live")
 
+            alice_qa_team = json.loads(self.pr.config.constants.get('alice_qa_team'))
             for item in alice_qa_team:
                 self.slack.postToSlack(item,
                                        "\n\n:bell: *Bugs clean time* :: please make out 20 minutes max to cleanup no longer valid old issues and share a rough number of issues we cleaned or require attention <https://docs.google.com/spreadsheets/d/1WeWLuIE7Dt5G8lWACZs21WO0B07-naQ7JlUb8cHcxVA/edit#gid=1591591107|sheet link>",
                                        data={"username": bot_name}, parseFull=False)
+            alice_product_team = json.loads(self.pr.config.constants.get('alice_product_team'))
             for item in alice_product_team:
                 self.slack.postToSlack(item,
                                        "\n:bell: Hi " + item + " *Release notes update required*: Current release is getting ready to go Live, please help us with next release planning by having \"Next Release\" <https://docs.google.com/a/moengage.com/spreadsheets/d/1eW3y-GxGzu8Jde8z4EYC6fRh1Ve4TpbW5qv2-iWs1ks/edit?usp=sharing|sheet> updated",
@@ -714,7 +720,8 @@ class Actor(Base):
             msg = "Title=\"{0}\",  Description=\"{1}\" \nPR: {2}\n from {3} into `{4}` By: <@{5}>, mergedBy: <@{6}>\n".format(
                 self.pr.title, self.pr.description, self.pr.link_pr, self.pr.head_branch, self.pr.base_branch,
                 pr_by_slack_uid, merged_by_slack_uid)
-            self.slack.postToSlack(self.pr.config.alert_channel_on_merge, msg, data={"username": bot_name})
+            channel_repo = self.pr.config.constants.get('code_merge_MoEngage')
+            self.slack.postToSlack(channel_repo, msg, data={"username": bot_name})
 
     def dashboard_builder(self, pr_by_slack_uid, merged_by_slack_uid, jenkins_instance, token):
         repo = self.pr.repo
@@ -808,9 +815,10 @@ class Actor(Base):
                             msg = msg_start.format(link_pr=self.pr.link_pr, title_pr=self.pr.title, base_branch=self.pr.base_branch) \
                                   + " with *{actual_coverage}* coverage.".format(actual_coverage=actual_coverage) \
                                   + msg_end.format(pr_by_slack=pr_by_slack_uid, merged_by_slack=merged_by_slack_uid)
-
-                            self.slack.postToSlack(self.pr.config.alert_channel_on_low_coverage, msg, data={"username": bot_name}, parseFull=False)
-                            print(":INFO: missed coverage found and still merged, logged in into ci-rules-bypassed channel " + self.pr.link_pr)
+                            channel_slack = self.pr.config.constants.get('channel_low_cover')
+                            self.slack.postToSlack(channel_slack, msg, data={"username": bot_name}, parseFull=False)
+                            print(":INFO: missed coverage found and still merged, logged in into ci-rules-bypassed "
+                                  "channel " + self.pr.link_pr)
 
                         else:
 
@@ -824,8 +832,8 @@ class Actor(Base):
                             msg = msg_start.format(link_pr=self.pr.link_pr, title_pr=self.pr.title, base_branch=self.pr.base_branch) \
                                   + "\n{rule} ".format(rule=rule_broken) \
                                   + msg_end.format(pr_by_slack=pr_by_slack_uid, merged_by_slack=merged_by_slack_uid)
-
-                            self.slack.postToSlack(self.pr.config.alert_channel_on_rule_broken, msg, data={"username": bot_name}, parseFull=False)
+                            channel_rule = self.pr.config.constants.get('channel_rules_broken_other_than_low_cover')
+                            self.slack.postToSlack(channel_rule, msg, data={"username": bot_name}, parseFull=False)
                             print(":INFO: check fails and still merged, notified pooja " + self.pr.link_pr)
 
                     elif status_dict["state"] == "pending":
@@ -833,8 +841,8 @@ class Actor(Base):
                         msg = "Very Bad :rage1: <@%s> you have misused 'admin' power by merging *without waiting for checks to complete*." % merged_by_slack_uid \
                               + msg_start.format(link_pr=self.pr.link_pr, title_pr=self.pr.title, base_branch=self.pr.base_branch) \
                               + "unchecked code is prone to break in production. cc: <@pooja> <@satya>"
-
-                        self.slack.postToSlack(self.pr.config.alert_channel_on_rule_broken, msg, data={"username": bot_name},
+                        channel_rule = self.pr.config.constants.get('channel_rules_broken_other_than_low_cover')
+                        self.slack.postToSlack(channel_rule, msg, data={"username": bot_name},
                                     parseFull=False)
                         print(":INFO: check is still running but PR is merged by force. notified pooja " + self.pr.link_pr)
                     else:
@@ -848,12 +856,14 @@ class Actor(Base):
         repo = self.pr.repo
         if repo in repos_slack:
 
-            cc_team = self.pr.config.alert_channel_on_dev_segmentation
-            code_merge_channel = self.pr.config.alert_channel_on_merge_segmentation
+            cc_team = self.pr.config.constants.get('alice_dev_team_segmentation_repo')
+            code_merge_channel = self.pr.config.constants.get('code_merge_segmentation')
+            valid_contributors_segmentation_repo = json.loads(
+                self.pr.config.constants.get('valid_contributors_segmentation_repo'))
 
             if repo == "commons":
-                cc_team = self.pr.config.alert_channel_on_dev_segmentation + " @pruthvi"
-                code_merge_channel = self.pr.config.alert_channel_on_merge_common
+                cc_team = self.pr.config.constants.get('alice_dev_team_segmentation_repo') + " @pruthvi"
+                code_merge_channel = self.pr.config.constants.get('code_merge_commons')
 
             if self.pr.action in open_action and self.pr.is_sensitive_branch:
 
@@ -862,13 +872,14 @@ class Actor(Base):
                     .format(link_pr=self.pr.link_pr, title_pr=self.pr.title, pr_by_slack=pr_by_slack_uid,
                             base_branch=self.pr.base_branch, action=self.pr.action)
 
-                self.slack.postToSlack('@' + self.pr.config.alert_to_notify, msg, data={"username": bot_name}, parseFull=False)
+                to_notify = self.pr.config.constants.get('to_be_notified')
+                self.slack.postToSlack('@' + to_notify, msg, data={"username": bot_name}, parseFull=False)
                 return {"msg": msg}
 
             if self.pr.action in close_action and self.pr.is_merged and self.pr.is_sensitive_branch:
 
                 print("**** Repo=" + repo + ", new merge came to " + self.pr.base_branch + " set trace to " + code_merge_channel + " channel")
-                merged_by_slack_uid = CommonUtils.getSlackNicksFromGitNicks(self.pr.merged_by)
+                merged_by_slack_uid = CommonUtils.get_slack_nicks_from_git(self.pr.merged_by)
 
                 msg = "Title=\"{0}\",  Description=\"{1}\" \nPR: {2}\n from {3} into `{4}` By: *<@{5}>*, mergedBy: <@{6}>\n".format(
                     self.pr.title, self.pr.description, self.pr.link_pr,
@@ -881,13 +892,13 @@ class Actor(Base):
 
                 print("**** Repo=" + repo + ", merged in branch=" + self.pr.base_branch +
                       " and is not authentic, alert the culprit " + self.pr.merged_by + " to channel")
-                merged_by_slack_uid = CommonUtils.getSlackNicksFromGitNicks(self.pr.merged_by)
+                merged_by_slack_uid = CommonUtils.get_slack_nicks_from_git(self.pr.merged_by)
                 msg = "Very Bad <@" + merged_by_slack_uid + "> :rage4: :rage4: !! " + self.pr.link_pr  + " is merged directly into " + \
                       self.pr.base_branch + "`, but not by Akshay/Pruthvi/Pooja, soon these kind of requests will be automatically reverted CC: " + \
                       cc_team
                 print(msg)
-
-                self.slack.postToSlack(self.pr.config.alert_channel, msg, data={"username": bot_name})
+                channel_alert = self.pr.config.constants.get('channel_name')
+                self.slack.postToSlack(channel_alert, msg, data={"username": bot_name})
 
     def bump_version(self, pr_by_slack_uid, merged_by_slack_uid, jenkins_instance, token):
         repo = self.pr.repo
@@ -925,7 +936,7 @@ class Actor(Base):
 
                 approved_by = ""
                 for name in approved_by_list:
-                    approved_by += CommonUtils.getSlackNicksFromGitNicks(name) + " "
+                    approved_by += CommonUtils.get_slack_nicks_from_git(name) + " "
 
                 bump_version_job_dict = dict(release_type="patch", repo=repo, pr_no=self.pr.number, pr_title=self.pr.title,
                                              pr_by_slack=pr_by_slack_uid, approved_by=approved_by,
@@ -955,7 +966,7 @@ class Actor(Base):
             print("final msg 30 chars=" + msg[:30])
             if msg:
                 # postAttachmentToSlack("#experiment",msg,data={"username": "github-bot"})
-                self.slack.postAttachmentToSlack(channel_name, self.pr.link_pretty, msg, data={"username": bot_name}, parseFull=False)
+                self.slack.postAttachmentToSlack(self.channel_name, self.pr.link_pretty, msg, data={"username": bot_name}, parseFull=False)
 
                 shutil.copy(file_path, '/opt/alice/release_items_' + str(
                     datetime.now().strftime('%m-%d-%Y:%I.%M%p')) + '.txt')  # take backup beforing clearing
@@ -971,7 +982,7 @@ class Actor(Base):
             if name:
                 time.sleep(10)
                 # postFinalWarningToSlack("#experiment",name,data={"username": "github-bot"})
-                self.slack.postFinalWarningToSlack(channel_name, name, data={"username": bot_name})
+                self.slack.postFinalWarningToSlack(self.channel_name, name, data={"username": bot_name})
                 open(file_mergedBy, 'w').close()
 
     def trigger_task_on_pr(self):
@@ -984,11 +995,11 @@ class Actor(Base):
         merged_by_slack_uid = ""
 
         if self.pr.is_merged:
-            merged_by_slack_uid = CommonUtils.getSlackNicksFromGitNicks(self.pr.merged_by)
+            merged_by_slack_uid = CommonUtils.get_slack_nicks_from_git(self.pr.merged_by)
 
-        # merged_by_slack_name = CommonUtils.getSlackNicksFromGitNicks(self.pr.merged_by)
-        pr_by_slack_uid = CommonUtils.getSlackNicksFromGitNicks(self.pr.opened_by)
-        pr_by_slack_name = CommonUtils.getSlackNicksFromGitNicks(self.pr.opened_by)
+        # merged_by_slack_name = CommonUtils.get_slack_nicks_from_git(self.pr.merged_by)
+        pr_by_slack_uid = CommonUtils.get_slack_nicks_from_git(self.pr.opened_by)
+        pr_by_slack_name = CommonUtils.get_slack_nicks_from_git(self.pr.opened_by)
 
         """
         First we check whether pr is open, then we run our task
@@ -1088,7 +1099,9 @@ class Actor(Base):
 
                 else:
                     print(":INFO: repo=%s to validate, for PR=%s" % (repo, self.pr.number))
-                    if self.pr.base_branch in sensitive_branches_repo_wise.get(repo.lower(),
+                    sensitive_branch = jon.loads(self.pr.config.constants.get('sensitive_branches_repo_wise'))
+
+                    if self.pr.base_branch in sensitive_branch.get(repo.lower(),
                                                                                sensitive_branches_default):
 
                         print("******* PR " + self.pr.action + "ed to " + self.pr.base_branch + ", Triggering tests ************")

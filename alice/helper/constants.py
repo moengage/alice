@@ -22,9 +22,6 @@ ISSUE_LINK = "https://github.com/moengage/alice/issues/new"
 """ other constants """
 THUMBS_UP_ICON = "\ud83d\udc4d"
 SLACK_ICON = "https://cloud.githubusercontent.com/assets/12966925/25132384/021095fc-2467-11e7-95c0-78917bf4d52a.png"
-bot_name = "alice"
-
-
 
 """
 alice 3.0 constants
@@ -44,31 +41,20 @@ package_builder_branches_repo_wise = {
     "dashboard-ui": ["qa", "master"]
 }
 python_repo = ["MoEngage", "MoeDataScience", "mongoengine", "inapp-rest-service", "mongo", "segmentation",
-              "commons",
-              "moengcache", "MoeAbTesting", "apns_client", "Bugsy_Backend", "product-management",
-              "product-recommendation", "s2s", "email-campaigns", "campaigns-core", "url_tracking"]
+               "commons",
+               "moengcache", "MoeAbTesting", "apns_client", "Bugsy_Backend", "product-management",
+               "product-recommendation", "s2s", "email-campaigns", "campaigns-core", "url_tracking"]
 
 file_path = "/opt/alice/release_items.txt"
 file_mergedBy = "/opt/alice/release_mergedby.txt"
-code_freeze_details_path = "/opt/alice/code_freeze_details.txt"
 release_freeze_details_path = "/opt/alice/release_freeze_details.txt"
 job_dir = "moe_repo_shield/"
 job_name = job_dir + "CI_SyntaxValidator"
 context_description = "Syntax Validation"
 action_commit_to_investigate = ["opened", "open", "reopened", "synchronize"]
 
-sensitive_branches_repo_wise = {"moengage": ["dev", "qa", "master"],
-                                "dashboard-ui": ["dev", "qa", "master"],
-                                "segmentation": ["develop", "release", "master", "qa"],
-                                "commons": ["develop", "release", "master", "qa"],
-                                "product-management": ["develop", "release", "master", "qa"]
-                                }
-
 sensitive_branches_default = ["develop", "release", "master", "qa", "dev"]
 
-release_freeze_details_path = "/opt/alice/release_freeze_details.txt"
-alice_product_team = ["@pooja"]
-alice_qa_team = ["@U067GM3DW"]
 bot_name = "Alice"
 applaud_list = ["Awesome", "Great Efforts", "Good work", "Appreciate your efforts", "Perfect"]
 post_checklist_msg = ["planned for VodQA? Click here to read more",
@@ -79,26 +65,11 @@ post_checklist_msg = ["planned for VodQA? Click here to read more",
                       "6 points you may want to check now"]
 code_freeze_details_path = "/opt/alice/code_freeze_details.txt"
 
-# valid_contributors = ["ajishnair", "shahp00ja",  "vandanamoriwal", "geetima12", "akgoel-mo", "naveenkumarkokku",
-#                       "prashanthegde9", "moeoperation", "BhuvanThejaChennuru", "kanikapuniya2", "siri-murthy",
-#                       "gagana11", "madhurjyaparashar", "rkjas12", "Madhukirankm"]
 
-
-
-pkg_people_to_notify_debug = {"commons": "pooja"}  # ["@pooja"]
-
-alice_dev_team_MoEngage_repo = "@pooja"
-to_be_notified = "pooja"
-tech_leads_to_notify_always_slack = "<@pooja>"
-product_notify_slack = "<@pooja>"
-dev_ops_team = "<@pooja>"
-channel_name = "#tmp"
 merged_by_slack_name = ""
-alice_tech_leads_MoEngage_Repo = ""
 
 close_action = ["close", "closed"]
 open_action = ["open", "opened"]
-
 
 organization_repo = 'moengage'
 master_branch = 'master'
@@ -108,10 +79,6 @@ dev_branch = 'dev'
 moengage_repo = 'MoEngage'
 dashboard = 'dashboard-ui'
 
-channel_low_cover = "@pooja"
-
 repo_site_url = 'https://api.github.com/'
 
 repos_slack = ['segmentation', 'commons']
-
-valid_contributors_segmentation_repo = ["akgoel-mo", "shahp00ja", "pruthvintss", "moeoperation", "mshekhar-mE", "jyothiMoen"]
