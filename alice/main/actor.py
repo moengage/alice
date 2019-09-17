@@ -183,11 +183,11 @@ class Actor(Base):
                 if self.pr.base_branch in self.pr.config.mainBranch:
                     guideline_comment = SPECIAL_COMMENT
                     guideline_comment = self.add_extra_comment(SPECIAL_COMMENT)
-                    self.slack.postToSlack(self.pr.opened_by)
+                    self.slack.postToSlack(self.pr.opened_by_slack, guideline_comment["body"])
                 else:
                     guideline_comment = GENERAL_COMMENT
                     guideline_comment = self.add_extra_comment(GENERAL_COMMENT)
-                self.github.comment_pr(self.pr.comments_section, guideline_comment)
+                self.github.comment_pr(self.pr.comments_section, guideline_comment["body"])
                 LOG.info("**** Added Comment of dev guidelines ***")
                 return {"msg": "Added Comment of dev guidelines"}
             return {"msg": "Skipped commenting because DEBUG is on "}
@@ -304,11 +304,11 @@ class Actor(Base):
         """
         if self.pr.action in close_action and self.pr.is_merged and self.pr.base_branch in self.pr.config.mainBranch \
                 and self.pr.head_branch == self.pr.config.testBranch:
-            msg = MSG_QA_SIGN_OFF.format(person=self.get_slack_name_for_id(self.pr.config.personToBeNotified),
-                                         pr=self.pr.link_pretty,
-                                         dev_ops_team=self.get_slack_name_for_id(self.pr.config.devOpsTeamToBeNotified),
-                                         main_branch = self.pr.config.mainBranch,
-                                         tech_team=self.get_slack_name_for_id(self.pr.config.techLeadsToBeNotified))
+
+            msg = MSG_QA_SIGN_OFF.format(person=self.pr.config.personToBeNotified, pr=self.pr.link_pretty,
+                                         dev_ops_team=self.pr.config.devOpsTeamToBeNotified, main_branch = self.pr.config.mainBranch,
+                                         tech_team=self.pr.config.techLeadsToBeNotified)
+
 
             self.slack.postToSlack(self.pr.config.alertChannelName, msg,
                                    data=self.slack.getBot(self.pr.config.alertChannelName, self.merged_by))
@@ -525,10 +525,10 @@ class Actor(Base):
                                     " <https://github.com/moengage/MoEngage/wiki/Post-Release-deployment-Check#for-qa-engineer|" + random.choice(
                     post_checklist_msg) + ">",
                                        data={"username": bot_name}, parseFull=False)
-            write_to_file_from_top(release_freeze_details_path, ":clubs:" +
-                                   str(datetime.now(pytz.timezone('Asia/Calcutta')).strftime(
-                                       '%B %d,%Y at %I.%M %p')) + " with <" + self.pr.link_pretty + "|master> code")  # on:" + str(datetime.datetime.now().strftime('%B %d, %Y @ %I.%M%p'))
-            clear_file(code_freeze_details_path)  # clear last code freeze
+            # write_to_file_from_top(release_freeze_details_path, ":clubs:" +
+            #                        str(datetime.datetime.now(pytz.timezone('Asia/Calcutta')).strftime(
+            #                            '%B %d,%Y at %I.%M %p')) + " with <" + self.pr.link_pretty + "|master> code")  # on:" + str(datetime.datetime.now().strftime('%B %d, %Y @ %I.%M%p'))
+            # clear_file(code_freeze_details_path)  # clear last code freeze
 
     def check_valid_contributor(self):
         if self.pr.action == "closed" and self.pr.is_merged == True and self.pr.base_branch == staging_branch and (
@@ -640,7 +640,7 @@ class Actor(Base):
                 to_notify, self.pr.link_pretty,
                 dev_ops_team, tech_leads_to_notify_always_slack, product_notify_slack)
 
-            self.slack.postToSlack(self.channel_name, msg, data=CommonUtils.getBot(self.channel_name, merged_by_slack_name),
+            self.slack.postToSlack(self.channel_name, msg, data=CommonUtils.get_bot(self.channel_name, merged_by_slack_name),
                                    parseFull=False)
 
         if self.pr.action.find(
@@ -915,8 +915,8 @@ class Actor(Base):
                 merged_by_slack = merged_by_slack_uid, sha = sha, head_branch = self.pr.head_branch,
                 is_ui_change = ui_change)
 
-                self.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token, job_name="VersionBumper_MoEngage",
-                                     pr_link = self.pr.link_pretty, params_dict = bump_version_job_dict, pr_by_slack = pr_by_slack_uid)
+                # self.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token, job_name="VersionBumper_MoEngage",
+                #                      pr_link = self.pr.link_pretty, params_dict = bump_version_job_dict, pr_by_slack = pr_by_slack_uid)
 
             if self.pr.base_branch == master_branch and self.pr.head_branch.startswith("patch"):
                 msg = "MoEngage Repo: A patch came from head=" + self.pr.head_branch
@@ -943,8 +943,8 @@ class Actor(Base):
                                              merged_by_slack=merged_by_slack_uid, sha=sha, head_branch=self.pr.head_branch,
                                              is_ui_change=ui_change)
                 print(":DEBUG: before hitting patch job is_ui_change=", ui_change)
-                self.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token, job_name="VersionBumper_MoEngage",
-                                params_dict=bump_version_job_dict, pr_link=self.pr.link_pretty, pr_by_slack=pr_by_slack_uid)
+                # self.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token, job_name="VersionBumper_MoEngage",
+                #                 params_dict=bump_version_job_dict, pr_link=self.pr.link_pretty, pr_by_slack=pr_by_slack_uid)
 
     def post_to_slack_qa(self):
         """
@@ -969,7 +969,7 @@ class Actor(Base):
                 self.slack.postAttachmentToSlack(self.channel_name, self.pr.link_pretty, msg, data={"username": bot_name}, parseFull=False)
 
                 shutil.copy(file_path, '/opt/alice/release_items_' + str(
-                    datetime.now().strftime('%m-%d-%Y:%I.%M%p')) + '.txt')  # take backup beforing clearing
+                    datetime.datetime.now().strftime('%m-%d-%Y:%I.%M%p')) + '.txt')  # take backup beforing clearing
 
                 if not self.pr.config.is_debug:
                     open(file_path, 'w').close()  # clear file for next release content
