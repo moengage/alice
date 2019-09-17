@@ -525,10 +525,10 @@ class Actor(Base):
                                     " <https://github.com/moengage/MoEngage/wiki/Post-Release-deployment-Check#for-qa-engineer|" + random.choice(
                     post_checklist_msg) + ">",
                                        data={"username": bot_name}, parseFull=False)
-            # write_to_file_from_top(release_freeze_details_path, ":clubs:" +
-            #                        str(datetime.datetime.now(pytz.timezone('Asia/Calcutta')).strftime(
-            #                            '%B %d,%Y at %I.%M %p')) + " with <" + self.pr.link_pretty + "|master> code")  # on:" + str(datetime.datetime.now().strftime('%B %d, %Y @ %I.%M%p'))
-            # clear_file(code_freeze_details_path)  # clear last code freeze
+            write_to_file_from_top(release_freeze_details_path, ":clubs:" +
+                                   str(datetime.datetime.now(pytz.timezone('Asia/Calcutta')).strftime(
+                                       '%B %d,%Y at %I.%M %p')) + " with <" + self.pr.link_pretty + "|master> code")  # on:" + str(datetime.datetime.now().strftime('%B %d, %Y @ %I.%M%p'))
+            clear_file(code_freeze_details_path)  # clear last code freeze
 
     def check_valid_contributor(self):
         if self.pr.action == "closed" and self.pr.is_merged == True and self.pr.base_branch == staging_branch and (
@@ -701,7 +701,7 @@ class Actor(Base):
         second_branch = str(self.pr.base_branch)
         url = repo_site_url + "repos/moengage/" + self.pr.repo + "/compare/" + first_branch \
               + "..." + second_branch
-        header = {"Authorization": "token " + self.actor.github.GITHUB_TOKEN}
+        header = {"Authorization": "token " + self.github.GITHUB_TOKEN}
         res = ApiManager.get(url, header)["response"].json()
         return res["files"]
 
@@ -915,8 +915,8 @@ class Actor(Base):
                 merged_by_slack = merged_by_slack_uid, sha = sha, head_branch = self.pr.head_branch,
                 is_ui_change = ui_change)
 
-                # self.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token, job_name="VersionBumper_MoEngage",
-                #                      pr_link = self.pr.link_pretty, params_dict = bump_version_job_dict, pr_by_slack = pr_by_slack_uid)
+                self.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token, job_name="VersionBumper_MoEngage",
+                                     pr_link = self.pr.link_pretty, params_dict = bump_version_job_dict, pr_by_slack = pr_by_slack_uid)
 
             if self.pr.base_branch == master_branch and self.pr.head_branch.startswith("patch"):
                 msg = "MoEngage Repo: A patch came from head=" + self.pr.head_branch
@@ -943,8 +943,8 @@ class Actor(Base):
                                              merged_by_slack=merged_by_slack_uid, sha=sha, head_branch=self.pr.head_branch,
                                              is_ui_change=ui_change)
                 print(":DEBUG: before hitting patch job is_ui_change=", ui_change)
-                # self.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token, job_name="VersionBumper_MoEngage",
-                #                 params_dict=bump_version_job_dict, pr_link=self.pr.link_pretty, pr_by_slack=pr_by_slack_uid)
+                self.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token, job_name="VersionBumper_MoEngage",
+                                params_dict=bump_version_job_dict, pr_link=self.pr.link_pretty, pr_by_slack=pr_by_slack_uid)
 
     def post_to_slack_qa(self):
         """
