@@ -68,4 +68,19 @@ class CommonUtils(object):
     def read_resource_string(module, path):
         return pkg_resources.resource_string(module, path)
 
+    @staticmethod
+    def get_bot(channel, user):
+        if channel=="#support":
+            return {"username": user, "icon_url":"http://www.dshservices.com/CSP.jpg"}
+        elif channel == "#bugs" :
+            return {"username": user, "icon_url":"https://thesnarkyblonde.files.wordpress.com/2015/06/scared-bug.jpg"} #"username": "Bug"
+        else:
+            return {"username": user, "icon_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPUZ-_hA1URdXhUssFYYguQJNo2nbqgIflGTQby0HRYshzB82t4w"}
+                # "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcRou8PqU98565BjRsp4AN7o62cxjGi3172ejTSI88ntik3VXrfW"}
+                # "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSP3AjyC5tfdRhEkscR5BkC9bAkxALjFi3i0sqjfM9HoqYDd1bfdg"}
+                # "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcQRZS74Kz3vZ8eoPIxkBpbufcEUiM0byiRSx85doEJ9bXZjTtQDyA"}
+                # "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQFPqaeo99hxPn48XHkc5fRVQzvKvExO20NmdceY0uCUeVeULip"}
+                # "http://www.cutestpaw.com/wp-content/uploads/2011/11/My-Best-Friend.jpg"}
+                # "https://s-media-cache-ak0.pinimg.com/236x/d3/e9/fc/d3e9fc222c9bd0d12e0ff126acf7df00.jpg"}
+                # "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcTQMP3_ng13f2qtljxGA5U_1SvxLd0Z_y6u-AHlrWcwyXeHYzzV"}
 
