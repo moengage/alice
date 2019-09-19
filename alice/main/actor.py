@@ -280,8 +280,10 @@ class Actor(Base):
         if self.pr.is_merged:
             if self.sensitive_file_touched.get("is_found"):
                 msg = MSG_SENSITIVE_FILE_TOUCHED.format(
-                    notify_folks=self.pr.config.devOpsTeamToBeNotified, file=self.sensitive_file_touched["file_name"],
-                    pr=self.pr.link_pretty, pr_by=self.created_by, pr_number=self.pr.number)
+                    notify_folks=self.get_slack_name_for_id(self.pr.config.devOpsTeamToBeNotified),
+                    file=self.sensitive_file_touched["file_name"],
+                    pr=self.pr.link_pretty, pr_by=self.get_slack_name_for_git_name(self.created_by),
+                    pr_number=self.pr.number)
                 self.slack.postToSlack(self.pr.config.alertChannelName, msg)
                 LOG.info("informed %s because sensitive files are touched in pr=%s" %
                          (self.pr.config.devOpsTeamToBeNotified, self.pr.link_pretty))
@@ -475,7 +477,7 @@ class Actor(Base):
                     new_list.append("<@" + slack_mapping[item] + ">")
                 else:
                     new_list.append("<@" + item + ">")
-            return new_list
+            return ' '.join(map(str, new_list))
         else:
             for key, value in slack_mapping.items():
                 if key == id:
@@ -484,26 +486,29 @@ class Actor(Base):
 
     def hit_jenkins_job(self, jenkins_instance, token, job_name, pr_link, params_dict, pr_by_slack):
         a = datetime.datetime.now()
-        print("**Hitting Job {0} on PR link {1}".format(job_name, pr_link))
-        try:
-            print("params_dict %s token=%s" % (params_dict, token))
-            queue_info = jenkins_instance.get_queue_info()
-            print("queue size=", len(queue_info))
-            build_response = jenkins_instance.build_job(job_name, params_dict, {'token': token})
-            print("*** triggerd the job", build_response)
-            queue_info = jenkins_instance.get_queue_info()
-            print("queue size=", len(queue_info))
-            print("1st queue_info=", queue_info[0])
-            b = datetime.datetime.now()
-            c = b - a
-            print(int(c.total_seconds()), " seconds")
-            msg = "<@{0}> started job, PR by={0} PR={1}".format(
-                pr_by_slack, pr_link)
-            print(msg)
-        except Exception as e:
-            print(e)
-            traceback.print_exc()
-            raise Exception(e)
+        if self.pr.config.is_debug:
+            return
+        else:
+            print("**Hitting Job {0} on PR link {1}".format(job_name, pr_link))
+            try:
+                print("params_dict %s token=%s" % (params_dict, token))
+                queue_info = jenkins_instance.get_queue_info()
+                print("queue size=", len(queue_info))
+                build_response = jenkins_instance.build_job(job_name, params_dict, {'token': token})
+                print("*** triggerd the job", build_response)
+                queue_info = jenkins_instance.get_queue_info()
+                print("queue size=", len(queue_info))
+                print("1st queue_info=", queue_info[0])
+                b = datetime.datetime.now()
+                c = b - a
+                print(int(c.total_seconds()), " seconds")
+                msg = "<@{0}> started job, PR by={0} PR={1}".format(
+                    pr_by_slack, pr_link)
+                print(msg)
+            except Exception as e:
+                print(e)
+                traceback.print_exc()
+                raise Exception(e)
 
     def run_for_angular(self, context_angular, job_dir, repo, pr_by_slack_name, is_change_angular, jenkins_instance,
                         token, pr_by_slack_uid):
