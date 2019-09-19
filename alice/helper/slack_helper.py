@@ -45,8 +45,7 @@ class SlackHelper(object):
         data[
             "text"] = "|Final Reminder| :raising_hand: \n Hi " + msg + "\n There are changes on your name as mentioned *above*. Please do mention them in release notes & inform immediately if it" \
                                                                        " needs QA *else will be treated as self tested* (ignore, only if done already):\n" + release_notes + " \t\tcc: <@U7Z8GH7MK> <@geetima> <@vandana> <@U8DSU7L00> <@U8DSJFENL> <@UBLNGFELC>"
-        response = ApiManager.post(url = channel, headers={"content-type": "text/javascript"}, data=json.dumps(data))
-        return response["content"]
+        self.postToSlack('#tmp', json.dumps(data))
 
     def postAttachmentToSlack(self, channel, pr_link, msg, data,parseFull=True):
         data["channel"] = channel
@@ -78,5 +77,5 @@ class SlackHelper(object):
         ]
         }
         final_json.update(data)
-        response = ApiManager.post(url= channel, data=json.dumps(final_json), headers={"content-type": "text/javascript"})
-        return response["content"]
+        print(type(final_json))
+        self.postToSlack("#tmp", json.dumps(final_json))
