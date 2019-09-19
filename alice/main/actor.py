@@ -5,7 +5,7 @@ from parse import parse
 from alice.helper.file_utils import write_to_file_from_top, clear_file, read_from_file
 
 from alice.commons.base import Base
-from alice.config.message_template import MSG_BAD_START, MSG_NO_TECH_REVIEW, MSG_AUTO_CLOSE, \
+from alice.config.message_template import MSG_BAD_START, MSG_AUTO_CLOSE, \
     MSG_OPENED_TO_MAIN_BRANCH, MSG_OPENED_TO_PREVENTED_BRANCH, SPECIAL_COMMENT, GENERAL_COMMENT, \
     MSG_RELEASE_PREPARATION, MSG_SENSITIVE_FILE_TOUCHED, MSG_QA_SIGN_OFF, MSG_CODE_CHANNEL, MSG_GUIDELINE_ON_MERGE, \
     CODE_FREEZE_TEXT, RELEASE_NOTES_REMINDER, DATA_SAVE_MERGED
@@ -227,24 +227,20 @@ class Actor(Base):
 
     def remind_direct_release_guideline_on_merge(self):
         """
-        Edge case - Can't send to mooperation
         remind individually to follow guidelines for QA process/ Sensitive branches.
         :return: relevant response dict
         """
-        if self.pr.action in close_action and self.pr.is_merged:
-            if self.base_branch in self.pr.config.sensitiveBranches or self.pr.is_sensitive_branch:
+        if self.pr.is_merged:
+            if self.base_branch in self.pr.config.sensitiveBranches:
                 msg = MSG_GUIDELINE_ON_MERGE.format(person=self.get_slack_name_for_git_name(self.created_by),
                                                     pr=self.pr.link_pretty,
-                                                    base_branch=self.pr.base_branch, title=self.pr.title)
+                                                    base_branch=self.pr.base_branch, title=self.pr.title,
+                                                    release_notes_link=self.pr.config.release_notes_link)
                 if self.pr.config.is_debug:
-                    self.slack.directSlack("UL91SP77H", msg)
+                    self.slack.directSlack("<@UL91SP77H>", msg)
                     LOG.info("slacked personally to %s" % "Paras")
                 else:
-                    git_mapping = json.loads(self.pr.config.constants.get('git_mappings'))
-                    post_to_individual = git_mapping.get(self.created_by, None)
-                    if post_to_individual is None:
-                        return
-                    self.slack.directSlack(post_to_individual, msg)
+                    self.slack.directSlack('@' + self.created_by, msg)
                     LOG.info("slacked personally to %s" % self.created_by)
                 return {"msg": "slacked personally to %s" % self.created_by}
             return {"msg": "skipped slack personally because not sensitive branch"}
@@ -304,10 +300,11 @@ class Actor(Base):
         """
         if self.pr.action in close_action and self.pr.is_merged and self.pr.base_branch in self.pr.config.mainBranch \
                 and self.pr.head_branch == self.pr.config.testBranch:
-
-            msg = MSG_QA_SIGN_OFF.format(person=self.pr.config.personToBeNotified, pr=self.pr.link_pretty,
-                                         dev_ops_team=self.pr.config.devOpsTeamToBeNotified, main_branch = self.pr.config.mainBranch,
-                                         tech_team=self.pr.config.techLeadsToBeNotified)
+            msg = MSG_QA_SIGN_OFF.format(person=self.get_slack_name_for_id(self.pr.config.personToBeNotified),
+                                         pr=self.pr.link_pretty,
+                                         dev_ops_team=self.get_slack_name_for_id(self.pr.config.devOpsTeamToBeNotified),
+                                         main_branch = self.pr.config.mainBranch,
+                                         tech_team=self.get_slack_name_for_id(self.pr.config.techLeadsToBeNotified))
 
 
             self.slack.postToSlack(self.pr.config.alertChannelName, msg,
@@ -331,8 +328,7 @@ class Actor(Base):
                                           head_branch=self.pr.head_branch, base_branch=self.pr.base_branch,
                                           pr_by=self.get_slack_name_for_git_name(self.created_by),
                                           merge_by=self.get_slack_name_for_git_name(self.merged_by))
-            channel_name = self.pr.config.codeChannelName
-            self.slack.postToSlack(channel_name, msg)
+            self.slack.postToSlack(self.pr.config.codeChannelName, msg)
             LOG.info("informed %s because pr=%s is merged into sensitive branch=%s" %
                      (self.pr.config.codeChannelName, self.pr.link_pretty, self.pr.base_branch))
             return {"msg": "informed %s because pr=%s is merged into sensitive branch=%s" %
@@ -457,6 +453,37 @@ class Actor(Base):
     def is_pr_file_content_available(self, response):
         return not (isinstance(response, dict) and 'message' in response and response['message'] == "Not Found")
 
+    def get_slack_name_for_git_name(self, name):
+        """
+        Had problem in sending messages as it was not recognized by slack.
+        Using this function to get slack_id corresponding to git name
+        """
+        git_mapping = json.loads(self.pr.config.constants.get('git_mappings'))
+        for key, value in git_mapping.items():
+            if key == name:
+                return "<@" + value + ">"
+        return "<@" + name + ">"
+
+    def get_slack_name_for_id(self, id):
+        """
+        Had problem in sending messages as it was not recognized by slack.
+        Using this function to get slack_id corresponding to slack_name
+        """
+        slack_mapping = json.loads(self.pr.config.constants.get('slack_mappings'))
+        if type(id) == type([]):
+            new_list = []
+            for item in id:
+                if item in slack_mapping:
+                    new_list.append("<@" + slack_mapping[item] + ">")
+                else:
+                    new_list.append("<@" + item + ">")
+            return new_list
+        else:
+            for key, value in slack_mapping.items():
+                if key == id:
+                    return "<@" + value + ">"
+            return "<@" + id + ">"
+
     def hit_jenkins_job(self, jenkins_instance, token, job_name, pr_link, params_dict, pr_by_slack):
         a = datetime.datetime.now()
         print("**Hitting Job {0} on PR link {1}".format(job_name, pr_link))
@@ -514,13 +541,13 @@ class Actor(Base):
             alice_product_team = json.loads(self.pr.config.constants.get('alice_product_team'))
             for item in alice_product_team:
                 self.slack.postToSlack(item,
-                                       "\n:bell: hi " + item + " master is updated & release is going live shortly. "
+                                       "\n:bell: hi " + self.get_slack_name_for_id(item) + " master is updated & release is going live shortly. "
                                                                "Hoping <https://docs.google.com/a/moengage.com/spreadsheets/d/1eW3y-GxGzu8Jde8z4EYC6fRh1Ve4TpbW5qv2-iWs1ks/edit?usp=sharing|Release Notes> have mention of all the items planned to go in \"Next Release\"",
                                        data={"username": bot_name}, parseFull=False)
             """ for bot """
             alice_qa_team = json.loads(self.pr.config.constants.get('alice_qa_team'))
             for item in alice_qa_team:
-                self.slack.postToSlack(item, "\n hi <" + item + "> " + random.choice(
+                self.slack.postToSlack(item, "\n hi " + self.get_slack_name_for_id(item)  + random.choice(
                     applaud_list) + " :+1: thank you for the QA signOff\n :bell:"
                                     " <https://github.com/moengage/MoEngage/wiki/Post-Release-deployment-Check#for-qa-engineer|" + random.choice(
                     post_checklist_msg) + ">",
