@@ -661,6 +661,9 @@ class Actor(Base):
             cnt += 1
 
     def release_alert(self):
+        """
+        Alert when doing a release, when qa-> master it is release.
+        """
         if self.pr.action.find("close") != -1 and self.pr.is_merged == True and (
                 self.pr.base_branch == master_branch and self.pr.head_branch == staging_branch):
             """ ************* inform channel *************** """
