@@ -237,10 +237,11 @@ class Actor(Base):
                                                     base_branch=self.pr.base_branch, title=self.pr.title,
                                                     release_notes_link=self.pr.config.release_notes_link)
                 if self.pr.config.is_debug:
-                    self.slack.directSlack("<@UL91SP77H>", msg)
+                    self.slack.directSlack("UL91SP77H", msg)
                     LOG.info("slacked personally to %s" % "Paras")
                 else:
-                    self.slack.directSlack('@' + self.created_by, msg)
+                    git_mapping = json.loads(self.pr.config.constants.get('git_mappings'))
+                    self.slack.directSlack(git_mapping[self.created_by], msg)
                     LOG.info("slacked personally to %s" % self.created_by)
                 return {"msg": "slacked personally to %s" % self.created_by}
             return {"msg": "skipped slack personally because not sensitive branch"}
