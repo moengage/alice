@@ -10,6 +10,7 @@ from alice.main.runner import RunChecks
 from alice.helper.log_utils import LOG
 from alice.commons.base_jira import JiraPayloadParser
 from alice.main.jira_actor import JiraActor
+from alice.main.actor import Infra
 
 app = Flask(__name__)
 
@@ -47,6 +48,13 @@ def alice():
     payload = json.loads(payload)
 
     if "pull_request" not in payload:
+
+        if "repository" in payload:
+
+            if payload["repository"]["name"] == "InfraRequests":
+
+                Infra().infra_requests(payload)
+                return jsonify("Notified for Infra requests")
         return jsonify("Not a Pull request")
 
     merge_correctness = RunChecks().run_checks(payload)
