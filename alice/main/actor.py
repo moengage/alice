@@ -20,7 +20,10 @@ from alice.helper.jenkins_helper import JenkinsHelper
 from alice.helper.log_utils import LOG
 from datetime import datetime
 from alice.helper.api_manager import ApiManager
+from alice.config.config_provider import ConfigProvider
+from alice.helper.file_utils import get_dict_from_config_file
 
+import os
 import time
 import pytz
 import shutil
@@ -227,6 +230,7 @@ class Actor(Base):
 
     def remind_direct_release_guideline_on_merge(self):
         """
+        Edge case - Can't send to mooperation
         remind individually to follow guidelines for QA process/ Sensitive branches.
         :return: relevant response dict
         """
@@ -241,7 +245,10 @@ class Actor(Base):
                     LOG.info("slacked personally to %s" % "Paras")
                 else:
                     git_mapping = json.loads(self.pr.config.constants.get('git_mappings'))
-                    self.slack.directSlack(git_mapping[self.created_by], msg)
+                    post_to_individual = git_mapping.get(self.created_by, None)
+                    if post_to_individual is None:
+                        return
+                    self.slack.directSlack(post_to_individual, msg)
                     LOG.info("slacked personally to %s" % self.created_by)
                 return {"msg": "slacked personally to %s" % self.created_by}
             return {"msg": "skipped slack personally because not sensitive branch"}
@@ -1137,8 +1144,7 @@ class Actor(Base):
                     print(":INFO: repo=%s to validate, for PR=%s" % (repo, self.pr.number))
                     sensitive_branch = jon.loads(self.pr.config.constants.get('sensitive_branches_repo_wise'))
 
-                    if self.pr.base_branch in sensitive_branch.get(repo.lower(),
-                                                                               sensitive_branches_default):
+                    if self.pr.base_branch in sensitive_branch.get(repo.lower(), sensitive_branches_default):
 
                         print("******* PR " + self.pr.action + "ed to " + self.pr.base_branch + ", Triggering tests ************")
 
@@ -1297,3 +1303,47 @@ class Actor(Base):
 
                 # 3.4)
                 self.alert_pm()
+
+
+class Infra(object):
+
+    def __init__(self):
+        self.config = ConfigProvider()
+
+    def infra_requests(self, payload):
+
+        if "action" in payload and payload["action"] == "assigned":
+            issue = {"assigned": False}
+            issue["type"] = "infraRequests"
+            issue["channel"] = self.config.constants.get('infra_channel')
+
+            issue["url"] = payload["issue"]["html_url"]
+            issue["title"] = payload["issue"]["title"]
+            issue["labels"] = payload["issue"]["labels"]
+            issue["assignee"] = ""
+            try:
+                issue["assignee"] = payload["assignee"]["login"]  # multi assignee case handle
+            except Exception:
+                issue["assignee"] = payload["issue"]["assignee"]["login"]
+
+            issue["sender"] = payload["sender"]["login"]
+
+            issue["slack_nick_assignee"] = CommonUtils.get_slack_nicks_from_git(issue["assignee"])
+            issue["slack_nick_sender"] = CommonUtils.get_slack_nicks_from_git(issue["sender"])
+            issue["slack_nick_creator"] = CommonUtils.get_slack_nicks_from_git(payload["issue"]["user"]["login"])
+
+            # issue["slack_nick_name_sender"] = CommonUtils.getSlackNicksFromGitNameNicks(issue["sender"])
+            # issue["slack_nick_name_creator"] = CommonUtils.getSlackNicksFromGitNameNicks(payload["issue"]["user"]["login"])
+
+            msg = "hi <@{member}> could you please help me with this: <{pr_link}|{title}>".format(
+                member=issue["slack_nick_assignee"], title=issue["title"],
+                pr_link=issue["url"], by=issue["slack_nick_sender"])
+
+            if issue["slack_nick_assignee"] not in self.config.constants.get('infra_members_verify'):
+
+                msg = "<@{member}> Please verify and update the status or close it: <{pr_link}|{title}>".format(
+                    member=issue["slack_nick_assignee"], title=issue["title"], pr_link=issue["url"])
+                issue["slack_nick_name_creator"] = issue["slack_nick_name_sender"]
+
+            SlackHelper(self.config).postToSlack(channel=issue["channel"], msg=msg)
+
