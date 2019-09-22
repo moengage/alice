@@ -484,12 +484,17 @@ class Actor(Base):
                 if item in slack_mapping:
                     new_list.append("<@" + slack_mapping[item] + ">")
                 else:
-                    new_list.append("<@" + item + ">")
+                    if item.startswith('@'):
+                        new_list.append(item)
+                    else:
+                        new_list.append("<@" + item + ">")
             return ' '.join(map(str, new_list))
         else:
             for key, value in slack_mapping.items():
                 if key == id:
                     return "<@" + value + ">"
+                elif id.startswith('@'):
+                    return id
             return "<@" + id + ">"
 
     def hit_jenkins_job(self, jenkins_instance, token, job_name, pr_link, params_dict, pr_by_slack):
@@ -629,8 +634,6 @@ class Actor(Base):
                 "base": base
             }
             pr_endpoint = repo_site_url + "repos/moengage/" + repo + "/pulls"
-            # response = requests.get(pr_endpoint, headers={
-            #     "Authorization": "token " + self.github.GITHUB_TOKEN})
             data = json.dumps(pr_data)
             response = requests.post(pr_endpoint, headers={
                 "Authorization": "token " + self.github.GITHUB_TOKEN}, data=json.dumps(pr_data))
@@ -663,7 +666,7 @@ class Actor(Base):
                     print(e)
                     self.slack.postToSlack("@pooja",
                                             ":skull: error in sending failure message on PR creation failure, response=\n%s"
-                                            % (repo, e.message))
+                                            % (repo))
             cnt += 1
 
     def release_alert(self):
