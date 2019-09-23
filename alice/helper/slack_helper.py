@@ -1,4 +1,4 @@
-from alice.helper.constants import SLACK_ICON
+from alice.helper.constants import SLACK_ICON, ALICE_ERROR
 from slacker import Slacker
 from alice.helper.log_utils import LOG
 from alice.helper.api_manager import ApiManager
@@ -41,6 +41,8 @@ class SlackHelper(object):
         try:
             self.slack.chat.post_message(channel=channel, text=msg, icon_url=self.icon, as_user=as_user, *args, **kwargs)
         except Exception as ex:
+            msg = "<@UL91SP77H> Error in alice channel name %s"%channel
+            self.slack.chat.post_message(channel=ALICE_ERROR, text=msg, icon_url=self.icon, as_user=as_user, *args, **kwargs)
             LOG.error("Error while posting alert to slack, please check if: \n1. The provided slack/hubot token for alice is correct " \
                   "and it has access to the channel=%s" \
                   "\n2.The channel name is correct\n" %(channel))
