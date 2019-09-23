@@ -273,7 +273,7 @@ class Actor(Base):
 
                 msg = MSG_AUTO_CLOSE.format(tested_branch=qa_branch, main_branch=master_branch)
                 self.github.modify_pr(msg, "closed")
-                self.slack.postToSlack(self.pr.config.alertChannelName, "@" + self.created_by + ": " + msg)
+                self.slack.postToSlack(self.pr.config.alertChannelName, self.get_slack_name_for_git_name(self.created_by) + ": " + msg)
                 LOG.info("closed dangerous PR %s" % self.pr.link_pretty)
                 return {"msg": "closed dangerous PR %s" % self.pr.link_pretty}
             return {"msg": "skipped closing PR=%s because not raised to mainBranch %s" % (self.pr.link_pretty,
@@ -1053,7 +1053,8 @@ class Actor(Base):
         if self.pr.action in action_commit_to_investigate:
 
             # 1) First task Done
-            self.close_dangerous_pr()
+            # self.close_dangerous_pr()
+            print("in trigger")
 
             """
             2) Begining of shield - Second task
