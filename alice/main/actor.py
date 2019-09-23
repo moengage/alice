@@ -1335,8 +1335,8 @@ class Infra(object):
             issue["slack_nick_sender"] = CommonUtils.get_slack_nicks_from_git(issue["sender"])
             issue["slack_nick_creator"] = CommonUtils.get_slack_nicks_from_git(payload["issue"]["user"]["login"])
 
-            # issue["slack_nick_name_sender"] = CommonUtils.getSlackNicksFromGitNameNicks(issue["sender"])
-            # issue["slack_nick_name_creator"] = CommonUtils.getSlackNicksFromGitNameNicks(payload["issue"]["user"]["login"])
+            issue["slack_nick_name_sender"] = CommonUtils.get_slack_nicks_from_git(issue["sender"])
+            issue["slack_nick_name_creator"] = CommonUtils.get_slack_nicks_from_git(payload["issue"]["user"]["login"])
 
             msg = "hi <@{member}> could you please help me with this: <{pr_link}|{title}>".format(
                 member=issue["slack_nick_assignee"], title=issue["title"],
@@ -1348,5 +1348,7 @@ class Infra(object):
                     member=issue["slack_nick_assignee"], title=issue["title"], pr_link=issue["url"])
                 issue["slack_nick_name_creator"] = issue["slack_nick_name_sender"]
 
-            SlackHelper(self.config).postToSlack(channel=issue["channel"], msg=msg)
+            SlackHelper(self.config).post_to_slack_infra(channel=issue["channel"], msg=msg, data=
+                                                            CommonUtils.get_bot(issue["channel"],
+                                                            issue["slack_nick_name_creator"]))
 
