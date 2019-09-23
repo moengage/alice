@@ -522,6 +522,8 @@ class Actor(Base):
                 print(msg)
             except Exception as e:
                 print(e)
+                msg = "<@UL91SP77H> Error in alice , Correct Jenkins Job params were not provided"
+                self.slack.postToSlack(ALICE_ERROR, msg)
                 traceback.print_exc()
                 raise Exception(e)
 

@@ -82,3 +82,5 @@ dashboard = 'dashboard-ui'
 repo_site_url = 'https://api.github.com/'
 
 repos_slack = ['segmentation', 'commons']
+
+ALICE_ERROR = "#shield-monitoring"
