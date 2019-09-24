@@ -821,7 +821,7 @@ class Actor(Base):
     def after_merge_check(self, pr_by_slack_uid, merged_by_slack_uid):
         """
         When pull request is merged, we notify on slack ,
-         whether it was merged correctly or not
+        whether it was merged correctly or not
         """
         repo = self.pr.repo
         sha = self.pr.statuses_url.rsplit("/", 1)[1]
@@ -1296,7 +1296,8 @@ class Actor(Base):
                     """
                     self.dashboard_builder(pr_by_slack_uid, merged_by_slack_uid, jenkins_instance, token)
 
-                self.broadcast_message(pr_by_slack_uid, merged_by_slack_uid)
+                self.notify_channel_on_merge()
+                # self.broadcast_message(pr_by_slack_uid, merged_by_slack_uid)
                 self.after_merge_check(pr_by_slack_uid, merged_by_slack_uid)
 
             if repo == moengage_repo:
