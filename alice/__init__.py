@@ -36,7 +36,30 @@ def verify_request(payload, token):
         return False
 
 
-@app.route("/alice", methods=['POST'])
+@app.route("/alice/issue", methods=['POST'])
+def infra_request():
+    payload = request.get_data()
+    if 'X-Hub-Signature' not in request.headers:
+        return jsonify("X-Hub-Signature Header missing")
+
+    if not verify_request(payload, request.headers['X-Hub-Signature']):
+        return jsonify("Not Authorized")
+
+    payload = json.loads(payload)
+
+    if "pull_request" not in payload and "repository" in payload:
+
+        if payload["repository"]["name"] == "InfraRequests":
+            Infra().infra_requests(payload)
+            return jsonify("Notified for Infra requests")
+        else:
+            return jsonify("Not allowed for This Repo")
+
+    else:
+        return jsonify("No Matching Url")
+
+
+@app.route("/alice/task", methods=['POST'])
 def alice():
     payload = request.get_data()
     if 'X-Hub-Signature' not in request.headers:
@@ -48,13 +71,6 @@ def alice():
     payload = json.loads(payload)
 
     if "pull_request" not in payload:
-
-        if "repository" in payload:
-
-            if payload["repository"]["name"] == "InfraRequests":
-
-                Infra().infra_requests(payload)
-                return jsonify("Notified for Infra requests")
         return jsonify("Not a Pull request")
 
     merge_correctness = RunChecks().run_checks(payload)
