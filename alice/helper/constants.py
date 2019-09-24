@@ -74,6 +74,8 @@ organization_repo = 'moengage'
 master_branch = 'master'
 staging_branch = 'qa'
 dev_branch = 'dev'
+dev_branch_commons = 'develop'
+staging_branch_commons = 'release'
 
 moengage_repo = 'MoEngage'
 dashboard = 'dashboard-ui'

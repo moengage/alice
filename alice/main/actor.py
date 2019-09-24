@@ -818,15 +818,17 @@ class Actor(Base):
 
     def after_merge_check(self, pr_by_slack_uid, merged_by_slack_uid):
         """
-        When pull request is merged, we run notify on slack ,
+        When pull request is merged, we notify on slack ,
          whether it was merged correctly or not
         """
         repo = self.pr.repo
         sha = self.pr.statuses_url.rsplit("/", 1)[1]
 
         if self.pr.is_sensitive_branch and self.pr.action in close_action:
-            if (self.pr.base_branch == "qa" and self.pr.head_branch == "master") or (
-                    self.pr.base_branch == "dev" and self.pr.head_branch == "qa"):
+            if (self.pr.base_branch == staging_branch and self.pr.head_branch == master_branch) or (
+                    self.pr.base_branch == dev_branch and self.pr.head_branch == staging_branch) or \
+                    (self.pr.base_branch == staging_branch_commons and self.pr.head_branch == master_branch)\
+                    or (self.pr.base_branch == dev_branch_commons and self.pr.head_branch == staging_branch_commons):
 
                 print(":SKIP: back merge: ignore status alert, repo={repo} pr={link_pr} title={title_pr}".
                       format(repo=repo, link_pr=self.pr.link_pr, title_pr=self.pr.title))
