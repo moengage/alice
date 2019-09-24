@@ -21,13 +21,6 @@ class Checks(object):
         """
         return self.actor.comment_on_pr()
 
-    def notify_channel_on_merge(self):
-        """
-        store merged PR data to respective channel
-        :return:
-        """
-        return self.actor.notify_channel_on_merge()
-
     def notify_lead_on_given_action(self):
         """
         keep lead posted on particular action on sensitive branch

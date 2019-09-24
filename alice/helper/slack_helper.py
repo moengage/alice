@@ -18,13 +18,13 @@ class SlackHelper(object):
                  "Message= %s\n"
                  "******************************************* " % (channel, msg))
         if data is not None:
-            as_user = data["username"]
-            icon = data["icon_url"]
+            as_user_1 = data["username"]
+            icon_1 = data["icon_url"]
         else:
-            as_user = as_user
-            icon = self.icon
+            as_user_1 = as_user
+            icon_1 = self.icon
         try:
-            self.slack.chat.post_message(channel=channel, text=msg, icon_url=icon, as_user=as_user, *args,
+            self.slack.chat.post_message(channel=channel, text=msg, icon_url=icon_1, as_user=as_user_1, *args,
                                          **kwargs)
         except Exception as ex:
             LOG.error(
