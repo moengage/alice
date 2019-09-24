@@ -13,18 +13,21 @@ class SlackHelper(object):
         self.icon = SLACK_ICON
 
     def post_to_slack_infra(self, channel, msg=None, data=None, parseFull=None, as_user=True, *args, **kwargs):
+        """
+        For posting as image and name change, as_user should be False and you should provide username and as_user
+        """
         LOG.info("\n************** NOTIFYING ******************\n"
                  "**************  %s      *************\n"
                  "Message= %s\n"
                  "******************************************* " % (channel, msg))
         if data is not None:
-            as_user_1 = data["username"]
-            icon_1 = data["icon_url"]
+            as_user = data["username"]
+            icon = data["icon_url"]
         else:
-            as_user_1 = as_user
-            icon_1 = self.icon
+            as_user = as_user
+            icon = self.icon
         try:
-            self.slack.chat.post_message(channel=channel, text=msg, icon_url=icon_1, as_user=False, *args,
+            self.slack.chat.post_message(channel=channel, text=msg, icon_url=icon, username=as_user, as_user=False, *args,
                                          **kwargs)
         except Exception as ex:
             LOG.error(

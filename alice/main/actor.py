@@ -1349,7 +1349,7 @@ class Infra(object):
             issue["slack_nick_creator"] = CommonUtils.get_slack_nicks_from_git(payload["issue"]["user"]["login"])
 
             issue["slack_nick_name_sender"] = CommonUtils.get_slack_nicks_from_git(issue["sender"])
-            issue["slack_nick_name_creator"] = CommonUtils.get_slack_nicks_from_git(payload["issue"]["user"]["login"])
+            issue["slack_nick_name_creator"] = payload["issue"]["user"]["login"]
 
             msg = "hi <@{member}> could you please help me with this: <{pr_link}|{title}>".format(
                 member=issue["slack_nick_assignee"], title=issue["title"],
