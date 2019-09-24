@@ -332,7 +332,7 @@ class Actor(Base):
         if self.pr.is_merged:
             LOG.debug("**** Repo=%s, new merge came to=%s, setting trace to=%s channel"
                       % (self.pr.repo, self.pr.base_branch, self.pr.config.codeChannelName))
-            msg = MSG_CODE_CHANNEL.format(title=self.pr.title, desc=self.pr.description, pr=self.pr.link,
+            msg = MSG_CODE_CHANNEL.format(title=self.pr.title, desc=self.pr.description, pr=self.pr.link_pr,
                                           head_branch=self.pr.head_branch, base_branch=self.pr.base_branch,
                                           pr_by=self.get_slack_name_for_git_name(self.created_by),
                                           merge_by=self.get_slack_name_for_git_name(self.merged_by))
@@ -1294,8 +1294,6 @@ class Actor(Base):
 
                 self.broadcast_message(pr_by_slack_uid, merged_by_slack_uid)
                 self.after_merge_check(pr_by_slack_uid, merged_by_slack_uid)
-                self.bump_version(pr_by_slack_uid, merged_by_slack_uid, jenkins_instance, token)
-                self.post_to_slack_qa()
 
             if repo == moengage_repo:
                 # 3.1)
@@ -1309,6 +1307,12 @@ class Actor(Base):
 
                 # 3.4)
                 self.alert_pm()
+
+                # 3.5)
+                self.bump_version(pr_by_slack_uid, merged_by_slack_uid, jenkins_instance, token)
+
+                # 3.6)
+                self.post_to_slack_qa()
 
 
 class Infra(object):
