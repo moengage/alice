@@ -823,6 +823,9 @@ class Actor(Base):
         """
         When pull request is merged, we notify on slack ,
         whether it was merged correctly or not
+
+        Todo - Frontend dashboard - react,
+        Integration test - Inapp
         """
         repo = self.pr.repo
         sha = self.pr.statuses_url.rsplit("/", 1)[1]
@@ -854,7 +857,7 @@ class Actor(Base):
                         context_description = ""
                         err_syntax_tests = ""
                         for item in status_list:
-                            if item["context"].find("unit-tests") != -1 and item["state"] == "failure":
+                            if item["context"].find("unit-test") != -1 and item["state"] == "failure":
                                 context_description = item["description"]
 
                             if item["context"] == "shield-syntax-validator-python" and item["state"] == "failure":
