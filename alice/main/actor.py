@@ -338,7 +338,8 @@ class Actor(Base):
                                           head_branch=self.pr.head_branch, base_branch=self.pr.base_branch,
                                           pr_by=self.get_slack_name_for_git_name(self.created_by),
                                           merge_by=self.get_slack_name_for_git_name(self.merged_by))
-            self.slack.postToSlack(self.pr.config.codeChannelName, msg)
+            channel_repo = self.pr.config.constants.get('code_merge_moengage')
+            self.slack.postToSlack(channel_repo, msg)
             LOG.info("informed %s because pr=%s is merged into sensitive branch=%s" %
                      (self.pr.config.codeChannelName, self.pr.link_pretty, self.pr.base_branch))
             return {"msg": "informed %s because pr=%s is merged into sensitive branch=%s" %
