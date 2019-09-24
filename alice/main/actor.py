@@ -773,7 +773,7 @@ class Actor(Base):
 
     def dashboard_builder(self, pr_by_slack_uid, merged_by_slack_uid, jenkins_instance, token):
         repo = self.pr.repo
-
+        msg = {"Package building not needed"}
         if self.pr.base_branch in package_builder_branches_repo_wise.get(repo.lower()):
             """ Cases
             head    base
