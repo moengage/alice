@@ -591,7 +591,7 @@ class Actor(Base):
     def code_freeze(self):
 
         if (self.pr.base_branch == staging_branch and self.pr.head_branch == dev_branch) \
-                and (self.pr.action.find("opened") != -1 or self.pr.action.find("merged") != -1):
+                and (self.pr.action.find("opened") != -1):
             print("************ code freeze PR is opened from dev to QA, auto create PRs for dependent packages")
             self.slack.postToSlack(self.channel_name,
                                    "@channel Freezing code now. Any pending merge? please reach QA team within 10 minutes",
@@ -958,7 +958,7 @@ class Actor(Base):
         repo = self.pr.repo
         sha = self.pr.statuses_url.rsplit("/", 1)[1]
 
-        if repo == moengage_repo:
+        if repo == moengage_repo and self.pr.is_merged:
 
             if self.pr.base_branch == master_branch and self.pr.head_branch == staging_branch:
 
@@ -1276,7 +1276,7 @@ class Actor(Base):
 
                             self.alert_on_slack(pr_by_slack_uid)
 
-        else:
+        elif self.pr.action in close_action:
             """
             3) When pull request is closed and merged ,
                 we run following tasks-
@@ -1302,24 +1302,21 @@ class Actor(Base):
                 # self.broadcast_message(pr_by_slack_uid, merged_by_slack_uid)
                 self.after_merge_check(pr_by_slack_uid, merged_by_slack_uid)
 
-            if repo == moengage_repo:
-                # 3.1)
-                self.code_freeze()
+                if repo == moengage_repo:
+                    # 3.2)
+                    self.release_alert()
 
-                # 3.2)
-                self.release_alert()
+                    # 3.3)
+                    self.check_valid_contributor()
 
-                # 3.3)
-                self.check_valid_contributor()
+                    # 3.4)
+                    self.alert_pm()
 
-                # 3.4)
-                self.alert_pm()
+                    # 3.5)
+                    self.bump_version(pr_by_slack_uid, merged_by_slack_uid, jenkins_instance, token)
 
-                # 3.5)
-                self.bump_version(pr_by_slack_uid, merged_by_slack_uid, jenkins_instance, token)
-
-                # 3.6)
-                self.post_to_slack_qa()
+                    # 3.6)
+                    self.post_to_slack_qa()
 
 
 class Infra(object):
