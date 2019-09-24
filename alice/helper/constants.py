@@ -67,7 +67,7 @@ code_freeze_details_path = "/opt/alice/code_freeze_details.txt"
 
 merged_by_slack_name = ""
 
-close_action = ["close", "closed"]
+close_action = ["close", "closed", "merge", "merged"]
 open_action = ["open", "opened"]
 
 organization_repo = 'moengage'
