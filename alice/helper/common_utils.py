@@ -53,6 +53,13 @@ class CommonUtils(object):
         print(slack_mappings)
 
     @staticmethod
+    def get_slack_nicks_from_git_name_nicks(key):
+        name_mapping = json.loads(CommonUtils.constants.get('git_mappings_with_slack_name'))
+        if key in name_mapping:
+            return name_mapping[key]
+        return key
+
+    @staticmethod
     def get_slack_nicks_from_git(key):
         git_mappings = json.loads(CommonUtils.constants.get('git_mappings'))
         if key in git_mappings:
