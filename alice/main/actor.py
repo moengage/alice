@@ -323,6 +323,7 @@ class Actor(Base):
                                    str(datetime.datetime.now(pytz.timezone('Asia/Calcutta')).strftime(
                                        '%B %d at %I.%M %p')) + " with <" + self.pr.link_pretty + "|master> code")
             clear_file(self.pr.config.codeFreezeDetailsPath)
+            self.alert_pm()
 
     def notify_channel_on_merge(self):
         """
@@ -553,24 +554,26 @@ class Actor(Base):
                              params_dict=params_dict, pr_by_slack=pr_by_slack_uid)
 
     def alert_pm(self):
+        """
+        Prepare for next release, Sending Slack message to product and qa team.
+        """
         if self.pr.action.find("close") != -1 and self.pr.is_merged == True and (
                 self.pr.base_branch == master_branch and self.pr.head_branch == staging_branch):
 
             """ ********** Remind PM teams to update release notes for next release ************ """
             alice_product_team = json.loads(self.pr.config.constants.get('alice_product_team'))
             for item in alice_product_team:
-                self.slack.postToSlack(item,
-                                       "\n:bell: hi " + self.get_slack_name_for_id(item) + " master is updated & release is going live shortly. "
-                                                               "Hoping <https://docs.google.com/a/moengage.com/spreadsheets/d/1eW3y-GxGzu8Jde8z4EYC6fRh1Ve4TpbW5qv2-iWs1ks/edit?usp=sharing|Release Notes> have mention of all the items planned to go in \"Next Release\"",
+                message = " current release <pr_link|%pr_title> is going live shortly. Please keep QA team updated " \
+                          "about your next release plans".format(pr_link= self.pr.link_pr, pr_title= self.pr.title)
+                self.slack.postToSlack(item, "\n:bell: hi " + self.get_slack_name_for_id(item) + message,
                                        data={"username": bot_name}, parseFull=False)
             """ for bot """
             alice_qa_team = json.loads(self.pr.config.constants.get('alice_qa_team'))
             for item in alice_qa_team:
                 self.slack.postToSlack(item, "\n hi " + self.get_slack_name_for_id(item)  + random.choice(
-                    applaud_list) + " :+1: thank you for the QA signOff\n :bell:"
-                                    " <https://github.com/moengage/MoEngage/wiki/Post-Release-deployment-Check#for-qa-engineer|" + random.choice(
-                    post_checklist_msg) + ">",
-                                       data={"username": bot_name}, parseFull=False)
+                    applaud_list) + " :+1: thank you for the QA signOff\n :bell: " +
+                                    "<{}|".format(self.pr.config.post_release_deployment) + random.choice(post_checklist_msg) + ">",
+                                       data={"username": bot_name}, parseFull=False)  #TODO (Change hardcoded url to bring from commons
             write_to_file_from_top(release_freeze_details_path, ":clubs:" +
                                    str(datetime.datetime.now(pytz.timezone('Asia/Calcutta')).strftime(
                                        '%B %d,%Y at %I.%M %p')) + " with <" + self.pr.link_pretty + "|master> code")  # on:" + str(datetime.datetime.now().strftime('%B %d, %Y @ %I.%M%p'))
@@ -1053,7 +1056,7 @@ class Actor(Base):
 
         # merged_by_slack_name = CommonUtils.get_slack_nicks_from_git(self.pr.merged_by)
         pr_by_slack_uid = CommonUtils.get_slack_nicks_from_git(self.pr.opened_by)
-        pr_by_slack_name = CommonUtils.get_slack_nicks_from_git(self.pr.opened_by)
+        pr_by_slack_name = CommonUtils.get_slack_nicks_from_git_name_nicks(self.pr.opened_by)
 
         """
         First we check whether pr is open, then we run our task

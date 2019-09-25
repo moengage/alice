@@ -70,9 +70,6 @@ class Checks(object):
     def release_freeze_alert(self):
         return self.actor.release_alert()
 
-    def notify_pm(self):
-        return self.actor.alert_pm()
-
     def valid_contributors(self):
         return self.actor.check_valid_contributor()
 

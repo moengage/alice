@@ -179,6 +179,10 @@ class ConfigProvider(object):
         return self.config.get('user_map',{}).get(github_name, github_name)
 
     @property
+    def post_release_deployment(self):
+        return self.config.get("post_release_deployment", "")
+
+    @property
     def releaseFreezeDetailsPath(self):
         return self.config.get("release_freeze_details_path", "")
 
