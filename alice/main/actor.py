@@ -1302,6 +1302,8 @@ class Actor(Base):
                 # self.broadcast_message(pr_by_slack_uid, merged_by_slack_uid)
                 self.after_merge_check(pr_by_slack_uid, merged_by_slack_uid)
 
+                self.alert_on_slack(pr_by_slack_uid)
+
                 if repo == moengage_repo:
                     # 3.2)
                     self.release_alert()
