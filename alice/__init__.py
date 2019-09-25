@@ -69,12 +69,21 @@ def alice():
         return jsonify("Not Authorized")
 
     payload = json.loads(payload)
-
     if "pull_request" not in payload:
         return jsonify("Not a Pull request")
 
-    merge_correctness = RunChecks().run_checks(payload)
-    return jsonify(merge_correctness)
+    try:
+        merge_correctness = RunChecks().run_checks(payload)
+        return jsonify(merge_correctness)
+    except:
+        from alice.helper.slack_helper import SlackHelper
+        from alice.config.config_provider import ConfigProvider
+        config = ConfigProvider()
+        channel_name = '#shield-monitoring'
+        msg = "<@UL91SP77H> Post Request failed in Alice for Pull request {}".format(payload["pull_request"]["html_url"])
+        SlackHelper(config).postToSlack(channel_name, msg)
+        print("Posted message to channel for fast lookup of why Alice Failed")
+
 
 
 @app.route("/", methods=['GET'])
