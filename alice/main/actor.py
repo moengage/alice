@@ -683,7 +683,7 @@ class Actor(Base):
             tech_leads_to_notify_always_slack = json.loads(self.pr.config.constants.get('tech_leads_to_notify_always_slack'))
             dev_ops_team = json.loads(self.pr.config.constants.get('dev_ops_team'))
             to_notify = self.pr.config.constants.get('to_be_notified')
-            msg = "{2} QA passed :+1: `master` is <{1}|updated> for release \n cc: <@{0}> {3} {4} \n <!channel> ".format(
+            msg = "{2} QA passed :+1: `master` is <{1}|updated> for release \n cc: {0} {3} {4} \n <!channel> ".format(
                 self.get_slack_name_for_id(to_notify), self.pr.link_pretty,
                 self.get_slack_name_for_id(dev_ops_team), self.get_slack_name_for_id(tech_leads_to_notify_always_slack),
                 self.get_slack_name_for_id(product_notify_slack))
