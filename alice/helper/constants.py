@@ -43,7 +43,8 @@ package_builder_branches_repo_wise = {
 python_repo = ["MoEngage", "MoeDataScience", "mongoengine", "inapp-rest-service", "mongo", "segmentation",
                "commons",
                "moengcache", "MoeAbTesting", "apns_client", "Bugsy_Backend", "product-management",
-               "product-recommendation", "s2s", "email-campaigns", "campaigns-core", "url_tracking"]
+               "product-recommendation", "s2s", "email-campaigns", "campaigns-core", "url_tracking"
+               , "commons-core", "commons-frameworks", "commons-services", "segmentation-uis", "segmentation-client"]
 
 file_path = "/opt/alice/release_items.txt"
 file_mergedBy = "/opt/alice/release_mergedby.txt"
