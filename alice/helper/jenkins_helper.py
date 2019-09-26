@@ -1,6 +1,7 @@
 import requests
 import json
 from alice.helper.api_manager import ApiManager
+from alice.config.config_provider import ConfigProvider
 
 
 class JenkinsHelper(object):
@@ -8,6 +9,8 @@ class JenkinsHelper(object):
         self.pr = pr
 
     def change_status(self, status_url_link, status, context, description, details_link="", data = {"username": "Alice", "icon_url": "http://at-cdn-s01.audiotool.com/2012/06/11/documents/KmtKAOyrXXhbLljeworCHj6r3Au2j/0/cover256x256-6bcce4f28f0b451e95d61ccb25420634.jpg", }, parseFull=True):
+        if ConfigProvider().is_debug:
+            return
         payload = {
             "description": description,
             "state": status,
