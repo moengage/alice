@@ -13,7 +13,7 @@ MSG_GUIDELINE_ON_MERGE = "Hi {person} you have merged <{pr}|{title}> into {base_
                          "in <{release_notes_link}|Release Notes> for getting it `QAed and released` " \
                          "under Sheet name as respective Date"
 
-MSG_AUTO_CLOSE = "alice have auto-closed it because she sensed it an accidental PR (only \"{tested_branch}\" " \
+MSG_AUTO_CLOSE = "alice have auto-closed PR(\"{pr_link}\") because she sensed it an accidental PR (only \"{tested_branch}\" " \
                  "can be merged to \"{main_branch}\") \n Alice is smart! Be like Alice!"
 
 GENERAL_COMMENT = {"body": "Did you remember to?\n"

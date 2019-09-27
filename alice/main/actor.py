@@ -271,7 +271,7 @@ class Actor(Base):
                     msg = "PR opened to %s from %s" % (master_branch, head_branch)
                     return {"msg": msg}
 
-                msg = MSG_AUTO_CLOSE.format(tested_branch=qa_branch, main_branch=master_branch)
+                msg = MSG_AUTO_CLOSE.format(tested_branch=qa_branch, main_branch=master_branch, pr_link=self.pr.link_pr)
                 self.github.modify_pr(msg, "closed")
                 self.slack.postToSlack(self.pr.config.alertChannelName, self.get_slack_name_for_git_name(self.created_by) + ": " + msg)
                 LOG.info("closed dangerous PR %s" % self.pr.link_pretty)
