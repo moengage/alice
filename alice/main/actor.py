@@ -275,10 +275,9 @@ class Actor(Base):
                 self.github.modify_pr(msg, "closed")
                 self.slack.postToSlack(self.pr.config.alertChannelName, self.get_slack_name_for_git_name(self.created_by) + ": " + msg)
                 LOG.info("closed dangerous PR %s" % self.pr.link_pretty)
-                return {"msg": "closed dangerous PR %s" % self.pr.link_pretty}
-            return {"msg": "skipped closing PR=%s because not raised to mainBranch %s" % (self.pr.link_pretty,
-                                                                                          master_branch)}
-        return {"msg": "skipped closing PR because not a opened PR"}
+                return 0
+            return 1
+        return 1
 
     def notify_if_sensitive_modified(self):
         """
@@ -1064,7 +1063,9 @@ class Actor(Base):
         if self.pr.action in action_commit_to_investigate:
 
             # 1) First task Done
-            self.close_dangerous_pr()
+            check_dangerous_pr = self.close_dangerous_pr()
+            if not check_dangerous_pr:
+                return {"msg": "closed dangerous PR %s" % self.pr.link_pretty}
             print("in trigger")
 
             """
