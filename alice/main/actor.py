@@ -1066,7 +1066,7 @@ class Actor(Base):
         if self.pr.action in action_commit_to_investigate:
 
             # 1) First task Done
-            # self.close_dangerous_pr()
+            self.close_dangerous_pr()
             print("in trigger")
 
             """
