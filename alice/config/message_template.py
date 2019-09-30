@@ -27,7 +27,7 @@ MSG_OPENED_TO_PREVENTED_BRANCH = "{repo} repo:: <{pr}|{title}> is {action} to `{
 
 MSG_QA_SIGN_OFF = "{person}  QA passed :+1: {main_branch} is updated <{pr}|Details here> Awaiting your go ahead." \
                   " \n cc: {dev_ops_team} {tech_team} "
-MSG_SENSITIVE_FILE_TOUCHED = "{notify_folks} {file}  is modified in <{pr}|{pr_number}> by @{pr_by}"
+MSG_SENSITIVE_FILE_TOUCHED = "{file} is Sensitive File which is modified in PR - {pr} and commit - {id}"
 
 SPECIAL_COMMENT = {
     "body": "**Attention!** \n Release Checklist\n"
