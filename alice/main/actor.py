@@ -285,22 +285,39 @@ class Actor(Base):
         We only check for release note when merging into MASTER
         and changelog when merging into RELEASE
         """
-        if self.pr.is_merged:
-            if self.sensitive_file_touched.get("is_found"):
-                msg = MSG_SENSITIVE_FILE_TOUCHED.format(
-                    notify_folks=self.get_slack_name_for_id(self.pr.config.devOpsTeamToBeNotified),
-                    file=self.sensitive_file_touched["file_name"],
-                    pr=self.pr.link_pretty, pr_by=self.get_slack_name_for_git_name(self.created_by),
-                    pr_number=self.pr.number)
-                self.slack.postToSlack(self.pr.config.alertChannelName, msg)
-                LOG.info("informed %s because sensitive files are touched in pr=%s" %
-                         (self.pr.config.devOpsTeamToBeNotified, self.pr.link_pretty))
-                return {
-                    "msg": "informed %s because sensitive files are touched" % self.pr.config.devOpsTeamToBeNotified}
-            return {"msg": "Skipped sensitive files alerts because no sensitive file being touched"}
-        return {
-            "msg": "Skipped sensitive files alerts because its not PR merge event %s" %
-                   self.pr.config.devOpsTeamToBeNotified}
+        if self.pr.action in action_commit_to_investigate and self.pr.repo != moengage_repo:
+            print("Checking Sensitive Files")
+            commit_id = self.pr.head_sha
+            base_url = "https://api.github.com/repos/moengage/{}".format(self.pr.repo) + "/commits/{}".format(commit_id)
+            header = {"Authorization": "token " + "%s" % self.github.GITHUB_TOKEN}
+            flag = 0
+            channel_name = self.pr.config.constants.get('channel_name')
+            commit_id_url = self.pr.link_pr + "/commits/%s"%commit_id
+            if self.pr.base_branch == master_branch:
+                response = ApiManager.get(base_url, header)
+                data = json.loads(response["content"])
+                if "files" in data:
+                    file_data = data["files"]
+                    for file in file_data:
+                        if file["filename"] == sensitive_files_master:
+                            flag = 1
+                    if flag == 1:
+                        msg = MSG_SENSITIVE_FILE_TOUCHED.format(file=sensitive_files_master, pr=self.pr.link_pr
+                                                                , id=commit_id_url)
+                        self.slack.postToSlack(channel_name, msg=msg)
+
+            elif self.pr.base_branch == staging_branch_commons and self.pr.head_branch == dev_branch_commons:
+                response = ApiManager.get(base_url, header)
+                data = json.loads(response["content"])
+                if "files" in data:
+                    file_data = data["files"]
+                    for file in file_data:
+                        if file["filename"] == sensitive_files_release:
+                            flag = 1
+                    if flag == 1:
+                        msg = MSG_SENSITIVE_FILE_TOUCHED.format(file=sensitive_files_release, pr=self.pr.link_pr
+                                                                , id=commit_id_url)
+                        self.slack.postToSlack(channel_name, msg=msg)
 
     def notify_qa_sign_off(self):
         """

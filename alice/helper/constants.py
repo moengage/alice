@@ -87,3 +87,7 @@ repo_site_url = 'https://api.github.com/'
 repos_slack = ['segmentation', 'commons']
 
 ALICE_ERROR = "#shield-monitoring"
+
+sensitive_files_master = "releasenotes"
+sensitive_files_release = "changelog"
+
