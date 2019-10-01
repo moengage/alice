@@ -616,7 +616,7 @@ class Actor(Base):
             self.slack.postToSlack(self.channel_name,
                                    "@channel Freezing code now. Any pending merge? please reach QA team within 10 minutes",
                                    data={"username": bot_name}, parseFull=False)
-            self.freeze_other_repos("staging")
+            # self.freeze_other_repos("staging")
 
     def freeze_other_repos(self, freeze_type):
         """
@@ -728,7 +728,7 @@ class Actor(Base):
                 self.slack.postToSlack(item,
                                        msg + "\n Please review and approve with +1, Release preparation starts...",
                                        data={"username": bot_name}, parseFull=False)
-            self.freeze_other_repos("live")
+            # self.freeze_other_repos("live")
 
             alice_qa_team = json.loads(self.pr.config.constants.get('alice_qa_team'))
             for item in alice_qa_team:
