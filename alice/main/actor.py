@@ -667,24 +667,24 @@ class Actor(Base):
                 # for person in pkg_people_to_notify:
                 self.slack.postToSlack(self.channel_name,
                                        "%s) *%s:* %s number <%s|%s>" % (
-                                       cnt, repo, self.get_slack_name_for_id(notify_people.get(repo, "@pooja")),
+                                       cnt, repo, self.get_slack_name_for_id(notify_people.get(repo, "pooja")),
                                        res.get("html_url"), res.get("number")),
                                        data={"username": bot_name}, parseFull=False)
             else:
                 try:
                     error_message = res["errors"][0]["message"]
                     custom_message = "%s) *%s:* %s %s <%s|check here> " % (
-                        cnt, repo, self.get_slack_name_for_id(notify_people.get(repo, "@pooja")),
+                        cnt, repo, self.get_slack_name_for_id(notify_people.get(repo, "pooja")),
                         "Pull Request is already open",
-                        repo_site_url + "moengage/"
+                        github_site_url + "moengage/"
                         + repo + "/compare/" + base + "..." + head)
                     if "no commits" in error_message.lower():
-                        custom_message = "%s) *%s:* %s %s <%s|check here> " % (
-                            cnt, repo, self.get_slack_name_for_id(notify_people.get(repo, "@pooja")),
-                            error_message, repo_site_url + "moengage/" + repo + "/compare/" + base + "..." + head)
+                        custom_message = "%s) *%s:* %s <%s|check here> " % (
+                            cnt, repo, error_message,
+                            github_site_url + "moengage/" + repo + "/compare/" + base + "..." + head)
 
                     self.slack.postToSlack(channel = self.channel_name, msg = custom_message, data={"username": bot_name})
-                    self.slack.postToSlack(channel = self.channel_name,msg = "@pooja" +  ":warning: creating automatic PR for %s failed, response=\n%s"
+                    self.slack.postToSlack(channel = ALICE_ERROR, msg = "@pooja" +  ":warning: creating automatic PR for %s failed, response=\n%s"
                                             % (repo, json.dumps(res)))
                 except Exception as e:
                     print(e)
