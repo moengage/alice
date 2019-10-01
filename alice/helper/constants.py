@@ -82,6 +82,7 @@ moengage_repo = 'MoEngage'
 dashboard = 'dashboard-ui'
 
 repo_site_url = 'https://api.github.com/'
+github_site_url = 'https://github.com/'
 
 repos_slack = ['segmentation', 'commons']
 
