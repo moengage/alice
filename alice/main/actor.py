@@ -266,13 +266,14 @@ class Actor(Base):
             head_branch = self.head_branch
             if self.base_branch == master_branch and head_branch != qa_branch:
 
-                if head_branch.lower().startswith("patch"):
+                if head_branch.lower().startswith("patch") or head_branch.lower().startswith("hotfix"):
                     print("*** SKIP closing, Its a patch from head_branch=", head_branch)
                     msg = "PR opened to %s from %s" % (master_branch, head_branch)
                     return {"msg": msg}
 
                 msg = MSG_AUTO_CLOSE.format(tested_branch=qa_branch, main_branch=master_branch, pr_link=self.pr.link_pr)
-                self.github.modify_pr(msg, "closed")
+                msg_to_github = "AUTO CLOSED : " + self.pr.title
+                self.github.modify_pr(msg_to_github, "closed")
                 self.slack.postToSlack(self.pr.config.alertChannelName, self.get_slack_name_for_git_name(self.created_by) + ": " + msg)
                 LOG.info("closed dangerous PR %s" % self.pr.link_pretty)
                 return 0
@@ -1171,9 +1172,9 @@ class Actor(Base):
                     self.jenkins.change_status(self.pr.statuses_url, "success", context="shield-unit-test-python",
                                                description="checks bypassed for back merge",
                                                details_link="")
-                    self.jenkins.change_status(self.pr.statuses_url, "success", context="shield-linter-react",
-                                               description="checks bypassed for back merge",
-                                               details_link="")
+                    # self.jenkins.change_status(self.pr.statuses_url, "success", context="shield-linter-react",
+                    #                            description="checks bypassed for back merge",
+                    #                            details_link="")
 
                 else:
                     print(":INFO: repo=%s to validate, for PR=%s" % (repo, self.pr.number))
