@@ -47,6 +47,7 @@ class GithubHelper(object):
             "state": state
         }
         resp = ApiManager.post(self.pr_api_link, self.headers, json.dumps(data))
+        print("ALice have auto closed the PR,", self.pr_api_link,resp["content"])
         LOG.debug(resp["content"])
 
     def get_reviews(self):
