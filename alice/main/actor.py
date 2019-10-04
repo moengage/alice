@@ -273,6 +273,7 @@ class Actor(Base):
 
                 msg = MSG_AUTO_CLOSE.format(tested_branch=qa_branch, main_branch=master_branch, pr_link=self.pr.link_pr)
                 msg_to_github = "AUTO CLOSED : " + self.pr.title
+                print("ALice is AUTO CLOSING PR")
                 self.github.modify_pr(msg_to_github, "closed")
                 self.slack.postToSlack(self.pr.config.alertChannelName, self.get_slack_name_for_git_name(self.created_by) + ": " + msg)
                 LOG.info("closed dangerous PR %s" % self.pr.link_pretty)
