@@ -1,5 +1,7 @@
 import json
 import requests
+import time
+
 from alice.helper.api_manager import ApiManager
 from alice.helper.constants  import API_GITHUB_REVIEW_ACCEPT_KEY, EP_REVIEWS, API_GITHUB_REPO_MEMBER, API_GITHUB_ISSUES, \
     EP_COMMENTS
@@ -39,6 +41,7 @@ class GithubHelper(object):
         LOG.debug(resp["content"])
 
     def modify_pr(self, msg, state):
+        time.sleep(4)
         data = {
             "title": msg,
             "state": state
