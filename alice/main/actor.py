@@ -1235,6 +1235,32 @@ class Actor(Base):
                             # For moengage repo we have to hit jenkins
                             # and we have some extra tasks also
 
+                            """
+                            API TESTING
+                            Added task for Single sign on feature
+                            When certain files are changed, then change flag of
+                            """
+
+                            is_api_test = False
+
+                            try:
+                                files_contents, message = self.get_files(self.pr.link + "/files")
+                            except PRFilesNotFoundException as e:
+                                files_contents = e.pr_response
+
+                            if not files_contents or "message" in files_contents:
+                                print(":DEBUG: no files found in the diff: SKIP shield, just update the status")
+                                self.jenkins.change_status(self.pr.statuses_url, "success", context=context_api_test,
+                                                           description="SKIP: No diff, check the Files count",
+                                                           details_link="")
+                                return files_contents  # STOP as files not found
+
+                            for item in files_contents:
+                                file_path = item["filename"]
+                                if file_path.startswith(integration_test_file_path) \
+                                        or file_path.startswith(integration_test_folder_path):
+                                    is_api_test = True
+
                             for job in self.pr.config.shield_job:
                                 job = job + "_" + self.pr.repo
                                 params_dict = dict(repo=head_repo, head_branch=self.pr.head_branch,
@@ -1243,6 +1269,7 @@ class Actor(Base):
                                                    additional_flags="", msg="", machine="", sha=self.pr.head_sha,
                                                    author=pr_by_slack_name,
                                                    author_github=self.pr.opened_by,
+                                                   is_api_test=is_api_test,
                                                    )
                                 self.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token, job_name=job,
                                                      pr_link=pr_link, params_dict=params_dict,

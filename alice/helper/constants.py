@@ -35,6 +35,7 @@ ui_repo = ["dashboard-ui"]
 context = "shield-syntax-validator-python"
 context_react = "shield-linter-react"
 context_angular = "shield-linter-angular"
+context_api_test = "shield-api-test-python"
 
 package_builder_branches_repo_wise = {
     "dashboard-ui": ["qa", "master"]
@@ -91,3 +92,5 @@ ALICE_ERROR = "#shield-monitoring"
 sensitive_files_master = "releasenotes"
 sensitive_files_release = "changelog"
 
+integration_test_file_path = "delight/viewhandlers/dashboard_handler.py"
+integration_test_folder_path = "delight/viewhandlers/saml/"
