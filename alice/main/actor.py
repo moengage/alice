@@ -238,8 +238,7 @@ class Actor(Base):
             if self.base_branch in self.pr.config.sensitiveBranches:
                 msg = MSG_GUIDELINE_ON_MERGE.format(person=self.get_slack_name_for_git_name(self.created_by),
                                                     pr=self.pr.link_pretty,
-                                                    base_branch=self.pr.base_branch, title=self.pr.title,
-                                                    release_notes_link=self.pr.config.release_notes_link)
+                                                    base_branch=self.pr.base_branch, title=self.pr.title)
                 if self.pr.config.is_debug:
                     self.slack.directSlack("UL91SP77H", msg)
                     LOG.info("slacked personally to %s" % "Paras")
