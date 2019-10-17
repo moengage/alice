@@ -885,7 +885,11 @@ class Actor(Base):
 
                         if context_description.lower().find("miss coverage") != -1:
 
-                            actual_coverage = parse("{}Coverage: {actual_coverage} is {} {two} {}", context_description).named["actual_coverage"]
+                            actual_coverage = parse("{}Coverage: {actual_coverage} is {} {two} {}", context_description)
+                            if actual_coverage:
+                                actual_coverage = actual_coverage.named["actual_coverage"]
+                            else:
+                                return
                             msg = msg_start.format(link_pr=self.pr.link_pr, title_pr=self.pr.title, base_branch=self.pr.base_branch) \
                                   + " with *{actual_coverage}* coverage.".format(actual_coverage=actual_coverage) \
                                   + msg_end.format(pr_by_slack=pr_by_slack_uid, merged_by_slack=merged_by_slack_uid)
