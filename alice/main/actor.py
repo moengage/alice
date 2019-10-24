@@ -1297,18 +1297,18 @@ class Actor(Base):
                             pr_link = self.pr.link_pretty
                             head_repo = self.pr.ssh_url
 
-                            job_dir = "package_shield/"
-                            job_name = job_dir + "shield" + "_" + repo
-                            head_repo_owner = self.pr.head_label.split(":")[0]  # FORK cases
-                            params_dict = dict(GIT_REPO=head_repo, GIT_HEAD_BRANCH=self.pr.head_branch,
-                                               GIT_BASE_BRANCH=self.pr.base_branch,
-                                               GIT_HEAD_BRANCH_OWNER=head_repo_owner, GIT_PULL_REQUEST_LINK=pr_link,
-                                               GIT_SHA=self.pr.head_sha, AUTHOR_SLACK_NAME=pr_by_slack_name,
-                                               GIT_PR_AUTHOR=self.pr.opened_by)
-                            self.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token,
-                                                 job_name=job_name,
-                                                 pr_link=pr_link, params_dict=params_dict,
-                                                 pr_by_slack=pr_by_slack_uid)
+                            for job in self.pr.config.shield_job:
+                                job_name = job
+                                head_repo_owner = self.pr.head_label.split(":")[0]  # FORK cases
+                                params_dict = dict(GIT_REPO=head_repo, GIT_HEAD_BRANCH=self.pr.head_branch,
+                                                   GIT_BASE_BRANCH=self.pr.base_branch,
+                                                   GIT_HEAD_BRANCH_OWNER=head_repo_owner, GIT_PULL_REQUEST_LINK=pr_link,
+                                                   GIT_SHA=self.pr.head_sha, AUTHOR_SLACK_NAME=pr_by_slack_name,
+                                                   GIT_PR_AUTHOR=self.pr.opened_by)
+                                self.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token,
+                                                     job_name=job_name,
+                                                     pr_link=pr_link, params_dict=params_dict,
+                                                     pr_by_slack=pr_by_slack_uid)
 
                             if repo == "inapp-rest-service":
                                 """
