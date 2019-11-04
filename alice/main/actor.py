@@ -1181,9 +1181,9 @@ class Actor(Base):
 
                 else:
                     print(":INFO: repo=%s to validate, for PR=%s" % (repo, self.pr.number))
-                    sensitive_branch = jon.loads(self.pr.config.constants.get('sensitive_branches_repo_wise'))
+                    sensitive_branch = self.pr.config.sensitiveBranches
 
-                    if self.pr.base_branch in sensitive_branch.get(repo.lower(), sensitive_branches_default):
+                    if self.pr.base_branch in sensitive_branch:
 
                         print("******* PR " + self.pr.action + "ed to " + self.pr.base_branch + ", Triggering tests ************")
 
