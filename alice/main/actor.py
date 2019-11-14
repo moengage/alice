@@ -1,6 +1,5 @@
 import simplejson as json
 import json as jon
-
 from parse import parse
 from alice.helper.file_utils import write_to_file_from_top, clear_file, read_from_file
 
@@ -581,14 +580,14 @@ class Actor(Base):
             """ ********** Remind PM teams to update release notes for next release ************ """
             alice_product_team = json.loads(self.pr.config.constants.get('alice_product_team'))
             for item in alice_product_team:
-                message = " current release <pr_link|%pr_title> is going live shortly. Please keep QA team updated " \
+                message = " current release <{pr_link}|{pr_title}>  is going live shortly. Please keep QA team updated " \
                           "about your next release plans".format(pr_link= self.pr.link_pr, pr_title= self.pr.title)
                 self.slack.postToSlack(item, "\n:bell: hi " + self.get_slack_name_for_id(item) + message,
                                        data={"username": bot_name}, parseFull=False)
             """ for bot """
             alice_qa_team = json.loads(self.pr.config.constants.get('alice_qa_team'))
             for item in alice_qa_team:
-                self.slack.postToSlack(item, "\n hi " + self.get_slack_name_for_id(item)  + random.choice(
+                self.slack.postToSlack(item, "\n hi " + self.get_slack_name_for_id(item)  +" " +random.choice(
                     applaud_list) + " :+1: thank you for the QA signOff\n :bell: " +
                                     "<{}|".format(self.pr.config.post_release_deployment) + random.choice(post_checklist_msg) + ">",
                                        data={"username": bot_name}, parseFull=False)  #TODO (Change hardcoded url to bring from commons
@@ -615,9 +614,9 @@ class Actor(Base):
                 and (self.pr.action.find("opened") != -1):
             print("************ code freeze PR is opened from dev to QA, auto create PRs for dependent packages")
             self.slack.postToSlack(self.channel_name,
-                                   "@channel Freezing code now. Any pending merge? please reach QA team within 10 minutes",
+                                   "<!channel> Freezing code now. Any pending merge? please reach QA team within 10 minutes",
                                    data={"username": bot_name}, parseFull=False)
-            # self.freeze_other_repos("staging")
+        # self.freeze_other_repos("staging")
 
     def freeze_other_repos(self, freeze_type):
         """
@@ -1293,6 +1292,8 @@ class Actor(Base):
 
                         else:
                             # run Jenkins for all other repo's
+                            is_py_test = False
+                            is_py_test = self.pr.config.py_test
                             pr_link = self.pr.link_pretty
                             head_repo = self.pr.ssh_url
 
@@ -1303,7 +1304,7 @@ class Actor(Base):
                                                    GIT_BASE_BRANCH=self.pr.base_branch,
                                                    GIT_HEAD_BRANCH_OWNER=head_repo_owner, GIT_PULL_REQUEST_LINK=pr_link,
                                                    GIT_SHA=self.pr.head_sha, AUTHOR_SLACK_NAME=pr_by_slack_name,
-                                                   GIT_PR_AUTHOR=self.pr.opened_by)
+                                                   GIT_PR_AUTHOR=self.pr.opened_by, RUN_PY_TEST=is_py_test)
                                 self.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token,
                                                      job_name=job_name,
                                                      pr_link=pr_link, params_dict=params_dict,
