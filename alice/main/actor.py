@@ -268,7 +268,7 @@ class Actor(Base):
                 msg = "PR opened to %s from %s" % (master_branch, head_branch)
                 return {"msg": msg}
 
-            if self.pr.title.startswith('AUTO CLOSED'):
+            if self.pr.pr_state == "closed":
                 """
                 This condition happens when we edit a PR to change its base branch to master, then we call
                 close dangerous pr.
