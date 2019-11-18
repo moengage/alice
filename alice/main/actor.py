@@ -260,12 +260,23 @@ class Actor(Base):
         master_branch = self.pr.config.mainBranch
         qa_branch = self.pr.config.testBranch
         head_branch = self.head_branch
+
         if self.base_branch == master_branch and head_branch != qa_branch:
 
             if head_branch.lower().startswith("patch") or head_branch.lower().startswith("hotfix"):
                 print("*** SKIP closing, Its a patch from head_branch=", head_branch)
                 msg = "PR opened to %s from %s" % (master_branch, head_branch)
                 return {"msg": msg}
+
+            if self.pr.title.startswith('AUTO CLOSED'):
+                """
+                This condition happens when we edit a PR to change its base branch to master, then we call
+                close dangerous pr.
+                Now, close dangerous pr first uses action "EDIT", to edit title and then close PR, now calling
+                "EDIT" causes recursion, so this condition is base condition in recursion
+                """
+                msg = "PR is already closed"
+                return 0
 
             msg = MSG_AUTO_CLOSE.format(tested_branch=qa_branch, main_branch=master_branch, pr_link=self.pr.link_pr)
             msg_to_github = "AUTO CLOSED : " + self.pr.title
@@ -1336,8 +1347,9 @@ class Actor(Base):
             Adding this code because, we can edit pr to change base branch from qa to master, 
             thus want to check function of close pr in such case
             """
-            print("hi")
-            #check_dangerous_pr = self.close_dangerous_pr()
+            check_dangerous_pr = self.close_dangerous_pr()
+            if not check_dangerous_pr:
+                return {"msg": "closed dangerous PR %s" % self.pr.link_pretty}
 
         elif self.pr.action in close_action:
             """
