@@ -1335,7 +1335,8 @@ class Actor(Base):
             Adding this code because, we can edit pr to change base branch from qa to master, 
             thus want to check function of close pr in such case
             """
-            check_dangerous_pr = self.close_dangerous_pr()
+            print("hi")
+            #check_dangerous_pr = self.close_dangerous_pr()
 
         elif self.pr.action in close_action:
             """
