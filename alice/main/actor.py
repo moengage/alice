@@ -257,26 +257,23 @@ class Actor(Base):
         close a Pull Request which is not supposed to be opened Ex. base=master head=feature
         :return: relevant response dict
         """
-        if self.pr.is_opened or self.pr.is_reopened:
+        master_branch = self.pr.config.mainBranch
+        qa_branch = self.pr.config.testBranch
+        head_branch = self.head_branch
+        if self.base_branch == master_branch and head_branch != qa_branch:
 
-            master_branch = self.pr.config.mainBranch
-            qa_branch = self.pr.config.testBranch
-            head_branch = self.head_branch
-            if self.base_branch == master_branch and head_branch != qa_branch:
+            if head_branch.lower().startswith("patch") or head_branch.lower().startswith("hotfix"):
+                print("*** SKIP closing, Its a patch from head_branch=", head_branch)
+                msg = "PR opened to %s from %s" % (master_branch, head_branch)
+                return {"msg": msg}
 
-                if head_branch.lower().startswith("patch") or head_branch.lower().startswith("hotfix"):
-                    print("*** SKIP closing, Its a patch from head_branch=", head_branch)
-                    msg = "PR opened to %s from %s" % (master_branch, head_branch)
-                    return {"msg": msg}
-
-                msg = MSG_AUTO_CLOSE.format(tested_branch=qa_branch, main_branch=master_branch, pr_link=self.pr.link_pr)
-                msg_to_github = "AUTO CLOSED : " + self.pr.title
-                print("ALice is AUTO CLOSING PR")
-                self.github.modify_pr(msg_to_github, "closed")
-                self.slack.postToSlack(self.pr.config.alertChannelName, self.get_slack_name_for_git_name(self.created_by) + ": " + msg)
-                LOG.info("closed dangerous PR %s" % self.pr.link_pretty)
-                return 0
-            return 1
+            msg = MSG_AUTO_CLOSE.format(tested_branch=qa_branch, main_branch=master_branch, pr_link=self.pr.link_pr)
+            msg_to_github = "AUTO CLOSED : " + self.pr.title
+            print("ALice is AUTO CLOSING PR")
+            self.github.modify_pr(msg_to_github, "closed")
+            self.slack.postToSlack(self.pr.config.alertChannelName, self.get_slack_name_for_git_name(self.created_by) + ": " + msg)
+            LOG.info("closed dangerous PR %s" % self.pr.link_pretty)
+            return 0
         return 1
 
     def notify_if_sensitive_modified(self):
@@ -1330,6 +1327,13 @@ class Actor(Base):
                                                      pr_by_slack=pr_by_slack_uid)
 
                             self.alert_on_slack(pr_by_slack_uid)
+
+        elif self.pr.action in edited_action:
+            """
+            Adding this code because, we can edit pr to change base branch from qa to master, 
+            thus want to check function of close pr in such case
+            """
+            check_dangerous_pr = self.close_dangerous_pr()
 
         elif self.pr.action in close_action:
             """
