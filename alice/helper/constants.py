@@ -41,7 +41,7 @@ package_builder_branches_repo_wise = {
     "dashboard-ui": ["qa", "master"]
 }
 python_repo = ["MoEngage", "MoeDataScience", "mongoengine", "inapp-rest-service", "mongo", "segmentation",
-               "commons", "idp-metadata",
+               "commons", "idp-metadata", "datapoints",
                "moengcache", "MoeAbTesting", "apns_client", "Bugsy_Backend", "product-management",
                "product-recommendation", "s2s", "email-campaigns", "campaigns-core", "url_tracking"
                , "commons-core", "commons-frameworks", "commons-services", "segmentation-uis", "segmentation-client"]
