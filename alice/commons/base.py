@@ -81,6 +81,10 @@ class PushPayloadParser(Base):
         return self.pr["_links"]["comments"]["href"]
 
     @property
+    def pr_state(self):
+        return self.pr["state"]
+
+    @property
     def is_sensitive_branch(self):
         if self.config.sensitiveBranches is None:
             return None
