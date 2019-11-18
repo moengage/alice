@@ -810,7 +810,8 @@ class Actor(Base):
             if self.pr.base_branch == "qa":
                 release_type = "minor"
                 dashboard_job_name = job_dir + "dashboard_builder_staging"
-            elif self.pr.base_branch == "master" and self.pr.head_branch.startswith("patch"):
+            elif self.pr.base_branch == "master" and (self.pr.head_branch.startswith("patch") or
+                                                      self.pr.head_branch.startswith("hotfix")):
                 release_type = "patch"
                 dashboard_job_name = job_dir + "dashboard_builder_prod"
             elif self.pr.base_branch == "master" and self.pr.head_branch == "qa":
@@ -994,7 +995,8 @@ class Actor(Base):
                 self.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token, job_name="VersionBumper_MoEngage",
                                      pr_link = self.pr.link_pretty, params_dict = bump_version_job_dict, pr_by_slack = pr_by_slack_uid)
 
-            if self.pr.base_branch == master_branch and self.pr.head_branch.startswith("patch"):
+            if self.pr.base_branch == master_branch and (self.pr.head_branch.startswith("patch") or
+                                                         self.pr.head_branch.startswith("hotfix")):
                 msg = "MoEngage Repo: A patch came from head=" + self.pr.head_branch
                 print(msg)
 
