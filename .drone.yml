@@ -6,7 +6,6 @@ name: Trufflehog
 trigger:
   event:
     - pull_request
-    - push
     
 steps:
 - name : Truffle-hog clone  
