@@ -29,6 +29,7 @@ steps:
    when:
     event:
     - pull_request
+    - push
     branch:
     - master
     - alice-dev-python3
