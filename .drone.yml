@@ -17,4 +17,6 @@ steps:
   commands:
       - apk add --no-cache git
       - echo $DRONE_SOURCE_BRANCH
+      - echo $DRONE_REPO
+      - cd moe-truffleHog
  
