@@ -11,5 +11,5 @@ steps:
   when:
     event:
     - pull_request
-    - push 
+
     
