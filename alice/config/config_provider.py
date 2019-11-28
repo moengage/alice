@@ -1,6 +1,7 @@
 import os
 from alice.helper.file_utils import get_dict_from_config_file, get_dict_from_yaml
 from alice.helper.log_utils import LOG
+from configparser import ConfigParser
 
 
 class ConfigProvider(object):
@@ -8,11 +9,19 @@ class ConfigProvider(object):
 
     def __init__(self, repo=None):
         config_file = os.environ["config"]
-        #LOG.info("********** config file=" + config_file)
+        # LOG.info("********** config file=" + config_file)
         LOG.info("********** config file={config_file}".format(config_file=config_file))
         # absolute path to keep file anywhere
         self.config = get_dict_from_config_file(config_file)
         self.repo_name = repo
+        config = ConfigParser()
+        file_path = os.path.dirname(os.path.abspath(__file__))
+        file_path = file_path[:file_path.rfind('/')] + '/constants.ini'
+        config.read(file_path)
+        if self.is_debug:
+            self.constants = dict(config.items('testing_config'))
+        else:
+            self.constants = dict(config.items('config'))
 
     def __str__(self):
         return "Alice - Common Config Provider"
@@ -24,6 +33,10 @@ class ConfigProvider(object):
     @property
     def githubToken(self):
         return self.config.get('tokens').get("github")
+
+    @property
+    def github_alternate_token(self):
+        return self.config.get('tokens').get("github_alternate")
 
     @property
     def slackToken(self):
@@ -76,6 +89,18 @@ class ConfigProvider(object):
     @property
     def devBranch(self):
         return self.repo.get('dev_branch')
+
+    @property
+    def shield_job(self):
+        return self.repo.get('shields_check')
+
+    @property
+    def py_test(self):
+        return self.repo.get('py_test')
+
+    @property
+    def valid_contributors(self):
+        return self.repo.get('valid_contributors')
 
     @property
     def debug_folks(self):
@@ -156,6 +181,10 @@ class ConfigProvider(object):
 
     def getSlackName(self, github_name):
         return self.config.get('user_map',{}).get(github_name, github_name)
+
+    @property
+    def post_release_deployment(self):
+        return self.config.get("post_release_deployment", "")
 
     @property
     def releaseFreezeDetailsPath(self):

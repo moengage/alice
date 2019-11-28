@@ -4,19 +4,83 @@ from alice.main.runner import RunChecks
 from alice.helper.log_utils import LOG
 from alice.commons.base_jira import JiraPayloadParser
 from alice.main.jira_actor import JiraActor
+from alice.main.actor import Infra
 
 app = Flask(__name__)
 
-@app.route("/alice", methods=['POST'])
-def alice():
-    if request.method != 'POST':
-        abort(501)
-    payload = request.get_data()
-    data = json.loads(unicode(payload, errors='replace'), strict=False)
-    merge_correctness = RunChecks().run_checks(request, data)
-    return jsonify(merge_correctness)
 
-@app.route("/", methods=['GET', 'POST'])
+def verify_request(payload, token):
+    import hmac, hashlib, os
+    from alice.helper.file_utils import get_dict_from_config_file
+
+    #Setting for testing alice through postman
+    config_file = os.environ.get("config")
+    config = get_dict_from_config_file(config_file)
+    debug = config.get('debug', False)
+    if debug:
+        return True
+
+    key = bytes('fHA3ogLICKad4JLU7jY9juYqZHQjBIXa608NLtFd', 'utf-8')
+    # payload = bytes(payload, 'utf-8')
+    digest = hmac.new(key, msg=payload, digestmod=hashlib.sha1)
+    signature = "sha1=" + digest.hexdigest()
+    if hmac.compare_digest(signature, token):
+        return True
+    else:
+        return False
+
+
+@app.route("/alice/issue", methods=['POST'])
+def infra_request():
+    payload = request.get_data()
+    if 'X-Hub-Signature' not in request.headers:
+        return jsonify("X-Hub-Signature Header missing")
+
+    if not verify_request(payload, request.headers['X-Hub-Signature']):
+        return jsonify("Not Authorized")
+
+    payload = json.loads(payload)
+
+    if "pull_request" not in payload and "repository" in payload:
+
+        if payload["repository"]["name"] == "InfraRequests":
+            Infra().infra_requests(payload)
+            return jsonify("Notified for Infra requests")
+        else:
+            return jsonify("Not allowed for This Repo")
+
+    else:
+        return jsonify("No Matching Url")
+
+
+@app.route("/alice/task", methods=['POST'])
+def alice():
+    payload = request.get_data()
+    if 'X-Hub-Signature' not in request.headers:
+        return jsonify("X-Hub-Signature Header missing")
+
+    if not verify_request(payload, request.headers['X-Hub-Signature']):
+        return jsonify("Not Authorized")
+
+    payload = json.loads(payload)
+    if "pull_request" not in payload:
+        return jsonify("Not a Pull request")
+
+    try:
+        merge_correctness = RunChecks().run_checks(payload)
+        return jsonify(merge_correctness)
+    except:
+        from alice.helper.slack_helper import SlackHelper
+        from alice.config.config_provider import ConfigProvider
+        config = ConfigProvider()
+        channel_name = '#shield-monitoring'
+        msg = "<@UL91SP77H> Post Request failed in Alice for Pull request {}".format(payload["pull_request"]["html_url"])
+        SlackHelper(config).postToSlack(channel_name, msg)
+        print("Posted message to channel for fast lookup of why Alice Failed")
+
+
+
+@app.route("/", methods=['GET'])
 def home():
     return "************ Welcome to the wonderful world of Alice ***********"
 
@@ -29,7 +93,11 @@ def jira_integration():
     if request.method == 'POST':
         payload = request.get_data()
         print("************* payload ***************", payload)
-        data = json.loads(unicode(payload, errors='replace'), strict=False)
+        data = json.loads(payload)
+
+        if not verify_request(payload, request.headers['X-Hub-Signature']):
+            return {"401": "Not Authorized"}
+
         print("************* data ***************", data)
         parsed_data = JiraPayloadParser(request, data)
         actor_obj = JiraActor(parsed_data)
