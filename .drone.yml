@@ -9,8 +9,7 @@ steps:
   commands:    
      - git clone https://github.com/moengage/moe-truffleHog.git --branch dev
   when:
-    trigger:
-    - pull_request
+    event: pull_request
     branch:
     - alice-dev-python3
     
