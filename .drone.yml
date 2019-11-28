@@ -10,7 +10,7 @@ steps:
      - git clone https://github.com/moengage/moe-truffleHog.git --branch dev
   when:
     branch:
-    - alice-dev-python3   
+    - master  
     
 - name: Run truffle-hog
   image: python:2.7-alpine
@@ -25,4 +25,4 @@ steps:
       - echo "No tokens Found"
   when:
     branch:
-    - alice-dev-python3   
+    - master  
