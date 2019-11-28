@@ -26,5 +26,7 @@ steps:
       - python truffleHog/truffleHog.py --regex --rules rules.json --max_depth 1 --branch $DRONE_SOURCE_BRANCH "https://github.com/$DRONE_REPO.git" --entropy true 
       - echo "No tokens Found"
   when:
+    trigger:
+    - pull_request
     branch:
-    - master  
+    - alice-dev-python3
