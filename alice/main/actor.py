@@ -1270,9 +1270,11 @@ class Actor(Base):
 
                             for item in files_contents:
                                 file_path = item["filename"]
-                                if file_path.startswith(integration_test_file_path) \
-                                        or file_path.startswith(integration_test_folder_path):
+                                if file_path.startswith(integration_test_file_path):
                                     is_api_test = True
+                                for folder in integration_test_folder_path:
+                                    if file_path.startswith(folder):
+                                        is_api_test = True
 
                             for job in self.pr.config.shield_job:
                                 job = job + "_" + self.pr.repo
