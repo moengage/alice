@@ -94,4 +94,4 @@ sensitive_files_master = "releasenotes"
 sensitive_files_release = "changelog"
 
 integration_test_file_path = "delight/viewhandlers/dashboard_handler.py"
-integration_test_folder_path = "delight/viewhandlers/saml/"
+integration_test_folder_path = ["delight/viewhandlers/saml/", "integration_tests/dashboard/"]
