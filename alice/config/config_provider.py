@@ -51,10 +51,6 @@ class ConfigProvider(object):
         return self.config.get('tokens').get("drone_token")
 
     @property
-    def drone_secret(self):
-        return self.config.get('tokens').get("drone_webhook_secret")
-
-    @property
     def jiraDomain(self):
         return self.config.get('jira_domain')
 
@@ -194,10 +190,6 @@ class ConfigProvider(object):
 
     def getSlackName(self, github_name):
         return self.config.get('user_map', {}).get(github_name, github_name)
-
-    @property
-    def post_release_deployment(self):
-        return self.config.get("post_release_deployment", "")
 
     @property
     def post_release_deployment(self):
