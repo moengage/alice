@@ -90,7 +90,7 @@ def alice():
 @app.route("/alice/drone", methods=['POST'])
 def drone_build():
     print("Moengage is better", request.headers)
-    return
+    return ""
     payload = request.get_data()
     payload = json.loads(payload)
     context = payload["context"]
