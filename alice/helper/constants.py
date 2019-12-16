@@ -95,3 +95,9 @@ sensitive_files_release = "changelog"
 
 integration_test_file_path = "delight/viewhandlers/dashboard_handler.py"
 integration_test_folder_path = ["delight/viewhandlers/saml/", "integration_tests/dashboard/"]
+
+
+DRONE_URL = "https://drone.moengage.com/api/repos/{owner}/{repo}/builds/{build_no}"
+
+DRONE_IGNORE_JOBS = ["clone", "Clone"]
+DRONE_CONTEXT = "continuous-integration/drone/pr"

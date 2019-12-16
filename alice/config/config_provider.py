@@ -47,6 +47,10 @@ class ConfigProvider(object):
         return self.config.get('tokens').get("jira")
 
     @property
+    def drone_token(self):
+        return self.config.get('tokens').get("drone_token")
+
+    @property
     def jiraDomain(self):
         return self.config.get('jira_domain')
 
@@ -115,7 +119,7 @@ class ConfigProvider(object):
         if self.is_debug:
             return self.debug_channel
         alert_channel = self.config.get('alert_channel')
-        if self.repo and self.repo.get('alert_channel'): #override repo wise settings
+        if self.repo and self.repo.get('alert_channel'):  # override repo wise settings
             alert_channel = self.repo.get('alert_channel')
         return alert_channel
 
@@ -173,14 +177,14 @@ class ConfigProvider(object):
 
     @property
     def checks(self):
-        return self.repo.get("checks",[])
+        return self.repo.get("checks", [])
 
     @property
     def release_notes_link(self):
         return self.config.get("release_notes_link")
 
     def getSlackName(self, github_name):
-        return self.config.get('user_map',{}).get(github_name, github_name)
+        return self.config.get('user_map', {}).get(github_name, github_name)
 
     @property
     def post_release_deployment(self):

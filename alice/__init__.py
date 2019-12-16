@@ -5,6 +5,10 @@ from alice.helper.log_utils import LOG
 from alice.commons.base_jira import JiraPayloadParser
 from alice.main.jira_actor import JiraActor
 from alice.main.actor import Infra
+from alice.helper.constants import DRONE_URL, DRONE_IGNORE_JOBS, DRONE_CONTEXT
+from alice.helper.api_manager import ApiManager
+from alice.helper.slack_helper import SlackHelper
+from alice.config.config_provider import ConfigProvider
 
 app = Flask(__name__)
 
@@ -70,8 +74,6 @@ def alice():
         merge_correctness = RunChecks().run_checks(payload)
         return jsonify(merge_correctness)
     except:
-        from alice.helper.slack_helper import SlackHelper
-        from alice.config.config_provider import ConfigProvider
         config = ConfigProvider()
         channel_name = '#shield-monitoring'
         msg = "<@UL91SP77H> Post Request failed in Alice for Pull request {}".format(payload["pull_request"]["html_url"])
@@ -81,9 +83,43 @@ def alice():
 
 @app.route("/alice/drone", methods=['POST'])
 def drone_build():
+    print("Moengage is better", request.headers)
+    return
     payload = request.get_data()
-    print("Moengage is better than clevertap")
-    return jsonify("No Matching Url")
+    payload = json.loads(payload)
+    context = payload["context"]
+    sha = payload["sha"]
+    if payload["state"] and context == DRONE_CONTEXT:
+        target_url = payload["target_url"]
+        build_no = target_url.split('/')[-1]
+        repo_name = target_url.split('/')[-2]
+        owner_repo = target_url.split('/')[-3]
+        token_github = ConfigProvider().githubToken
+        url_github = "https://api.github.com/repos/{owner_repo}/{repo}/statuses/{sha}".format(sha=sha, repo=repo_name, owner_repo=owner_repo)
+        header_github = "token {token}".format(token=token_github)
+        drone_url = DRONE_URL.format(owner=owner_repo, repo=repo_name, build_no=build_no)
+        token = ConfigProvider().drone_token
+        header = "Bearer {drone_token}".format(drone_token=token)
+        resp = ApiManager.get(url=drone_url, headers={"Authorization": header})
+        if resp["status_code"] == 200:
+            data = json.loads(resp["content"])
+            stages = data["stages"]
+            for stage in stages:
+                jobs = stage["steps"]
+                for job in jobs:
+                    if job["name"] not in DRONE_IGNORE_JOBS:
+                        data = {
+                            "state": payload["state"],
+                            "target_url": target_url,
+                            "description": "",
+                            "context": job["name"],
+                        }
+                        resp = ApiManager.post(url=url_github, headers={"Authorization": header_github},
+                                               data=json.dumps(data))
+
+                        print(job["name"])
+
+    return jsonify("Drone Build Recieved")
 
 
 @app.route("/", methods=['GET'])
