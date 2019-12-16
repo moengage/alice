@@ -85,6 +85,12 @@ def alice():
         print("Posted message to channel for fast lookup of why Alice Failed")
 
 
+@app.route("/alice/drone", methods=['POST'])
+def drone_build():
+    payload = request.get_data()
+    print("Moengage is better than clevertap")
+    return jsonify("No Matching Url")
+
 
 @app.route("/", methods=['GET'])
 def home():
