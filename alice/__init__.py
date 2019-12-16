@@ -40,6 +40,27 @@ def verify_request(payload, token):
         return False
 
 
+def verify_request_drone(payload, token):
+    import hmac, hashlib, os
+    from alice.helper.file_utils import get_dict_from_config_file
+
+    #Setting for testing alice through postman
+    config_file = os.environ.get("config")
+    config = get_dict_from_config_file(config_file)
+    debug = config.get('debug', False)
+    if debug:
+        return True
+
+    key = bytes('cdfb7e752faa10122d5996f3b0027055', 'utf-8')
+    # payload = bytes(payload, 'utf-8')
+    digest = hmac.new(key, msg=payload, digestmod=hashlib.sha256)
+    signature = "sha1=" + digest.hexdigest()
+    if hmac.compare_digest(signature, token):
+        return True
+    else:
+        return False
+
+
 @app.route("/alice/issue", methods=['POST'])
 def infra_request():
     payload = request.get_data()
@@ -89,9 +110,14 @@ def alice():
 
 @app.route("/alice/drone", methods=['POST'])
 def drone_build():
+    payload = request.get_data()
+    if 'X-Hub-Signature' not in request.headers:
+        return jsonify("X-Hub-Signature Header missing")
+
+    if not verify_request_drone(payload, request.headers['X-Hub-Signature']):
+        return jsonify("Not Authorized")
     print("Moengage is better", request.headers)
     return ""
-    payload = request.get_data()
     payload = json.loads(payload)
     context = payload["context"]
     sha = payload["sha"]
