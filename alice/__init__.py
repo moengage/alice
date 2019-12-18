@@ -13,6 +13,25 @@ from alice.config.config_provider import ConfigProvider
 app = Flask(__name__)
 
 
+def verify_request_2(payload, token):
+    import hmac, hashlib, os
+    from alice.helper.file_utils import get_dict_from_config_file
+
+    #Setting for testing alice through postman
+    config_file = os.environ.get("config")
+    config = get_dict_from_config_file(config_file)
+    debug = config.get('debug', False)
+    if debug:
+        return True
+
+    key = bytes('', 'utf-8')
+    signature = hmac.new(key, msg=payload, digestmod=hashlib.sha256).hexdigest().upper()
+    if hmac.compare_digest(signature, token):
+        return True
+    else:
+        return False
+
+
 def verify_request(payload, token):
     import hmac, hashlib, os
     from alice.helper.file_utils import get_dict_from_config_file
@@ -83,6 +102,12 @@ def alice():
 
 @app.route("/alice/drone", methods=['POST'])
 def drone_build():
+    payload = request.get_data()
+    if 'Signature' not in request.headers:
+        return jsonify("Signature Header missing")
+
+    if not verify_request_2(payload, request.headers['Signature']):
+        return jsonify("Not Authorized")
     return ""
     payload = request.get_data()
     payload = json.loads(payload)
