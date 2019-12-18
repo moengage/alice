@@ -222,7 +222,7 @@ class Actor(Base):
                 msg = MSG_OPENED_TO_PREVENTED_BRANCH.format(repo=self.pr.repo, pr_by=self.created_by,
                                                             base_branch=self.pr.base_branch, title=self.pr.title,
                                                             pr=self.pr.link_pretty, action=self.pr.action)
-                self.slack.postToSlack(self.get_slack_name_for_id(self.pr.config.personToBeNotified), msg)
+                self.slack.postToSlack(self.pr.config.personToBeNotified, msg)
                 LOG.info("Notified to %s on action %s" % (self.pr.config.personToBeNotified, self.pr.action))
                 return {"msg": "Notified to %s on action %s" % (self.pr.config.personToBeNotified, self.pr.action)}
         return {"msg": "Skipped notify because its (%s) not desired event '%s'" % (self.pr.action, desired_action)}
