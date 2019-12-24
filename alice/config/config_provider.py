@@ -51,6 +51,10 @@ class ConfigProvider(object):
         return self.config.get('tokens').get("drone_token")
 
     @property
+    def drone_secret(self):
+        return self.config.get('tokens').get("drone_webhook_secret")
+
+    @property
     def jiraDomain(self):
         return self.config.get('jira_domain')
 
