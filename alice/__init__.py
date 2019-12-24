@@ -35,7 +35,7 @@ def verify_request_drone(header):
     string_formed_from_header = bytes(string_formed_from_header, "utf-8")
     signed_string = hmac.new(key, msg=string_formed_from_header, digestmod=hashlib.sha256).digest()
 
-    signature = (base64.b64encode(signed_string)).decode("utf-8")
+    signature = str((base64.b64encode(signed_string)).decode("utf-8"))
     signature_to_match = str(header["Signature"].split(',')[-2].split('signature=')[1])
     print(signature, signature_to_match)
 
