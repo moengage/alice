@@ -19,29 +19,31 @@ from alice.config.config_provider import ConfigProvider
 app = Flask(__name__)
 
 
-def verify_request_2(payload, token):
-    import hmac, hashlib, os
-    from alice.helper.file_utils import get_dict_from_config_file
-
-    #Setting for testing alice through postman
+def verify_request_drone(header):
+    # Setting for testing alice through postman
     config_file = os.environ.get("config")
     config = get_dict_from_config_file(config_file)
     debug = config.get('debug', False)
     if debug:
         return True
 
-    key = bytes('', 'utf-8')
-    signature = hmac.new(key, msg=payload, digestmod=hashlib.sha256).hexdigest().upper()
-    if hmac.compare_digest(signature, token):
+    key_str = ConfigProvider().drone_secret
+    key = bytes(key_str, 'utf-8')
+    date = header["Date"]
+    digest = header["Digest"]
+    string_formed_from_header = 'date: {date}\ndigest: {digest}'.format(date=date, digest=digest)
+
+    signature = base64.b64encode(hmac.new(key, msg=string_formed_from_header, digestmod=hashlib.sha256).digest()).decode("utf-8")
+    signature_to_match = str(header["Signature"].split(',')[-2].split('signature=')[1])
+    print(signature, signature_to_match)
+
+    if hmac.compare_digest(signature, signature_to_match):
         return True
     else:
         return False
 
 
 def verify_request(payload, token):
-    import hmac, hashlib, os
-    from alice.helper.file_utils import get_dict_from_config_file
-
     #Setting for testing alice through postman
     config_file = os.environ.get("config")
     config = get_dict_from_config_file(config_file)
@@ -108,13 +110,16 @@ def alice():
 
 @app.route("/alice/drone", methods=['POST'])
 def drone_build():
-    payload = request.get_data()
-    if 'Signature' not in request.headers:
-        return jsonify("Signature Header missing")
+    if 'Digest' not in request.headers:
+        return jsonify("Digest Header missing")
 
-    if not verify_request_2(payload, request.headers['Signature']):
+    if not verify_request_drone(request.headers):
+        print("match nhi hua")
         return jsonify("Not Authorized")
+
+    print("match ho gya")
     return ""
+
     payload = request.get_data()
     payload = json.loads(payload)
     context = payload["context"]
@@ -167,8 +172,8 @@ def jira_integration():
         print("************* payload ***************", payload)
         data = json.loads(payload)
 
-        if not verify_request(payload, request.headers['X-Hub-Signature']):
-            return {"401": "Not Authorized"}
+        # if not verify_request(payload, request.headers['X-Hub-Signature']):
+        #     return {"401": "Not Authorized"}
 
         print("************* data ***************", data)
         parsed_data = JiraPayloadParser(request, data)
