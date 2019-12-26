@@ -117,11 +117,8 @@ def drone_build():
         return jsonify("Digest Header missing")
 
     if not verify_request_drone(request.headers):
-        print("match nhi hua")
+        print("Not Authorized")
         return jsonify("Not Authorized")
-
-    print("match ho gya")
-    return ""
 
     payload = request.get_data()
     payload = json.loads(payload)
@@ -166,34 +163,36 @@ def home():
 
 
 # view to handle data coming from jira webhook
-@app.route("/alice/jira", methods=['GET', 'POST'])
-def jira_integration():
-    if request.method == 'GET':
-        return "************ listening from jira webhook ***********"
-    if request.method == 'POST':
-        payload = request.get_data()
-        print("************* payload ***************", payload)
-        data = json.loads(payload)
-
-        # if not verify_request(payload, request.headers['X-Hub-Signature']):
-        #     return {"401": "Not Authorized"}
-
-        print("************* data ***************", data)
-        parsed_data = JiraPayloadParser(request, data)
-        actor_obj = JiraActor(parsed_data)
-        if parsed_data.webhook_event == "jira:issue_updated":
-            actor_obj.get_slack_users()
-            actor_obj.handle_issue_update()
-        elif parsed_data.webhook_event == "jira:issue_created":
-            actor_obj.get_slack_users()
-            actor_obj.handle_issue_create()
-        else:
-            actor_obj.fetch_users()  # fetch users mentioned in jira comment which are jira user key
-            actor_obj.fetch_email()  # fetch respective email of users mentioned in jira comment using jira user keys
-            actor_obj.get_slack_users()  # fetch current slack user
-            actor_obj.slack_jira_map()  # create jira slack map {<jira_user_key> : <slack_user_id>}
-            actor_obj.send_to_slack()
-        return "******** jira post request ************"
+# @app.route("/alice/jira", methods=['GET', 'POST'])
+# def jira_integration():
+#     if request.method == 'GET':
+#         return "************ listening from jira webhook ***********"
+#     if request.method == 'POST':
+#         payload = request.get_data()
+#         print("************* payload ***************", payload)
+#         data = json.loads(payload)
+#
+#         # if not verify_request(payload, request.headers['X-Hub-Signature']):
+#         #     return {"401": "Not Authorized"}
+#
+#         print("************* data ***************", data)
+#         parsed_data = JiraPayloadParser(request, data)
+#         actor_obj = JiraActor(parsed_data)
+#         if parsed_data.webhook_event == "jira:issue_updated":
+#             actor_obj.get_slack_users()
+#             actor_obj.handle_issue_update()
+#         elif parsed_data.webhook_event == "jira:issue_created":
+#             actor_obj.get_slack_users()
+#             actor_obj.handle_issue_create()
+#         else:
+#             actor_obj.fetch_users()  # fetch users mentioned in jira comment which are jira user key
+#             actor_obj.fetch_email()  # fetch respective email of users mentioned in jira comment using jira user keys
+#             actor_obj.get_slack_users()  # fetch current slack user
+#             response = actor_obj.slack_jira_map()  # create jira slack map {<jira_user_key> : <slack_user_id>}
+#             if response == False:
+#                 return "Email not found"
+#             actor_obj.send_to_slack()
+#         return "******** jira post request ************"
 
 
 @app.before_first_request
