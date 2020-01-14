@@ -62,7 +62,41 @@ class Checks(object):
     def notify_qa_sign_off(self):
         return self.actor.notify_qa_sign_off()
 
+    def set_labels(self, repo, pr_no, list_labels):
+        return self.actor.add_label_to_issue(repo, pr_no, list_labels)
 
+    def print_curl_test(self, req):
+        return self.actor.print_curl(req)
+
+    def get_files_task(self, file_endpoint):
+        return self.actor.get_files(file_endpoint)
+
+    def code_freeze_alert(self):
+        return self.actor.code_freeze()
+
+    def release_freeze_alert(self):
+        return self.actor.release_alert()
+
+    def notify_pm(self):
+        return self.actor.alert_pm()
+
+    def valid_contributors(self):
+        return self.actor.check_valid_contributor()
+
+    def git_diff_repo(self):
+        return self.actor.get_diff()
+
+    def pull_request_file(self, file_endpoint):
+        return self.actor.get_files_pull_request(file_endpoint)
+
+    def pull_request_commit(self, file_endpoint):
+        return self.actor.get_files_commit(file_endpoint)
+
+    def hit_jenkins(self, jenkins_instance, token, job_name, pr_link, params_dict, pr_by_slack):
+        return self.actor.hit_jenkins_job(jenkins_instance, token, job_name, pr_link, params_dict, pr_by_slack)
+
+    def trigger_task_on_pr(self):
+        return self.actor.trigger_task_on_pr()
 
     """ TO DO """
     # def notify_qa_sign_off(self):

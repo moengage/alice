@@ -6,14 +6,15 @@ from alice.helper.constants import ISSUE_LINK, EXTEND_ALICE
 from alice.helper.log_utils import LOG
 from alice.checker_impl import CheckImpl
 
+
 class RunChecks(object):
     def execute_check(self, ci, check):
         LOG.debug("************* Starting check=%s *****************" % check)
         response = getattr(ci, check)()
         LOG.debug("for check= %s, response= %s"%(check, response))
 
-    def run_checks(self, request, data):
-        ci = CheckImpl(PushPayloadParser(request, payload=data))
+    def run_checks(self, data):
+        ci = CheckImpl(PushPayloadParser(payload=data))
         response = {}
         checks = ci.pr.config.checks
         if ci.pr.is_sensitive_branch:
@@ -36,8 +37,8 @@ class RunChecks(object):
                     if 'invalid_auth' not in e:
                         raise Exception(str(e) + ISSUE_FOUND.format(issue_link=ISSUE_LINK))
             return response
-        LOG.info("skipped because '%s' is not sensitive branch" % ci.base_branch)
-        return {"msg": "skipped because '%s' is not sensitive branch" % ci.base_branch}
+        LOG.info("skipped because '%s' is not sensitive branch" % ci.pr.base_branch)
+        return {"msg": "skipped because '%s' is not sensitive branch" % ci.pr.base_branch}
 
 
 class CheckNotFoundException(Exception):
