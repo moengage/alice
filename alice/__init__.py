@@ -113,6 +113,7 @@ def alice():
 
 @app.route("/alice/drone", methods=['POST'])
 def drone_build():
+    return ""
     if 'Digest' not in request.headers:
         return jsonify("Digest Header missing")
 
