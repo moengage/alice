@@ -112,6 +112,10 @@ class ConfigProvider(object):
         return self.repo.get('py_test')
 
     @property
+    def api_test(self):
+        return self.repo.get('api_test')
+
+    @property
     def valid_contributors(self):
         return self.repo.get('valid_contributors')
 

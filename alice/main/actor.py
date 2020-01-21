@@ -1075,6 +1075,11 @@ class Actor(Base):
                 open(file_mergedBy, 'w').close()
 
     def trigger_task_on_pr(self):
+        """
+        For api test - we are following two different approaches,
+        Moengage - we are checking whether there are some changes in certain location, we run api test
+        Other repos - we take from config.yml and then run it ,
+        """
 
         jenkins_setting = self.pr.global_config.config["jenkins"]
         token = jenkins_setting["token"]
@@ -1307,6 +1312,7 @@ class Actor(Base):
                             # run Jenkins for all other repo's
                             is_py_test = False
                             is_py_test = self.pr.config.py_test
+                            is_api_test = self.pr.config.api_test
                             pr_link = self.pr.link_pretty
                             head_repo = self.pr.ssh_url
 
@@ -1317,7 +1323,8 @@ class Actor(Base):
                                                    GIT_BASE_BRANCH=self.pr.base_branch,
                                                    GIT_HEAD_BRANCH_OWNER=head_repo_owner, GIT_PULL_REQUEST_LINK=pr_link,
                                                    GIT_SHA=self.pr.head_sha, AUTHOR_SLACK_NAME=pr_by_slack_name,
-                                                   GIT_PR_AUTHOR=self.pr.opened_by, RUN_PY_TEST=is_py_test)
+                                                   GIT_PR_AUTHOR=self.pr.opened_by, RUN_PY_TEST=is_py_test,
+                                                   RUN_API_TEST=is_api_test)
                                 self.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token,
                                                      job_name=job_name,
                                                      pr_link=pr_link, params_dict=params_dict,
