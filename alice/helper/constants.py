@@ -101,3 +101,5 @@ DRONE_URL = "https://drone.moengage.com/api/repos/{owner}/{repo}/builds/{build_n
 
 DRONE_IGNORE_JOBS = ["clone", "Clone"]
 DRONE_CONTEXT = "continuous-integration/drone/pr"
+
+REPO_NOT_CLOSE = ["key-metrics",  "custom-segments", "value-suggestions", "dashboard-segmentation", "segmentation-uis", "saas"]

@@ -278,6 +278,10 @@ class Actor(Base):
                 msg = "PR is already closed"
                 return 0
 
+            if self.pr.repo in REPO_NOT_CLOSE:
+                print("Repo closing skipped as Asked by tech leads")
+                return 1
+
             msg = MSG_AUTO_CLOSE.format(tested_branch=qa_branch, main_branch=master_branch, pr_link=self.pr.link_pr)
             msg_to_github = "AUTO CLOSED : " + self.pr.title
             print("ALice is AUTO CLOSING PR")
