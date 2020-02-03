@@ -233,7 +233,7 @@ class Actor(Base):
         remind individually to follow guidelines for QA process/ Sensitive branches.
         :return: relevant response dict
         """
-        if self.pr.is_merged:
+        if self.pr.action in close_action and self.pr.is_merged:
             if self.base_branch in self.pr.config.sensitiveBranches:
                 msg = MSG_GUIDELINE_ON_MERGE.format(person=self.get_slack_name_for_git_name(self.created_by),
                                                     pr=self.pr.link_pretty,
@@ -336,7 +336,7 @@ class Actor(Base):
         Notify to respective folks when qa is passed and code is moved to main branch Eg. master
         :return:
         """
-        if self.pr.action in close_action and self.pr.is_merged and self.pr.base_branch in self.pr.config.mainBranch \
+        if self.pr.action in close_action and self.pr.is_merged and self.pr.base_branch == self.pr.config.mainBranch \
                 and self.pr.head_branch == self.pr.config.testBranch:
             msg = MSG_QA_SIGN_OFF.format(person=self.get_slack_name_for_id(self.pr.config.personToBeNotified),
                                          pr=self.pr.link_pretty,
@@ -380,7 +380,7 @@ class Actor(Base):
         gathers accumulated data after last qa_signOff and send an attachment into channel announcing details of code freeze
         :return: relevant response dict
         """
-        if self.pr.is_merged and (self.pr.base_branch == self.pr.config.testBranch \
+        if self.pr.action in close_action and self.pr.is_merged and (self.pr.base_branch == self.pr.config.testBranch \
                                   and self.pr.head_branch == self.pr.config.devBranch):
             LOG.debug("*** PR merged from {dev_branch} to {qa_branch}, posting release items to slack".
                       format(dev_branch=self.pr.config.devBranch, qa_branch=self.pr.config.testBranch))
@@ -1365,7 +1365,7 @@ class Actor(Base):
 
         elif self.pr.action in edited_action:
             """
-            Adding this code because, we can edit pr to change base branch from qa to master, 
+            Adding this code because, we can edit pr to change base branch from qa to master,
             thus want to check function of close pr in such case
             """
             check_dangerous_pr = self.close_dangerous_pr()
@@ -1460,4 +1460,3 @@ class Infra(object):
             SlackHelper(self.config).post_to_slack_infra(channel=issue["channel"], msg=msg, data=
                                                             CommonUtils.get_bot(issue["channel"],
                                                             issue["slack_nick_name_creator"]))
-
