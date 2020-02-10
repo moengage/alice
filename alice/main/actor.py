@@ -1286,8 +1286,6 @@ class Actor(Base):
                                         is_api_test = True
 
 
-                            #Added as we have to change nginx conf , will remove when we will add nginx config.
-                            is_api_test = False
 
                             for job in self.pr.config.shield_job:
                                 job = job + "_" + self.pr.repo
@@ -1322,8 +1320,6 @@ class Actor(Base):
                             is_py_test = self.pr.config.py_test
                             is_api_test = self.pr.config.api_test
 
-                            #Added as we have to change nginx conf , will remove when we will add nginx config.
-                            is_api_test = False
 
                             pr_link = self.pr.link_pretty
                             head_repo = self.pr.ssh_url
