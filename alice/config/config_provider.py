@@ -71,6 +71,10 @@ class ConfigProvider(object):
         return self.repo.get('sensitive_branches')
 
     @property
+    def sensitive_partial_branches(self):
+        return self.repo.get('partial_sensitive_branches')
+
+    @property
     def sensitiveFiles(self):
         return self.repo.get("sensitive_files")
 

@@ -88,6 +88,9 @@ class PushPayloadParser(Base):
     def is_sensitive_branch(self):
         if self.config.sensitiveBranches is None:
             return None
+        for branch in self.config.sensitive_partial_branches:
+            if self.base_branch.startswith(branch):
+                return 1
         return self.base_branch in self.config.sensitiveBranches
 
     @property
