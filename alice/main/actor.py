@@ -234,7 +234,7 @@ class Actor(Base):
         :return: relevant response dict
         """
         if self.pr.action in close_action and self.pr.is_merged:
-            if self.base_branch in self.pr.config.sensitiveBranches:
+            if self.base_branch in self.pr.config.sensitiveBranches or self.pr.is_sensitive_branch:
                 msg = MSG_GUIDELINE_ON_MERGE.format(person=self.get_slack_name_for_git_name(self.created_by),
                                                     pr=self.pr.link_pretty,
                                                     base_branch=self.pr.base_branch, title=self.pr.title)
@@ -1201,7 +1201,7 @@ class Actor(Base):
                     print(":INFO: repo=%s to validate, for PR=%s" % (repo, self.pr.number))
                     sensitive_branch = self.pr.config.sensitiveBranches
 
-                    if self.pr.base_branch in sensitive_branch:
+                    if self.pr.base_branch in sensitive_branch or self.pr.is_sensitive_branch:
 
                         print("******* PR " + self.pr.action + "ed to " + self.pr.base_branch + ", Triggering tests ************")
 
