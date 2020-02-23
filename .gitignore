@@ -13,6 +13,8 @@ dump.rdb
 */.DS_Store
 alice/config.yaml
 alice/constants.ini
+release_items.txt
+release_mergedby.txt
 # Created by https://www.gitignore.io/api/flask,python,visualstudiocode
 # Edit at https://www.gitignore.io/?templates=flask,python,visualstudiocode
 alice/dev_items_mergedby.txt
