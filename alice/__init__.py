@@ -103,11 +103,12 @@ def alice():
     try:
         merge_correctness = RunChecks().run_checks(payload)
         return jsonify(merge_correctness)
-    except:
+    except Exception as e:
         config = ConfigProvider()
         channel_name = '#shield-monitoring'
         msg = "<@UL91SP77H> Post Request failed in Alice for Pull request {}".format(payload["pull_request"]["html_url"])
         SlackHelper(config).postToSlack(channel_name, msg)
+        print(e)
         print("Posted message to channel for fast lookup of why Alice Failed")
 
 

@@ -550,6 +550,12 @@ class Actor(Base):
                 msg = "<@{0}> started job, PR by={0} PR={1}".format(
                     pr_by_slack, pr_link)
                 print(msg)
+            except (ConnectionError, ConnectionRefusedError, ConnectionResetError, TimeoutError):
+                print("Connection error")
+                msg = "<@UL91SP77H> Error in alice , Jenkins Connection error"
+                self.slack.postToSlack(ALICE_ERROR, msg)
+                traceback.print_exc()
+                raise TimeoutError
             except Exception as e:
                 print(e)
                 msg = "<@UL91SP77H> Error in alice , Correct Jenkins Job params were not provided"
