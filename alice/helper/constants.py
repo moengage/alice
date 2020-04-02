@@ -97,8 +97,6 @@ integration_test_file_path = "delight/viewhandlers/dashboard_handler.py"
 integration_test_folder_path = ["delight/viewhandlers/saml/", "integration_tests/dashboard/"]
 
 
-JAVA_REPO = ['MoeDataScience']
-
 DRONE_URL = "https://drone.moengage.com/api/repos/{owner}/{repo}/builds/{build_no}"
 
 DRONE_IGNORE_JOBS = ["clone", "Clone"]
@@ -106,3 +104,8 @@ DRONE_CONTEXT = "continuous-integration/drone/pr"
 
 REPO_NOT_CLOSE = ["key-metrics",  "custom-segments", "value-suggestions", "dashboard-segmentation", "segmentation-uis",
                   "saas", "MoeDataScience"]
+
+
+JAVA_REPO = ['MoeDataScience']
+syntax_java = "shield-java-compile"
+unit_java = "shield-unit-test"
