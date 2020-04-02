@@ -1218,12 +1218,15 @@ class Actor(Base):
                         path = ""
                         files_ops = False
 
-                        self.jenkins.change_status(self.pr.statuses_url, "pending", context=context,
-                                                   description=context_description,
-                                                   details_link="")  # status to go in pending quick
-                        self.jenkins.change_status(self.pr.statuses_url, "pending",
-                                                   context="shield-unit-test-python", description="Hold on!",
-                                                   details_link="")
+                        if repo in JAVA_REPO:
+                            print("Bypassed pending status, as Context is different for Java Repos")
+                        else:
+                            self.jenkins.change_status(self.pr.statuses_url, "pending", context=context,
+                                                       description=context_description,
+                                                       details_link="")  # status to go in pending quick
+                            self.jenkins.change_status(self.pr.statuses_url, "pending",
+                                                       context="shield-unit-test-python", description="Hold on!",
+                                                       details_link="")
                         try:
                             print(":DEBUG: check_file_path", self.pr.link + "/files")
                             files_contents, message = self.get_files(self.pr.link + "/files")

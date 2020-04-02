@@ -97,6 +97,8 @@ integration_test_file_path = "delight/viewhandlers/dashboard_handler.py"
 integration_test_folder_path = ["delight/viewhandlers/saml/", "integration_tests/dashboard/"]
 
 
+JAVA_REPO = ['MoeDataScience']
+
 DRONE_URL = "https://drone.moengage.com/api/repos/{owner}/{repo}/builds/{build_no}"
 
 DRONE_IGNORE_JOBS = ["clone", "Clone"]
