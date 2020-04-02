@@ -1219,6 +1219,12 @@ class Actor(Base):
 
                         if repo in JAVA_REPO:
                             print("Bypassed pending status, as Context is different for Java Repos")
+                            self.jenkins.change_status(self.pr.statuses_url, "pending", context=syntax_java,
+                                                       description="Hold on!",
+                                                       details_link="")  # status to go in pending quick
+                            self.jenkins.change_status(self.pr.statuses_url, "pending",
+                                                       context=unit_java, description="Hold on!",
+                                                       details_link="")
                         else:
                             self.jenkins.change_status(self.pr.statuses_url, "pending", context=context,
                                                        description=context_description,
