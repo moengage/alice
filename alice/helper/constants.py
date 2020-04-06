@@ -41,10 +41,11 @@ package_builder_branches_repo_wise = {
     "dashboard-ui": ["qa", "master"]
 }
 python_repo = ["MoEngage", "MoeDataScience", "mongoengine", "inapp-rest-service", "mongo", "segmentation",
-               "commons", "idp-metadata", "datapoints", "oauth2", "saas", "dash", "user-profile",
-               "moengcache", "MoeAbTesting", "apns_client", "Bugsy_Backend", "product-management",
-               "product-recommendation", "s2s", "email-campaigns", "campaigns-core", "url_tracking"
-               , "commons-core", "commons-frameworks", "commons-services", "segmentation-uis", "segmentation-client"]
+               "commons", "idp-metadata", "datapoints", "oauth2", "saas", "dash", "user-profile", "key-metrics",
+               "moengcache", "MoeAbTesting", "apns_client", "Bugsy_Backend", "product-management", "custom-segments",
+               "product-recommendation", "s2s", "email-campaigns", "campaigns-core", "url_tracking",
+               "dashboard-segmentation", "commons-core", "commons-frameworks", "commons-services",
+               "segmentation-uis", "segmentation-client"]
 
 file_path = "/opt/alice/release_items.txt"
 file_mergedBy = "/opt/alice/release_mergedby.txt"
@@ -103,7 +104,7 @@ DRONE_IGNORE_JOBS = ["clone", "Clone"]
 DRONE_CONTEXT = "continuous-integration/drone/pr"
 
 REPO_NOT_CLOSE = ["key-metrics",  "custom-segments", "value-suggestions", "dashboard-segmentation", "segmentation-uis",
-                  "saas", "MoeDataScience"]
+                  "saas", "MoeDataScience", "user-profile"]
 
 
 JAVA_REPO = ['MoeDataScience']
