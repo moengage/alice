@@ -1094,6 +1094,18 @@ class Actor(Base):
         else:
             return 0
 
+    def is_base_branch_changed(self):
+        """
+        When base branch is changed from x to y , all the shield checks that were run against x became of no use,
+        so when this event occurs(EDIT), we rerun these shield checks
+        :return:
+        """
+        changes = self.pr.changes
+        if "base" in changes and "ref" in changes["base"] and "from" in changes["base"]["ref"]:
+            print("BASE changed from ", changes["base"]["ref"]["from"], "Branch")
+            return 1
+        return 0
+
 
     def trigger_task_on_pr(self):
         """
@@ -1119,7 +1131,10 @@ class Actor(Base):
         """
         First we check whether pr is open, then we run our task
         """
-        if self.pr.action in action_commit_to_investigate:
+
+        is_changed = self.is_base_branch_changed()
+
+        if self.pr.action in action_commit_to_investigate or is_changed:
 
             is_skip = self.skip_checks() #added for dependent bots
 
@@ -1398,6 +1413,7 @@ class Actor(Base):
             check_dangerous_pr = self.close_dangerous_pr()
             if not check_dangerous_pr:
                 return {"msg": "closed dangerous PR %s" % self.pr.link_pretty}
+
 
         elif self.pr.action in close_action:
             """

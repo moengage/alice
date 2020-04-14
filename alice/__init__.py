@@ -54,7 +54,8 @@ def verify_request(payload, token):
     if debug:
         return True
 
-    key = bytes('fHA3ogLICKad4JLU7jY9juYqZHQjBIXa608NLtFd', 'utf-8')
+    key = config.get('github_webhook_key', 'None')
+    key = bytes(key, 'utf-8')
     # payload = bytes(payload, 'utf-8')
     digest = hmac.new(key, msg=payload, digestmod=hashlib.sha1)
     signature = "sha1=" + digest.hexdigest()

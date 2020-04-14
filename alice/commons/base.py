@@ -129,3 +129,7 @@ class PushPayloadParser(Base):
     @property
     def base_sha(self):
         return self.payload["pull_request"]["base"]["sha"]
+
+    @property
+    def changes(self):
+        return self.payload["changes"]
