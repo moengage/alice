@@ -1,6 +1,7 @@
 from alice.helper.constants import SLACK_ICON, ALICE_ERROR
 from slacker import Slacker
 from alice.helper.log_utils import LOG
+from alice.helper.constants import SKIP_SLACK_MESSAGE
 from alice.helper.api_manager import ApiManager
 
 import json
@@ -42,7 +43,10 @@ class SlackHelper(object):
                     "Message= %s\n"
                     "******************************************* " % (channel, msg))
         try:
-            self.slack.chat.post_message(channel=channel, text=msg, icon_url=self.icon, as_user=as_user, *args, **kwargs)
+            if channel not in SKIP_SLACK_MESSAGE:
+                self.slack.chat.post_message(channel=channel, text=msg, icon_url=self.icon, as_user=as_user, *args, **kwargs)
+            else:
+                print("Skipped: Posting in Slack because channel name was:", channel)
         except Exception as ex:
             msg = "<@UL91SP77H> Error in alice channel name %s"%channel
             self.slack.chat.post_message(channel=ALICE_ERROR, text=msg, icon_url=self.icon, as_user=as_user, *args, **kwargs)

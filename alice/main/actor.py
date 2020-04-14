@@ -557,7 +557,7 @@ class Actor(Base):
                 raise TimeoutError
             except Exception as e:
                 print(e)
-                msg = "<@UL91SP77H> Error in alice , Correct Jenkins Job params were not provided"
+                msg = "<@UL91SP77H> Error in alice , Jenkins Connection error"
                 self.slack.postToSlack(ALICE_ERROR, msg)
                 traceback.print_exc()
                 raise Exception(e)
@@ -1083,6 +1083,18 @@ class Actor(Base):
                 self.slack.postFinalWarningToSlack(self.channel_name, name, data={"username": bot_name})
                 open(file_mergedBy, 'w').close()
 
+    def skip_checks(self,):
+        """
+        Added to avoid running our checks for bots like dependent bots where we dont need to run
+        shield checks and all other things.
+        :return:
+        """
+        if self.pr.opened_by in SKIP_SLACK_MESSAGE:
+            return 1
+        else:
+            return 0
+
+
     def trigger_task_on_pr(self):
         """
         For api test - we are following two different approaches,
@@ -1108,6 +1120,11 @@ class Actor(Base):
         First we check whether pr is open, then we run our task
         """
         if self.pr.action in action_commit_to_investigate:
+
+            is_skip = self.skip_checks() #added for dependent bots
+
+            if is_skip == 1:
+                return
 
             # 1) First task Done
             check_dangerous_pr = self.close_dangerous_pr()

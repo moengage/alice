@@ -106,6 +106,7 @@ DRONE_CONTEXT = "continuous-integration/drone/pr"
 REPO_NOT_CLOSE = ["key-metrics",  "custom-segments", "value-suggestions", "dashboard-segmentation", "segmentation-uis",
                   "saas", "MoeDataScience", "user-profile"]
 
+SKIP_SLACK_MESSAGE = ['dependabot[bot]']
 
 JAVA_REPO = ['MoeDataScience']
 syntax_java = "shield-java-compile"
