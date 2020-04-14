@@ -1100,10 +1100,15 @@ class Actor(Base):
         so when this event occurs(EDIT), we rerun these shield checks
         :return:
         """
-        changes = self.pr.changes
-        if "base" in changes and "ref" in changes["base"] and "from" in changes["base"]["ref"]:
-            print("BASE changed from ", changes["base"]["ref"]["from"], "Branch")
-            return 1
+        if self.pr.action in edited_action:
+            try:
+                changes = self.pr.changes
+                if "base" in changes and "ref" in changes["base"] and "from" in changes["base"]["ref"]:
+                    print("BASE changed from ", changes["base"]["ref"]["from"], "Branch")
+                    return 1
+            except Exception as e:
+                print(e)
+                return 0
         return 0
 
 
@@ -1132,10 +1137,9 @@ class Actor(Base):
         First we check whether pr is open, then we run our task
         """
 
-        # is_changed = self.is_base_branch_changed()
-        #
-        # if self.pr.action in action_commit_to_investigate or is_changed:
-        if self.pr.action in action_commit_to_investigate:
+        is_changed = self.is_base_branch_changed()
+
+        if self.pr.action in action_commit_to_investigate or is_changed:
 
             is_skip = self.skip_checks() #added for dependent bots
 
