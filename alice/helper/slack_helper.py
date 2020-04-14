@@ -1,6 +1,7 @@
 from alice.helper.constants import SLACK_ICON, ALICE_ERROR
 from slacker import Slacker
 from alice.helper.log_utils import LOG
+from alice.helper.constants import SKIP_SLACK_MESSAGE
 from alice.helper.api_manager import ApiManager
 
 import json
