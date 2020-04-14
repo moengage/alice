@@ -1133,9 +1133,10 @@ class Actor(Base):
         First we check whether pr is open, then we run our task
         """
 
-        is_changed = self.is_base_branch_changed()
-
-        if self.pr.action in action_commit_to_investigate or is_changed:
+        # is_changed = self.is_base_branch_changed()
+        #
+        # if self.pr.action in action_commit_to_investigate or is_changed:
+        if self.pr.action in action_commit_to_investigate:
 
             is_skip = self.skip_checks() #added for dependent bots
 
