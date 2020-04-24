@@ -1288,7 +1288,7 @@ class Actor(Base):
                         if change_required:
                             print("ami change found")
                             notify_regarding_ami_change = json.loads(self.pr.config.constants.get('ami_change_notify'))
-                            msg = MSG_AMI_CHANGE.format(pr_link=pr_link,
+                            msg = MSG_AMI_CHANGE.format(pr_link=pr_link, pr_name=self.pr.title,
                                                         person=self.get_slack_name_for_id(notify_regarding_ami_change))
 
                             self.jenkins.change_status(self.pr.statuses_url, "failure", context='Block-PR',
