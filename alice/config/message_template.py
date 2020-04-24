@@ -16,7 +16,7 @@ MSG_GUIDELINE_ON_MERGE = "Hi {person} you have merged <{pr}|{title}> into {base_
 MSG_AUTO_CLOSE = "alice have auto-closed <{pr_link}|PR> because she sensed it an accidental PR (only \"{tested_branch}\" " \
                  "can be merged to \"{main_branch}\") \n"
 
-MSG_AMI_CHANGE = "<{pr_link}|PR> Blocked, New AMI dependency found, {person} Please have a look"
+MSG_AMI_CHANGE = "Shield : <{pr_link}|PR> Blocked, New AMI dependency found, {person} Please have a look"
 
 GENERAL_COMMENT = {"body": "Did you remember to?\n"
                            "- [ ] Add Test Case(s)\n"
