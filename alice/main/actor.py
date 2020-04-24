@@ -4,7 +4,7 @@ from parse import parse
 from alice.helper.file_utils import write_to_file_from_top, clear_file, read_from_file
 
 from alice.commons.base import Base
-from alice.config.message_template import MSG_BAD_START, MSG_AUTO_CLOSE, \
+from alice.config.message_template import MSG_BAD_START, MSG_AUTO_CLOSE, MSG_AMI_CHANGE, \
     MSG_OPENED_TO_MAIN_BRANCH, MSG_OPENED_TO_PREVENTED_BRANCH, SPECIAL_COMMENT, GENERAL_COMMENT, \
     MSG_RELEASE_PREPARATION, MSG_SENSITIVE_FILE_TOUCHED, MSG_QA_SIGN_OFF, MSG_CODE_CHANNEL, MSG_GUIDELINE_ON_MERGE, \
     CODE_FREEZE_TEXT, RELEASE_NOTES_REMINDER, DATA_SAVE_MERGED
@@ -1112,6 +1112,35 @@ class Actor(Base):
                 return 0
         return 0
 
+    def is_ami_change_required(self):
+        """
+        1 -  required
+        0 - not required
+        ami change required.
+        :return:
+        """
+        ami_change_required = 0
+
+        if self.pr.repo == moengage_repo and (self.pr.base_branch == master_branch or
+                                              self.pr.base_branch == ally_master_branch):
+            try:
+                files_contents, message = self.get_files(self.pr.link + "/files")
+            except PRFilesNotFoundException as e:
+                files_contents = e.pr_response
+
+            if not files_contents or "message" in files_contents:
+                print(":DEBUG: no files found in the diff: SKIP shield, just update the status")
+                return 0  # STOP as files not found
+
+            # If file contents are found, check which content we have to run.
+            for item in files_contents:
+                file_path = item["filename"]
+                if file_path.endswith("setup_bk.py") or file_path.endswith("fury.txt") or \
+                        file_path.endswith("etc/init.d/moengage_package_manager.sh")\
+                        or file_path.endswith("etc/init.d/moengage_package_manager_v2.sh"):
+                    ami_change_required = 1
+
+        return ami_change_required
 
     def trigger_task_on_pr(self):
         """
@@ -1247,13 +1276,27 @@ class Actor(Base):
 
                     if self.pr.base_branch in sensitive_branch or self.pr.is_sensitive_branch:
 
-                        print("******* PR " + self.pr.action + "ed to " + self.pr.base_branch + ", Triggering tests ************")
-
                         # variable declaration
                         pr_link = self.pr.link_pretty
                         head_repo = self.pr.ssh_url
                         path = ""
                         files_ops = False
+                        print("******* PR " + self.pr.action + "ed to " + self.pr.base_branch + ", Triggering tests ************")
+
+                        change_required = self.is_ami_change_required()  # added this to avoid ami change
+
+                        if change_required:
+                            print("ami change found")
+                            notify_regarding_ami_change = json.loads(self.pr.config.constants.get('ami_change_notify'))
+                            msg = MSG_AMI_CHANGE.format(pr_link=pr_link,
+                                                        person=self.get_slack_name_for_id(notify_regarding_ami_change))
+
+                            self.jenkins.change_status(self.pr.statuses_url, "failure", context='Block-PR',
+                                                       description="AMI dependency found, please contact Ajish",
+                                                       details_link="")  # update status on jenkins and block pr
+
+                            self.slack.postToSlack(self.channel_name, msg,
+                                                   parseFull=False)  # update to ajish on weekly release
 
                         if repo in JAVA_REPO:
                             print("Bypassed pending status, as Context is different for Java Repos")
