@@ -80,6 +80,7 @@ staging_branch = 'qa'
 dev_branch = 'dev'
 dev_branch_commons = 'develop'
 staging_branch_commons = 'release'
+ally_master_branch = 'ally/master'
 
 moengage_repo = 'MoEngage'
 dashboard = 'dashboard-ui'
