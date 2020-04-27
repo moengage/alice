@@ -263,7 +263,7 @@ class Actor(Base):
 
         if self.base_branch == master_branch and head_branch != qa_branch:
 
-            if head_branch.lower().startswith("patch") or head_branch.lower().startswith("hotfix"):
+            if head_branch.lower().startswith("patch") or head_branch.lower().startswith("hotfix") or head_branch.lower().startswith("Hotfix"):
                 print("*** SKIP closing, Its a patch from head_branch=", head_branch)
                 msg = "PR opened to %s from %s" % (master_branch, head_branch)
                 return {"msg": msg}
@@ -831,7 +831,7 @@ class Actor(Base):
                 release_type = "minor"
                 dashboard_job_name = job_dir + "dashboard_builder_staging"
             elif self.pr.base_branch == "master" and (self.pr.head_branch.startswith("patch") or
-                                                      self.pr.head_branch.startswith("hotfix")):
+                                                      self.pr.head_branch.startswith("hotfix") or self.pr.head_branch.startswith("Hotfix")):
                 release_type = "patch"
                 dashboard_job_name = job_dir + "dashboard_builder_prod"
             elif self.pr.base_branch == "master" and self.pr.head_branch == "qa":
@@ -1016,7 +1016,7 @@ class Actor(Base):
                                      pr_link = self.pr.link_pretty, params_dict = bump_version_job_dict, pr_by_slack = pr_by_slack_uid)
 
             if self.pr.base_branch == master_branch and (self.pr.head_branch.startswith("patch") or
-                                                         self.pr.head_branch.startswith("hotfix")):
+                                                         self.pr.head_branch.startswith("hotfix") or self.pr.head_branch.startswith("Hotfix")):
                 msg = "MoEngage Repo: A patch came from head=" + self.pr.head_branch
                 print(msg)
 
