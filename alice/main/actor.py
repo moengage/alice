@@ -1141,6 +1141,43 @@ class Actor(Base):
 
         return ami_change_required
 
+    def get_status_of_pr(self):
+        """
+        List all status of pr
+        :return:
+        """
+        pr_link = self.pr.link
+        main_link = pr_link.split('pulls')[0]
+        status_link = main_link + 'commits/' + self.pr.head_branch + '/statuses'
+        page_no=1
+        data = []
+        while True:
+            url_with_page = status_link + "?page=%s" % page_no
+            headers = {"Authorization": "token " + self.github.GITHUB_TOKEN}
+            response = ApiManager.get(url_with_page, headers)
+            res = json.loads(response["content"])
+            if not res or (isinstance(res, dict) and "limit exceeded" in res.get("message")):
+                break
+            data += res
+            page_no += 1
+        print(data)
+        return data
+
+
+    def is_send_to_slack(self):
+        """
+        To prevent duplicate messages on slack, we check whether changes in required files were made in previous commit
+        and this is just updation in PR.
+        :return:
+        """
+        statues = self.get_status_of_pr()
+        send_to_slack = 1
+        for status in statues:
+            if "context" in status and status["context"] == AMI_DEPENDENCY:
+                send_to_slack = 0
+                break
+        return send_to_slack
+
     def trigger_task_on_pr(self):
         """
         For api test - we are following two different approaches,
@@ -1285,7 +1322,9 @@ class Actor(Base):
                         change_required = self.is_ami_change_required()  # added this to avoid ami change
 
                         if change_required:
-                            print("ami change found")
+                            print("AMI change found")
+
+                            do_slack = self.is_send_to_slack()
                             notify_regarding_ami_change = json.loads(self.pr.config.constants.get('ami_change_notify'))
                             msg = MSG_AMI_CHANGE.format(pr_link=pr_link, pr_name=self.pr.title,
                                                         person=self.get_slack_name_for_id(notify_regarding_ami_change))
@@ -1293,9 +1332,9 @@ class Actor(Base):
                             self.jenkins.change_status(self.pr.statuses_url, "failure", context='Block-PR',
                                                        description="AMI dependency found, please contact Ajish",
                                                        details_link="")  # update status on jenkins and block pr
-
-                            self.slack.postToSlack(self.channel_name, msg,
-                                                   parseFull=False)  # update to ajish on weekly release
+                            if do_slack:
+                                self.slack.postToSlack(self.channel_name, msg,
+                                                       parseFull=False)  # update to ajish on weekly release
 
                         if repo in JAVA_REPO:
                             print("Bypassed pending status, as Context is different for Java Repos")
