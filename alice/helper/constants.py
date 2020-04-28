@@ -112,3 +112,5 @@ SKIP_SLACK_MESSAGE = ['dependabot[bot]']
 JAVA_REPO = ['MoeDataScience']
 syntax_java = "shield-java-compile"
 unit_java = "shield-unit-test"
+
+AMI_DEPENDENCY = "Block-PR"
