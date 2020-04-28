@@ -1337,7 +1337,7 @@ class Actor(Base):
                             if do_slack:
                                 channel_name_ami = self.pr.config.constants.get('ami_change_channel_name')
                                 self.add_label_to_issue(repo, self.pr.number, [AMI_LABEL])
-                                self.slack.postToSlack(channel_name_ami, msg,
+                                self.slack.postToSlack(self.channel_name, msg,
                                                        parseFull=False)  # update to ajish on weekly release
 
                         if repo in JAVA_REPO:
