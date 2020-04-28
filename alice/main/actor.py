@@ -1142,18 +1142,17 @@ class Actor(Base):
 
         return ami_change_required
 
-    def get_status_of_pr(self):
+    def get_labels_of_pr(self):
         """
-        List all status of pr
+        List all labels of pr
         :return:
         """
         pr_link = self.pr.link
         main_link = pr_link.split('pulls')[0]
-        status_link = main_link + 'commits/' + self.pr.head_branch + '/statuses'
-        page_no=1
+        status_link = main_link + '/issues/' + self.pr.number + '/labels'
+        page_no = 1
         data = []
         while True:
-            time.sleep(1)
             url_with_page = status_link + "?page=%s" % page_no
             headers = {"Authorization": "token " + self.github.GITHUB_TOKEN}
             response = ApiManager.get(url_with_page, headers)
@@ -1161,24 +1160,21 @@ class Actor(Base):
             if not res or (isinstance(res, dict) and "limit exceeded" in res.get("message")):
                 print(res)
                 break
-            data += res
+            data.append(res["name"])
             page_no += 1
-        print("Status Data", data)
+        print("Labels Data", data)
         return data
 
 
     def is_send_to_slack(self):
         """
-        To prevent duplicate messages on slack, we check whether changes in required files were made in previous commit
-        and this is just updation in PR.
+        To prevent duplicate messages on slack, we check for labels
         :return:
         """
-        statues = self.get_status_of_pr()
+        labels = self.get_labels_of_pr()
         send_to_slack = 1
-        for status in statues:
-            if "context" in status and status["context"] == AMI_DEPENDENCY:
-                send_to_slack = 0
-                break
+        if AMI_LABEL in labels:
+            send_to_slack = 0
         return send_to_slack
 
     def trigger_task_on_pr(self):
@@ -1338,6 +1334,7 @@ class Actor(Base):
                             print("Slack status for version bumper", do_slack)
                             if do_slack:
                                 channel_name_ami = self.pr.config.constants.get('ami_change_channel_name')
+                                self.add_label_to_issue(repo, self.pr.number, [AMI_LABEL])
                                 self.slack.postToSlack(channel_name_ami, msg,
                                                        parseFull=False)  # update to ajish on weekly release
 
