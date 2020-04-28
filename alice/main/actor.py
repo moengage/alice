@@ -1333,6 +1333,7 @@ class Actor(Base):
                             self.jenkins.change_status(self.pr.statuses_url, "failure", context='Block-PR',
                                                        description="AMI dependency found, please contact Ajish",
                                                        details_link="")  # update status on jenkins and block pr
+                            print("Slack status for version bumper", do_slack)
                             if do_slack:
                                 self.slack.postToSlack(self.channel_name, msg,
                                                        parseFull=False)  # update to ajish on weekly release
