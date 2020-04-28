@@ -1336,7 +1336,8 @@ class Actor(Base):
                                                        details_link="")  # update status on jenkins and block pr
                             print("Slack status for version bumper", do_slack)
                             if do_slack:
-                                self.slack.postToSlack(self.channel_name, msg,
+                                channel_name_ami = self.pr.config.constants.get('ami_change_channel_name')
+                                self.slack.postToSlack(channel_name_ami, msg,
                                                        parseFull=False)  # update to ajish on weekly release
 
                         if repo in JAVA_REPO:
