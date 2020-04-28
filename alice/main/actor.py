@@ -1153,15 +1153,17 @@ class Actor(Base):
         page_no=1
         data = []
         while True:
+            time.sleep(1)
             url_with_page = status_link + "?page=%s" % page_no
             headers = {"Authorization": "token " + self.github.GITHUB_TOKEN}
             response = ApiManager.get(url_with_page, headers)
             res = json.loads(response["content"])
             if not res or (isinstance(res, dict) and "limit exceeded" in res.get("message")):
+                print(res)
                 break
             data += res
             page_no += 1
-        print(data)
+        print("Status Data", data)
         return data
 
 
