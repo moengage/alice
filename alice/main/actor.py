@@ -1149,7 +1149,7 @@ class Actor(Base):
         """
         pr_link = self.pr.link
         main_link = pr_link.split('pulls')[0]
-        status_link = main_link + '/issues/' + self.pr.number + '/labels'
+        status_link = main_link + 'issues/' + str(self.pr.number) + '/labels'
         page_no = 1
         data = []
         while True:
@@ -1160,7 +1160,7 @@ class Actor(Base):
             if not res or (isinstance(res, dict) and "limit exceeded" in res.get("message")):
                 print(res)
                 break
-            data.append(res["name"])
+            data += res
             page_no += 1
         print("Labels Data", data)
         return data
@@ -1173,8 +1173,10 @@ class Actor(Base):
         """
         labels = self.get_labels_of_pr()
         send_to_slack = 1
-        if AMI_LABEL in labels:
-            send_to_slack = 0
+        for label in labels:
+            if "name" in label and label['name'] == AMI_LABEL:
+                send_to_slack = 0
+                break
         return send_to_slack
 
     def trigger_task_on_pr(self):
