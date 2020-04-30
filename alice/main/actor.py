@@ -20,6 +20,7 @@ from alice.helper.log_utils import LOG
 from datetime import datetime
 from alice.helper.api_manager import ApiManager
 from alice.config.config_provider import ConfigProvider
+from urllib.error import HTTPError
 from alice.helper.file_utils import get_dict_from_config_file
 
 import os
@@ -550,6 +551,13 @@ class Actor(Base):
                 msg = "<@{0}> started job, PR by={0} PR={1}".format(
                     pr_by_slack, pr_link)
                 print(msg)
+
+            except HTTPError as err:
+                print(err)
+                msg = "<@UL91SP77H> Error in alice , Jenkins HTTP error"
+                self.slack.postToSlack(ALICE_ERROR, msg)
+                traceback.print_exc()
+                raise TimeoutError
             except (ConnectionError, ConnectionRefusedError, ConnectionResetError, TimeoutError):
                 print("Connection error")
                 msg = "<@UL91SP77H> Error in alice , Jenkins Connection error"
