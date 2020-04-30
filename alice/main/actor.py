@@ -1324,6 +1324,7 @@ class Actor(Base):
                         pr_link = self.pr.link_pretty
                         head_repo = self.pr.ssh_url
                         path = ""
+                        is_lint_path='0'
                         files_ops = False
                         print("******* PR " + self.pr.action + "ed to " + self.pr.base_branch + ", Triggering tests ************")
 
@@ -1382,6 +1383,7 @@ class Actor(Base):
                             file_path = item["filename"]
                             if str(file_path).endswith(".py") and item["status"] != "removed":
                                 path += " " + file_path
+                                is_lint_path = '1'
 
                             elif str(file_path).endswith((".conf", ".cfg", ".init", ".sh")):
                                 files_ops = True
@@ -1435,7 +1437,7 @@ class Actor(Base):
                                 job = job + "_" + self.pr.repo
                                 params_dict = dict(repo=head_repo, head_branch=self.pr.head_branch,
                                                    base_branch=self.pr.base_branch,
-                                                   pr_no=pr_link, lint_path=path,
+                                                   pr_no=pr_link, lint_path=is_lint_path,
                                                    additional_flags="", msg="", machine="", sha=self.pr.head_sha,
                                                    author=pr_by_slack_name,
                                                    author_github=self.pr.opened_by,
