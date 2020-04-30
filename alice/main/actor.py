@@ -58,6 +58,8 @@ class Actor(Base):
             self.save_data_for_later()
         self.sensitive_file_touched, self.change_requires_product_plus1 = self.parse_files_and_set_flags()
         self.channel_name = self.pr.config.constants.get('channel_name')
+        self.file_content = ''
+        self.file_content_message = ''
 
     def save_data_for_later(self):
         """
@@ -1131,17 +1133,13 @@ class Actor(Base):
 
         if self.pr.repo == moengage_repo and (self.pr.base_branch == master_branch or
                                               self.pr.base_branch == ally_master_branch):
-            try:
-                files_contents, message = self.get_files(self.pr.link + "/files")
-            except PRFilesNotFoundException as e:
-                files_contents = e.pr_response
 
-            if not files_contents or "message" in files_contents:
+            if not self.file_content or "message" in self.file_content:
                 print(":DEBUG: no files found in the diff: SKIP shield, just update the status")
                 return 0  # STOP as files not found
 
             # If file contents are found, check which content we have to run.
-            for item in files_contents:
+            for item in self.file_content:
                 file_path = item["filename"]
                 if file_path.endswith("setup_bk.py") or file_path.endswith("fury.txt") or \
                         file_path.endswith("etc/init.d/moengage_package_manager.sh")\
@@ -1187,6 +1185,15 @@ class Actor(Base):
                 break
         return send_to_slack
 
+    def get_files_in_diff_and_set_in_function(self):
+        try:
+            files_contents, message = self.get_files(self.pr.link + "/files")
+            self.file_content_message = message
+        except PRFilesNotFoundException as e:
+            files_contents = e.pr_response
+
+        self.file_content = files_contents
+
     def trigger_task_on_pr(self):
         """
         For api test - we are following two different approaches,
@@ -1204,7 +1211,6 @@ class Actor(Base):
         if self.pr.is_merged:
             merged_by_slack_uid = CommonUtils.get_slack_nicks_from_git(self.pr.merged_by)
 
-        # merged_by_slack_name = CommonUtils.get_slack_nicks_from_git(self.pr.merged_by)
         pr_by_slack_uid = CommonUtils.get_slack_nicks_from_git(self.pr.opened_by)
         pr_by_slack_name = CommonUtils.get_slack_nicks_from_git_name_nicks(self.pr.opened_by)
 
@@ -1311,9 +1317,6 @@ class Actor(Base):
                     self.jenkins.change_status(self.pr.statuses_url, "success", context="shield-unit-test-python",
                                                description="checks bypassed for back merge",
                                                details_link="")
-                    # self.jenkins.change_status(self.pr.statuses_url, "success", context="shield-linter-react",
-                    #                            description="checks bypassed for back merge",
-                    #                            details_link="")
 
                 else:
                     print(":INFO: repo=%s to validate, for PR=%s" % (repo, self.pr.number))
@@ -1328,6 +1331,8 @@ class Actor(Base):
                         is_lint_path='0'
                         files_ops = False
                         print("******* PR " + self.pr.action + "ed to " + self.pr.base_branch + ", Triggering tests ************")
+
+                        self.get_files_in_diff_and_set_in_function()
 
                         change_required = self.is_ami_change_required()  # added this to avoid ami change
 
@@ -1364,23 +1369,20 @@ class Actor(Base):
                             self.jenkins.change_status(self.pr.statuses_url, "pending",
                                                        context="shield-unit-test-python", description="Hold on!",
                                                        details_link="")
-                        try:
-                            print(":DEBUG: check_file_path", self.pr.link + "/files")
-                            files_contents, message = self.get_files(self.pr.link + "/files")
-                        except PRFilesNotFoundException as e:
-                            files_contents = e.pr_response
-                        if not files_contents or "message" in files_contents:
+                        is_api_test = False
+
+                        if not self.file_content or "message" in self.file_content:
                             print(":DEBUG: no files found in the diff: SKIP shield, just update the status")
-                            self.jenkins.change_status(self.pr.statuses_url, "success", context=context,
+                            self.jenkins.change_status(self.pr.statuses_url, "success", context=context_api_test,
                                                        description="SKIP: No diff, check the Files count",
                                                        details_link="")
                             self.jenkins.change_status(self.pr.statuses_url, "success",
                                                        context="shield-unit-test-python",
                                                        description="SKIP: No diff, check the Files count",
                                                        details_link="")
-                            return files_contents  # STOP as files not found
+                            return self.file_content  # STOP as files not found
 
-                        for item in files_contents:
+                        for item in self.file_content:
                             file_path = item["filename"]
                             if str(file_path).endswith(".py") and item["status"] != "removed":
                                 path += " " + file_path
@@ -1389,10 +1391,11 @@ class Actor(Base):
                             elif str(file_path).endswith((".conf", ".cfg", ".init", ".sh")):
                                 files_ops = True
 
-                            # elif str(file_path).endswith((".html", ".css", ".js", ".tpl", ".less", ".scss", ".json")):
-                            #     files_frontend = True
-                            # else:
-                            #     files_backend = True
+                            if file_path.startswith(integration_test_file_path):
+                                is_api_test = True
+                            for folder in integration_test_folder_path:
+                                if file_path.startswith(folder):
+                                    is_api_test = True
 
                         if repo.lower() == organization_repo and files_ops and self.pr.action \
                                 in action_commit_to_investigate:
@@ -1409,31 +1412,6 @@ class Actor(Base):
                             Added task for Single sign on feature
                             When certain files are changed, then change flag of
                             """
-
-                            is_api_test = False
-
-                            try:
-                                files_contents, message = self.get_files(self.pr.link + "/files")
-                            except PRFilesNotFoundException as e:
-                                files_contents = e.pr_response
-
-                            if not files_contents or "message" in files_contents:
-                                print(":DEBUG: no files found in the diff: SKIP shield, just update the status")
-                                self.jenkins.change_status(self.pr.statuses_url, "success", context=context_api_test,
-                                                           description="SKIP: No diff, check the Files count",
-                                                           details_link="")
-                                return files_contents  # STOP as files not found
-
-                            for item in files_contents:
-                                file_path = item["filename"]
-                                if file_path.startswith(integration_test_file_path):
-                                    is_api_test = True
-                                for folder in integration_test_folder_path:
-                                    if file_path.startswith(folder):
-                                        is_api_test = True
-
-
-
                             for job in self.pr.config.shield_job:
                                 job = job + "_" + self.pr.repo
                                 params_dict = dict(repo=head_repo, head_branch=self.pr.head_branch,
@@ -1466,7 +1444,6 @@ class Actor(Base):
                             is_py_test = False
                             is_py_test = self.pr.config.py_test
                             is_api_test = self.pr.config.api_test
-
 
                             pr_link = self.pr.link_pretty
                             head_repo = self.pr.ssh_url
