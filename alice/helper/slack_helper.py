@@ -74,11 +74,11 @@ class SlackHelper(object):
         data["link_names"] = True
         data["text"] = "|Final Reminder| :raising_hand: \n Hi " + msg + "\n There are changes on your name as mentioned *above*. Please do mention them in release notes & inform immediately if it" \
                                                                        " needs QA *else will be treated as self tested* (ignore, only if done already):\n" + release_notes + " \t\tcc: <@U7Z8GH7MK> <@geetima> <@vandana> <@U8DSU7L00> <@U8DSJFENL> <@UBLNGFELC>"
-        if self.config.is_debug:
-            channel_name = "#tmp"
-        else:
-            channel_name = "#weekly-releases"
-        self.postToSlack(channel_name, data["text"])
+        # if self.config.is_debug:
+        #     channel_name = "#tmp"
+        # else:
+        #     channel_name = "#weekly-releases"
+        self.postToSlack(channel, data["text"])
 
     def postAttachmentToSlack(self, channel, pr_link, msg, data,parseFull=True):
         data["channel"] = channel
@@ -115,8 +115,8 @@ class SlackHelper(object):
         CODE_FREEZE_TEXT[0]["text"] = CODE_FREEZE_TEXT[0]["text"]
         CODE_FREEZE_TEXT[0]["title_link"] = CODE_FREEZE_TEXT[0]["title_link"]
 
-        if self.config.is_debug:
-            channel_name = '#tmp'
-        else:
-            channel_name = "#weekly-releases"
-        self.postToSlack(channel=channel_name, attachments=CODE_FREEZE_TEXT)
+        # if self.config.is_debug:
+        #     channel_name = '#tmp'
+        # else:
+        #     channel_name = "#weekly-releases"
+        self.postToSlack(channel=channel, attachments=CODE_FREEZE_TEXT)
