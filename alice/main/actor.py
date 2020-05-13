@@ -58,6 +58,7 @@ class Actor(Base):
             self.save_data_for_later()
         self.sensitive_file_touched, self.change_requires_product_plus1 = self.parse_files_and_set_flags()
         self.channel_name = self.pr.config.constants.get('channel_name')
+        self.alert_pr_channel = self.pr.config.constants.get('pr_alert_channel_name') #seperated as all alerts were spamming channels
         self.file_content = ''
         self.file_content_message = ''
 
@@ -154,7 +155,7 @@ class Actor(Base):
                                                        branch=self.pr.base_branch, team=""
                                                        .join(self.pr.config.productTeamToBeNotified))
                     LOG.debug(msg)
-                    self.slack.postToSlack(self.pr.config.alertChannelName, msg)
+                    self.slack.postToSlack(self.alert_pr_channel, msg)
                     LOG.info("Bad PR={msg} repo:{repo}".format(repo=self.pr.repo, msg=self.is_bad_pr))
                     return {"msg": "Bad PR={msg} repo:{repo}".format(repo=self.pr.repo, msg=self.is_bad_pr)}
                 return {"msg": "Product approved so no alert, pr=%s" % self.pr.link_pretty}
@@ -289,7 +290,7 @@ class Actor(Base):
             msg_to_github = "AUTO CLOSED : " + self.pr.title
             print("ALice is AUTO CLOSING PR")
             self.github.modify_pr(msg_to_github, "closed")
-            self.slack.postToSlack(self.pr.config.alertChannelName, self.get_slack_name_for_git_name(self.created_by) + ": " + msg)
+            self.slack.postToSlack(self.alert_pr_channel, self.get_slack_name_for_git_name(self.created_by) + ": " + msg)
             LOG.info("closed dangerous PR %s" % self.pr.link_pretty)
             return 0
         return 1
@@ -629,12 +630,12 @@ class Actor(Base):
                 self.pr.merged_by not in self.pr.config.valid_contributors):
             merged_by_slack_uid = CommonUtils.get_slack_nicks_from_git(self.pr.merged_by)
             alice_dev_team_MoEngage_repo = json.loads(self.pr.config.constants.get('alice_dev_team_moengage_repo'))
-            msg = "Very Bad <@" + merged_by_slack_uid + "> :rage4: :rage4: !! " + self.pr.link_pr \
+            msg = "Very Bad <@" + merged_by_slack_uid + "> !! " + self.pr.link_pr \
                   + " is merged directly into `" + self.pr.base_branch + \
                   "`, but not by QA team, soon these kind of requests will be automatically reverted CC: " + \
                   self.get_slack_name_for_id(alice_dev_team_MoEngage_repo)
             print(msg)
-            print(self.slack.postToSlack(self.channel_name, msg, data={"username": bot_name}))
+            print(self.slack.postToSlack(self.alert_pr_channel, msg, data={"username": bot_name}))
 
     def code_freeze(self):
 
@@ -1350,7 +1351,7 @@ class Actor(Base):
                             if do_slack:
                                 channel_name_ami = self.pr.config.constants.get('ami_change_channel_name')
                                 self.add_label_to_issue(repo, self.pr.number, [AMI_LABEL])
-                                self.slack.postToSlack(self.channel_name, msg,
+                                self.slack.postToSlack(self.alert_pr_channel, msg,
                                                        parseFull=False)  # update to ajish on weekly release
 
                         if repo in JAVA_REPO:
