@@ -1181,6 +1181,7 @@ class Actor(Base):
         List all labels of pr
         :return:
         """
+        import datetime
         pr_link = self.pr.link
         main_link = pr_link.split('pulls')[0]
         status_link = main_link + 'issues/' + str(self.pr.number) + '/labels'
@@ -1191,6 +1192,7 @@ class Actor(Base):
             headers = {"Authorization": "token " + self.github.GITHUB_TOKEN}
             response = ApiManager.get(url_with_page, headers)
             res = json.loads(response["content"])
+            #print("chunky",response, res, url_with_page)
             if not res or (isinstance(res, dict) and "limit exceeded" in res.get("message")):
                 print(res)
                 break
@@ -1386,12 +1388,12 @@ class Actor(Base):
 
                         if not is_required_files_present: # checks for version files
                             print("Required files are not present")
-                            self.jenkins.change_status(self.pr.statuses_url, "failure", context='Block-PR: File',
-                                                       description="Version , changelog files not found",
+                            self.jenkins.change_status(self.pr.statuses_url, "failure", context='shield-release-checklist',
+                                                       description="Missing update on VERSION | CHANGELOG update file(s)",
                                                        details_link="")
                         else:
-                            self.jenkins.change_status(self.pr.statuses_url, "success", context='Block-PR: File',
-                                                       description="Version and changelog files are present",
+                            self.jenkins.change_status(self.pr.statuses_url, "success", context='shield-release-checklist',
+                                                       description="VERSION | CHANGELOG update are good",
                                                        details_link="")
 
                         if repo in JAVA_REPO:
