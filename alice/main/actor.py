@@ -1122,6 +1122,34 @@ class Actor(Base):
                 return 0
         return 0
 
+    def required_files_are_present(self):
+        """
+        - check for CHANGELOG.md
+        - check for VERSION
+        :return:
+        """
+        version = 0
+        changelog = 0
+
+        if self.pr.repo == moengage_repo and (self.pr.base_branch == master_branch or
+                                              self.pr.base_branch == ally_master_branch):
+
+            if not self.file_content or "message" in self.file_content:
+                print(":DEBUG: no files found in the diff: SKIP shield, just update the status")
+                return 0  # STOP as files not found
+
+            for item in self.file_content:
+                file_path = item["filename"]
+                if file_path.endswith("CHANGELOG.md"):
+                    changelog = 1
+                elif file_path.endswith("VERSION"):
+                    version = 1
+
+        if version and changelog:
+            return 1
+        else:
+            return 0
+
     def is_ami_change_required(self):
         """
         1 -  required
@@ -1336,6 +1364,8 @@ class Actor(Base):
 
                         change_required = self.is_ami_change_required()  # added this to avoid ami change
 
+                        is_required_files_present = self.required_files_are_present()
+
                         if change_required:
                             print("AMI change found")
 
@@ -1353,6 +1383,12 @@ class Actor(Base):
                                 self.add_label_to_issue(repo, self.pr.number, [AMI_LABEL])
                                 self.slack.postToSlack(self.alert_pr_channel, msg,
                                                        parseFull=False)  # update to ajish on weekly release
+
+                        if not is_required_files_present: # checks for version files
+                            print("Required files are not present")
+                            self.jenkins.change_status(self.pr.statuses_url, "failure", context='Block-PR: File',
+                                                       description="Version , changelog file not found",
+                                                       details_link="")
 
                         if repo in JAVA_REPO:
                             print("Bypassed pending status, as Context is different for Java Repos")
