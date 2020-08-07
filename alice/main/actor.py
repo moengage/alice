@@ -1132,8 +1132,7 @@ class Actor(Base):
         version = 0
         changelog = 0
 
-        if self.pr.repo == moengage_repo and (self.pr.base_branch == master_branch or
-                                              self.pr.base_branch == ally_master_branch):
+        if self.pr.repo == moengage_repo and (self.pr.base_branch == master_branch):
 
             if not self.file_content or "message" in self.file_content:
                 print(":DEBUG: no files found in the diff: SKIP shield, just update the status")
@@ -1146,10 +1145,11 @@ class Actor(Base):
                 elif file_path.endswith("VERSION"):
                     version = 1
 
-        if version and changelog:
-            return 1
-        else:
-            return 0
+            if version and changelog:
+                return 1
+            else:
+                return 0
+        return 1
 
     def is_ami_change_required(self):
         """
