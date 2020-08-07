@@ -1388,7 +1388,11 @@ class Actor(Base):
                         if not is_required_files_present: # checks for version files
                             print("Required files are not present")
                             self.jenkins.change_status(self.pr.statuses_url, "failure", context='Block-PR: File',
-                                                       description="Version , changelog file not found",
+                                                       description="Version , changelog files not found",
+                                                       details_link="")
+                        else:
+                            self.jenkins.change_status(self.pr.statuses_url, "success", context='Block-PR: File',
+                                                       description="Version and changelog files are present",
                                                        details_link="")
 
                         if repo in JAVA_REPO:
