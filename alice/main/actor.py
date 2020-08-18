@@ -1384,16 +1384,16 @@ class Actor(Base):
                                 self.add_label_to_issue(repo, self.pr.number, [AMI_LABEL])
                                 self.slack.postToSlack(self.alert_pr_channel, msg,
                                                        parseFull=False)  # update to ajish on weekly release
-
-                        if not is_required_files_present: # checks for version files
-                            print("Required files are not present")
-                            self.jenkins.change_status(self.pr.statuses_url, "failure", context='Block-PR: File',
-                                                       description="Version , changelog files not found",
-                                                       details_link="")
-                        else:
-                            self.jenkins.change_status(self.pr.statuses_url, "success", context='Block-PR: File',
-                                                       description="Version and changelog files are present",
-                                                       details_link="")
+                        if repo == moengage_repo:
+                            if not is_required_files_present: # checks for version files
+                                print("Required files are not present")
+                                self.jenkins.change_status(self.pr.statuses_url, "failure", context='Block-PR: File',
+                                                           description="Version , changelog files not found",
+                                                           details_link="")
+                            else:
+                                self.jenkins.change_status(self.pr.statuses_url, "success", context='Block-PR: File',
+                                                           description="Version and changelog files are present",
+                                                           details_link="")
 
                         if repo in JAVA_REPO:
                             print("Bypassed pending status, as Context is different for Java Repos")
