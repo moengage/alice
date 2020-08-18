@@ -45,7 +45,7 @@ python_repo = ["MoEngage", "MoeDataScience", "mongoengine", "inapp-rest-service"
                "moengcache", "MoeAbTesting", "apns_client", "Bugsy_Backend", "product-management", "custom-segments",
                "product-recommendation", "s2s", "email-campaigns", "campaigns-core", "url_tracking",
                "dashboard-segmentation", "commons-core", "commons-frameworks", "commons-services",
-               "segmentation-uis", "segmentation-client"]
+               "segmentation-uis", "segmentation-client", "cards"]
 
 file_path = "/opt/alice/release_items.txt"
 file_mergedBy = "/opt/alice/release_mergedby.txt"
@@ -105,7 +105,7 @@ DRONE_IGNORE_JOBS = ["clone", "Clone"]
 DRONE_CONTEXT = "continuous-integration/drone/pr"
 
 REPO_NOT_CLOSE = ["key-metrics",  "custom-segments", "value-suggestions", "dashboard-segmentation", "segmentation-uis",
-                  "saas", "MoeDataScience", "user-profile"]
+                  "saas", "MoeDataScience", "user-profile", "cards"]
 
 SKIP_SLACK_MESSAGE = ['dependabot[bot]']
 
