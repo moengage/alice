@@ -1193,7 +1193,6 @@ class Actor(Base):
             headers = {"Authorization": "token " + self.github.GITHUB_TOKEN}
             response = ApiManager.get(url_with_page, headers)
             res = json.loads(response["content"])
-            #print("chunky",response, res, url_with_page)
             if not res or (isinstance(res, dict) and "limit exceeded" in res.get("message")):
                 print(res)
                 break
@@ -1387,15 +1386,18 @@ class Actor(Base):
                                 self.slack.postToSlack(self.alert_pr_channel, msg,
                                                        parseFull=False)  # update to ajish on weekly release
 
-                        if not is_required_files_present: # checks for version files
-                            print("Required files are not present")
-                            self.jenkins.change_status(self.pr.statuses_url, "failure", context='shield-release-checklist',
-                                                       description="Missing update on VERSION | CHANGELOG update file(s)",
-                                                       details_link="")
-                        else:
-                            self.jenkins.change_status(self.pr.statuses_url, "success", context='shield-release-checklist',
-                                                       description="VERSION | CHANGELOG update are good",
-                                                       details_link="")
+                        if repo == moengage_repo:
+                            if not is_required_files_present: # checks for version files
+                                print("Required files are not present")
+                                self.jenkins.change_status(self.pr.statuses_url, "failure",
+                                                           context='shield-release-checklist', description=
+                                                           "Missing update on VERSION | CHANGELOG update file(s)",
+                                                           details_link="")
+                            else:
+                                self.jenkins.change_status(self.pr.statuses_url, "success",
+                                                           context='shield-release-checklist', description=
+                                                           "VERSION | CHANGELOG update are good",
+                                                           details_link="")
 
                         if repo in JAVA_REPO:
                             print("Bypassed pending status, as Context is different for Java Repos")
