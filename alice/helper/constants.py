@@ -115,3 +115,5 @@ unit_java = "shield-unit-test"
 
 AMI_DEPENDENCY = "Block-PR"
 AMI_LABEL = "ami_dependency"
+
+RELEASE_CHECKLIST_REPOS = [moengage_repo, "email-campaigns"]

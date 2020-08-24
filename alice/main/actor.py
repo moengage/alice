@@ -1131,7 +1131,7 @@ class Actor(Base):
         version = 0
         changelog = 0
 
-        if self.pr.repo == moengage_repo and (self.pr.base_branch == master_branch):
+        if self.pr.repo in RELEASE_CHECKLIST_REPOS and (self.pr.base_branch == master_branch):
 
             if not self.file_content or "message" in self.file_content:
                 print(":DEBUG: no files found in the diff: SKIP shield, just update the status")
@@ -1385,7 +1385,7 @@ class Actor(Base):
                                 self.slack.postToSlack(self.alert_pr_channel, msg,
                                                        parseFull=False)  # update to ajish on weekly release
 
-                        if repo == moengage_repo:
+                        if repo in RELEASE_CHECKLIST_REPOS:
                             if not is_required_files_present: # checks for version files
                                 print("Required files are not present")
                                 self.jenkins.change_status(self.pr.statuses_url, "failure",
