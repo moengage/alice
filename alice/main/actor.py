@@ -821,6 +821,9 @@ class Actor(Base):
             self.slack.postToSlack(channel_repo, msg, data={"username": bot_name})
 
     def dashboard_builder(self, pr_by_slack_uid, merged_by_slack_uid, jenkins_instance, token):
+        """
+        Commented dashboard_builder staging and prod
+        """
         repo = self.pr.repo
         msg = {"Package building not needed"}
         if self.pr.base_branch in package_builder_branches_repo_wise.get(repo.lower()):
@@ -834,38 +837,28 @@ class Actor(Base):
             feature dev                     nothing
             f1           f2                 nothing
             """
-            release_type = ""
-            dashboard_job_name = ""
             job_dir = "Dashboard/"
 
             if self.pr.base_branch == "qa":
                 release_type = "minor"
                 dashboard_job_name = job_dir + "dashboard_builder_staging"
-            elif self.pr.base_branch == "master" and (self.pr.head_branch.startswith("patch") or
-                                                      self.pr.head_branch.startswith("hotfix") or self.pr.head_branch.startswith("Hotfix")):
-                release_type = "patch"
-                dashboard_job_name = job_dir + "dashboard_builder_prod"
-            elif self.pr.base_branch == "master" and self.pr.head_branch == "qa":
-                release_type = "major"
-                dashboard_job_name = job_dir + "dashboard_builder_prod"
+                sha = self.pr.statuses_url.rsplit("/", 1)[1]
+
+                bump_version_job_dict = dict(release_type=release_type, repo=repo, pr_no=self.pr.number,
+                                             pr_title=self.pr.title,
+                                             pr_by_slack=pr_by_slack_uid, approved_by=merged_by_slack_uid,
+                                             merged_by_slack=merged_by_slack_uid, sha=sha,
+                                             base_branch=self.pr.base_branch,
+                                             head_branch=self.pr.head_branch, is_ui_change=True)
+                self.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token, job_name=dashboard_job_name,
+                                     pr_link=self.pr.link_pretty, params_dict=bump_version_job_dict,
+                                     pr_by_slack=pr_by_slack_uid)
+                msg = "dashboard builder started"
             else:
-                msg = "******  NOT TO BUILD CASE base_branch=%s head_branch=%s" % (
-                self.pr.base_branch, self.pr.head_branch)
+                msg = "******  NOT TO BUILD CASE base_branch=%s head_branch=%s" % (self.pr.base_branch,
+                                                                                   self.pr.head_branch)
                 print(msg)
-                return {"msg": msg}
-
-            sha = self.pr.statuses_url.rsplit("/", 1)[1]
-
-            bump_version_job_dict = dict(release_type=release_type, repo=repo, pr_no=self.pr.number,
-                                         pr_title=self.pr.title,
-                                         pr_by_slack=pr_by_slack_uid, approved_by=merged_by_slack_uid,
-                                         merged_by_slack=merged_by_slack_uid, sha=sha, base_branch=self.pr.base_branch,
-                                         head_branch=self.pr.head_branch, is_ui_change=True)
-            self.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token, job_name=dashboard_job_name,
-                                 pr_link=self.pr.link_pretty, params_dict=bump_version_job_dict,
-                                 pr_by_slack=pr_by_slack_uid)
-            msg = "dashboard builder started"
-        return {"msg": msg}
+            return {"msg": msg}
 
     def after_merge_check(self, pr_by_slack_uid, merged_by_slack_uid):
         """
