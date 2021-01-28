@@ -45,7 +45,7 @@ python_repo = ["MoEngage", "MoeDataScience", "mongoengine", "inapp-rest-service"
                "moengcache", "MoeAbTesting", "apns_client", "Bugsy_Backend", "product-management", "custom-segments",
                "product-recommendation", "s2s", "email-campaigns", "campaigns-core", "url_tracking",
                "dashboard-segmentation", "commons-core", "commons-frameworks", "commons-services",
-               "segmentation-uis", "segmentation-client", "cards"]
+               "segmentation-uis", "segmentation-client", "cards", "campaign-reports"]
 
 file_path = "/opt/alice/release_items.txt"
 file_mergedBy = "/opt/alice/release_mergedby.txt"
