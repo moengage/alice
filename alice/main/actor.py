@@ -1499,24 +1499,24 @@ class Actor(Base):
                                                      pr_link=pr_link, params_dict=params_dict,
                                                      pr_by_slack=pr_by_slack_uid)
 
-                            if repo == "inapp-rest-service":
-                                """
-                                2.3) Run for inapp_rest_services(one extra test) + moengage repo
-                                """
-                                job_dir = "inapps/"
-                                job_name = job_dir + "integration_tests_webinapp"
-                                head_repo_owner = self.pr.head_label.split(":")[0]  # FORK cases
-                                api_params_dict = dict(GIT_REPO=head_repo, GIT_HEAD_BRANCH=self.pr.head_branch,
-                                                       GIT_BASE_BRANCH=self.pr.base_branch,
-                                                       GIT_HEAD_BRANCH_OWNER=head_repo_owner,
-                                                       GIT_PULL_REQUEST_LINK=pr_link,
-                                                       GIT_SHA=self.pr.head_sha, AUTHOR_SLACK_NAME=pr_by_slack_name,
-                                                       GIT_PR_AUTHOR=self.pr.opened_by)
-                                print("hit api tests, params_dict=", api_params_dict)
-                                self.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token,
-                                                     job_name=job_name,
-                                                     pr_link=pr_link, params_dict=api_params_dict,
-                                                     pr_by_slack=pr_by_slack_uid)
+                            # if repo == "inapp-rest-service":
+                            #     """
+                            #     2.3) Run for inapp_rest_services(one extra test) + moengage repo
+                            #     """
+                            #     job_dir = "inapps/"
+                            #     job_name = job_dir + "integration_tests_webinapp"
+                            #     head_repo_owner = self.pr.head_label.split(":")[0]  # FORK cases
+                            #     api_params_dict = dict(GIT_REPO=head_repo, GIT_HEAD_BRANCH=self.pr.head_branch,
+                            #                            GIT_BASE_BRANCH=self.pr.base_branch,
+                            #                            GIT_HEAD_BRANCH_OWNER=head_repo_owner,
+                            #                            GIT_PULL_REQUEST_LINK=pr_link,
+                            #                            GIT_SHA=self.pr.head_sha, AUTHOR_SLACK_NAME=pr_by_slack_name,
+                            #                            GIT_PR_AUTHOR=self.pr.opened_by)
+                            #     print("hit api tests, params_dict=", api_params_dict)
+                            #     self.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token,
+                            #                          job_name=job_name,
+                            #                          pr_link=pr_link, params_dict=api_params_dict,
+                            #                          pr_by_slack=pr_by_slack_uid)
 
                             self.alert_on_slack(pr_by_slack_uid)
 
