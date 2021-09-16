@@ -1356,27 +1356,27 @@ class Actor(Base):
 
                         self.get_files_in_diff_and_set_in_function()
 
-                        change_required = self.is_ami_change_required()  # added this to avoid ami change
+                        # change_required = self.is_ami_change_required()  # added this to avoid ami change
 
                         is_required_files_present = self.required_files_are_present()
 
-                        if change_required:
-                            print("AMI change found")
-
-                            do_slack = self.is_send_to_slack()
-                            notify_regarding_ami_change = json.loads(self.pr.config.constants.get('ami_change_notify'))
-                            msg = MSG_AMI_CHANGE.format(pr_link=pr_link, pr_name=self.pr.title,
-                                                        person=self.get_slack_name_for_id(notify_regarding_ami_change))
-
-                            self.jenkins.change_status(self.pr.statuses_url, "failure", context='Block-PR',
-                                                       description="AMI dependency found, please contact Ajish",
-                                                       details_link="")  # update status on jenkins and block pr
-                            print("Slack status for version bumper", do_slack)
-                            if do_slack:
-                                channel_name_ami = self.pr.config.constants.get('ami_change_channel_name')
-                                self.add_label_to_issue(repo, self.pr.number, [AMI_LABEL])
-                                self.slack.postToSlack(self.alert_pr_channel, msg,
-                                                       parseFull=False)  # update to ajish on weekly release
+                        # if change_required:
+                        #     print("AMI change found")
+                        #
+                        #     do_slack = self.is_send_to_slack()
+                        #     notify_regarding_ami_change = json.loads(self.pr.config.constants.get('ami_change_notify'))
+                        #     msg = MSG_AMI_CHANGE.format(pr_link=pr_link, pr_name=self.pr.title,
+                        #                                 person=self.get_slack_name_for_id(notify_regarding_ami_change))
+                        #
+                        #     self.jenkins.change_status(self.pr.statuses_url, "failure", context='Block-PR',
+                        #                                description="AMI dependency found, please contact Ajish",
+                        #                                details_link="")  # update status on jenkins and block pr
+                        #     print("Slack status for version bumper", do_slack)
+                        #     if do_slack:
+                        #         channel_name_ami = self.pr.config.constants.get('ami_change_channel_name')
+                        #         self.add_label_to_issue(repo, self.pr.number, [AMI_LABEL])
+                        #         self.slack.postToSlack(self.alert_pr_channel, msg,
+                        #                                parseFull=False)  # update to ajish on weekly release
 
                         if repo in RELEASE_CHECKLIST_REPOS:
                             if not is_required_files_present: # checks for version files
