@@ -40,6 +40,7 @@ class PRFilesNotFoundException(Exception):
         super(PRFilesNotFoundException, self).__init__(str(self.pr_response))
 
 
+
 class Actor(Base):
 
     def __init__(self, pr):
@@ -186,7 +187,7 @@ class Actor(Base):
         """
         if self.pr.is_opened:
             if not self.pr.config.is_debug:
-                if self.pr.base_branch == self.pr.config.mainBranch:
+                if self.pr.base_branch in self.pr.config.mainBranch:
                     guideline_comment = SPECIAL_COMMENT
                     guideline_comment = self.add_extra_comment(SPECIAL_COMMENT)
                     self.slack.postToSlack(self.pr.opened_by_slack, guideline_comment["body"])
@@ -214,7 +215,7 @@ class Actor(Base):
         """
         desired_action = self.pr.config.actionToBeNotifiedFor
         if self.pr.action == desired_action:
-            if self.pr.base_branch == self.pr.config.mainBranch:
+            if self.pr.base_branch in self.pr.config.mainBranch:
                 msg = MSG_OPENED_TO_MAIN_BRANCH.format(repo=self.pr.repo, pr_by=self.created_by,
                                                        main_branch=self.pr.config.mainBranch, title=self.pr.title,
                                                        pr=self.pr.link_pretty, action=self.pr.action)
@@ -265,7 +266,7 @@ class Actor(Base):
         qa_branch = self.pr.config.testBranch
         head_branch = self.head_branch
 
-        if self.base_branch == master_branch and head_branch != qa_branch:
+        if self.base_branch in master_branch and head_branch != qa_branch:
 
             if head_branch.lower().startswith("patch") or head_branch.lower().startswith("hotfix") or head_branch.lower().startswith("Hotfix"):
                 print("*** SKIP closing, Its a patch from head_branch=", head_branch)
@@ -309,7 +310,7 @@ class Actor(Base):
             flag = 0
             channel_name = self.pr.config.constants.get('channel_name')
             commit_id_url = self.pr.link_pr + "/commits/%s"%commit_id
-            if self.pr.base_branch == master_branch:
+            if self.pr.base_branch in master_branch:
                 response = ApiManager.get(base_url, header)
                 data = json.loads(response["content"])
                 if "files" in data:
@@ -340,7 +341,7 @@ class Actor(Base):
         Notify to respective folks when qa is passed and code is moved to main branch Eg. master
         :return:
         """
-        if self.pr.action in close_action and self.pr.is_merged and self.pr.base_branch == self.pr.config.mainBranch \
+        if self.pr.action in close_action and self.pr.is_merged and self.pr.base_branch in self.pr.config.mainBranch \
                 and self.pr.head_branch == self.pr.config.testBranch:
             msg = MSG_QA_SIGN_OFF.format(person=self.get_slack_name_for_id(self.pr.config.personToBeNotified),
                                          pr=self.pr.link_pretty,
@@ -604,7 +605,7 @@ class Actor(Base):
         Prepare for next release, Sending Slack message to product and qa team.
         """
         if self.pr.action.find("close") != -1 and self.pr.is_merged == True and (
-                self.pr.base_branch == master_branch and self.pr.head_branch == staging_branch):
+                self.pr.base_branch in master_branch and self.pr.head_branch == staging_branch):
 
             """ ********** Remind PM teams to update release notes for next release ************ """
             alice_product_team = json.loads(self.pr.config.constants.get('alice_product_team'))
@@ -726,7 +727,7 @@ class Actor(Base):
         Alert when doing a release, when qa-> master it is release.
         """
         if self.pr.action.find("close") != -1 and self.pr.is_merged == True and (
-                self.pr.base_branch == master_branch and self.pr.head_branch == staging_branch):
+                self.pr.base_branch in master_branch and self.pr.head_branch == staging_branch):
             """ ************* inform channel *************** """
             product_notify_slack = json.loads(self.pr.config.constants.get('product_notify_slack'))
             tech_leads_to_notify_always_slack = json.loads(self.pr.config.constants.get('tech_leads_to_notify_always_slack'))
@@ -741,7 +742,7 @@ class Actor(Base):
                                    parseFull=False)
 
         if self.pr.action.find(
-                "open") != -1 and self.pr.base_branch == master_branch and self.pr.head_branch == staging_branch:
+                "open") != -1 and self.pr.base_branch in master_branch and self.pr.head_branch == staging_branch:
 
             pr_by_slack_uid = CommonUtils.get_slack_nicks_from_git(self.pr.opened_by)
             print(
@@ -831,7 +832,7 @@ class Actor(Base):
             head    base
             dev     qa                      staging build
             qa      master                  prod  build
-            patch   master                  prod  build               
+            patch   master                  prod  build
             feature qa                      staging
             feature master                  nothing
             feature dev                     nothing
@@ -872,9 +873,9 @@ class Actor(Base):
         sha = self.pr.statuses_url.rsplit("/", 1)[1]
 
         if self.pr.is_sensitive_branch and self.pr.action in close_action:
-            if (self.pr.base_branch == staging_branch and self.pr.head_branch == master_branch) or (
+            if (self.pr.base_branch == staging_branch and self.pr.head_branch in master_branch) or (
                     self.pr.base_branch == dev_branch and self.pr.head_branch == staging_branch) or \
-                    (self.pr.base_branch == staging_branch_commons and self.pr.head_branch == master_branch)\
+                    (self.pr.base_branch == staging_branch_commons and self.pr.head_branch in master_branch)\
                     or (self.pr.base_branch == dev_branch_commons and self.pr.head_branch == staging_branch_commons):
 
                 print(":SKIP: back merge: ignore status alert, repo={repo} pr={link_pr} title={title_pr}".
@@ -1007,7 +1008,7 @@ class Actor(Base):
 
         if repo == moengage_repo and self.pr.is_merged:
 
-            if self.pr.base_branch == master_branch and self.pr.head_branch == staging_branch:
+            if self.pr.base_branch in master_branch and self.pr.head_branch == staging_branch:
 
                 """ ********** Bump Version ************** """
                 print(":DEBUG: before hitting patch job is_ui_change=", ui_change)
@@ -1019,7 +1020,7 @@ class Actor(Base):
                 self.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token, job_name="VersionBumper_MoEngage",
                                      pr_link = self.pr.link_pretty, params_dict = bump_version_job_dict, pr_by_slack = pr_by_slack_uid)
 
-            if self.pr.base_branch == master_branch and (self.pr.head_branch.startswith("patch") or
+            if self.pr.base_branch in master_branch and (self.pr.head_branch.startswith("patch") or
                                                          self.pr.head_branch.startswith("hotfix") or self.pr.head_branch.startswith("Hotfix")):
                 msg = "MoEngage Repo: A patch came from head=" + self.pr.head_branch
                 print(msg)
@@ -1124,7 +1125,7 @@ class Actor(Base):
         version = 0
         changelog = 0
 
-        if self.pr.repo in RELEASE_CHECKLIST_REPOS and (self.pr.base_branch == master_branch):
+        if self.pr.repo in RELEASE_CHECKLIST_REPOS and (self.pr.base_branch in master_branch):
 
             if not self.file_content or "message" in self.file_content:
                 print(":DEBUG: no files found in the diff: SKIP shield, just update the status")
@@ -1152,7 +1153,7 @@ class Actor(Base):
         """
         ami_change_required = 0
 
-        if self.pr.repo == moengage_repo and (self.pr.base_branch == master_branch or
+        if self.pr.repo == moengage_repo and (self.pr.base_branch in master_branch or
                                               self.pr.base_branch == ally_master_branch):
 
             if not self.file_content or "message" in self.file_content:
@@ -1258,7 +1259,7 @@ class Actor(Base):
             """
             2) Begining of shield - Second task
             Shield runs for three repos -  Moengage, Dashboard_ui, Inap_rest_service
-            commons, segmentation, campaigns-core, 
+            commons, segmentation, campaigns-core,
             Basic working of shield - It first update status to pending , then get file content,
             if file content found, then move forward, else return and skip testing.
 
@@ -1317,8 +1318,8 @@ class Actor(Base):
             elif repo in python_repo:
                 """
                 2.2) for moengage repo and inap_rest_service
-                We have several cases, 
-                First case is for particular branches, we skip alice, 
+                We have several cases,
+                First case is for particular branches, we skip alice,
                 Second case is we bypass shield testing for back merge(from master to dev and all..)
                 Third case is when we run shield for moengage and python branch
                 """
@@ -1328,7 +1329,7 @@ class Actor(Base):
                     return ":SKIP: alice code changes on " + repo
 
                 elif repo.lower() == organization_repo and (
-                        (self.pr.base_branch == staging_branch and self.pr.head_branch == master_branch) or
+                        (self.pr.base_branch == staging_branch and self.pr.head_branch in master_branch) or
                         (self.pr.base_branch == dev_branch and self.pr.head_branch == staging_branch)):
 
                     print(":SKIP: back merge: checks call, repo={repo} pr={link_pr} title={title_pr}" \
@@ -1522,7 +1523,7 @@ class Actor(Base):
 
         elif self.pr.action in edited_action:
             """
-            Adding this code because, we can edit pr to change base branch from qa to master, 
+            Adding this code because, we can edit pr to change base branch from qa to master,
             thus want to check function of close pr in such case
             """
             check_dangerous_pr = self.close_dangerous_pr()
@@ -1537,7 +1538,7 @@ class Actor(Base):
                 1) Build dashboad
                 2) Broadcast message if pushed in sensitive branches
                 3) After pr is merged post to slack whether pr was merged correctly or not.
-            3) last task task, When pull request is merged/closed, 
+            3) last task task, When pull request is merged/closed,
             we run two checks.
             First, We alert if pull request is merged_by a person,
              who is not a valid contributor.
@@ -1618,4 +1619,3 @@ class Infra(object):
             SlackHelper(self.config).post_to_slack_infra(channel=issue["channel"], msg=msg, data=
                                                             CommonUtils.get_bot(issue["channel"],
                                                             issue["slack_nick_name_creator"]))
-

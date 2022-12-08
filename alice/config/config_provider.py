@@ -92,7 +92,8 @@ class ConfigProvider(object):
 
     @property
     def mainBranch(self):
-        return self.repo.get('main_branch')
+        main_branch = self.repo.get('main_branch')
+        return [main_branch] if isinstance(main_branch, str) else main_branch
 
     @property
     def testBranch(self):
