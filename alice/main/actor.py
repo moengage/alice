@@ -309,7 +309,7 @@ class Actor(Base):
             flag = 0
             channel_name = self.pr.config.constants.get('channel_name')
             commit_id_url = self.pr.link_pr + "/commits/%s"%commit_id
-            if self.pr.base_branch == master_branch:
+            if self.pr.base_branch in master_branch:
                 response = ApiManager.get(base_url, header)
                 data = json.loads(response["content"])
                 if "files" in data:
@@ -605,7 +605,7 @@ class Actor(Base):
         Prepare for next release, Sending Slack message to product and qa team.
         """
         if self.pr.action.find("close") != -1 and self.pr.is_merged == True and (
-                self.pr.base_branch == master_branch and self.pr.head_branch == staging_branch):
+                self.pr.base_branch in master_branch and self.pr.head_branch == staging_branch):
 
             """ ********** Remind PM teams to update release notes for next release ************ """
             alice_product_team = json.loads(self.pr.config.constants.get('alice_product_team'))
@@ -727,7 +727,7 @@ class Actor(Base):
         Alert when doing a release, when qa-> master it is release.
         """
         if self.pr.action.find("close") != -1 and self.pr.is_merged == True and (
-                self.pr.base_branch == master_branch and self.pr.head_branch == staging_branch):
+                self.pr.base_branch in master_branch and self.pr.head_branch == staging_branch):
             """ ************* inform channel *************** """
             product_notify_slack = json.loads(self.pr.config.constants.get('product_notify_slack'))
             tech_leads_to_notify_always_slack = json.loads(self.pr.config.constants.get('tech_leads_to_notify_always_slack'))
@@ -742,7 +742,7 @@ class Actor(Base):
                                    parseFull=False)
 
         if self.pr.action.find(
-                "open") != -1 and self.pr.base_branch == master_branch and self.pr.head_branch == staging_branch:
+                "open") != -1 and self.pr.base_branch in master_branch and self.pr.head_branch == staging_branch:
 
             pr_by_slack_uid = CommonUtils.get_slack_nicks_from_git(self.pr.opened_by)
             print(
@@ -873,9 +873,9 @@ class Actor(Base):
         sha = self.pr.statuses_url.rsplit("/", 1)[1]
 
         if self.pr.is_sensitive_branch and self.pr.action in close_action:
-            if (self.pr.base_branch == staging_branch and self.pr.head_branch == master_branch) or (
+            if (self.pr.base_branch == staging_branch and self.pr.head_branch in master_branch) or (
                     self.pr.base_branch == dev_branch and self.pr.head_branch == staging_branch) or \
-                    (self.pr.base_branch == staging_branch_commons and self.pr.head_branch == master_branch)\
+                    (self.pr.base_branch == staging_branch_commons and self.pr.head_branch in master_branch)\
                     or (self.pr.base_branch == dev_branch_commons and self.pr.head_branch == staging_branch_commons):
 
                 print(":SKIP: back merge: ignore status alert, repo={repo} pr={link_pr} title={title_pr}".
