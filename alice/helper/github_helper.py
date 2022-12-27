@@ -1,5 +1,7 @@
 import json
 import requests
+import time
+
 from alice.helper.api_manager import ApiManager
 from alice.helper.constants  import API_GITHUB_REVIEW_ACCEPT_KEY, EP_REVIEWS, API_GITHUB_REPO_MEMBER, API_GITHUB_ISSUES, \
     EP_COMMENTS
@@ -23,7 +25,7 @@ class GithubHelper(object):
 
     def __init__(self, pr):
         self.GITHUB_TOKEN = pr.config.githubToken
-        self.pr_api_link =  pr.link
+        self.pr_api_link = pr.link
         self.headers = {"Authorization": "token " + self.GITHUB_TOKEN}
         self.pr = pr
 
@@ -35,22 +37,23 @@ class GithubHelper(object):
                                                  " the organisation or the repository")
 
     def comment_pr(self, comment_section, comment):
-        resp = requests.post(comment_section, headers=self.headers,
-                             data=json.dumps(comment))
-        LOG.debug(resp.content)
+        resp = ApiManager.post(comment_section, self.headers, json.dumps(comment))
+        LOG.debug(resp["content"])
 
     def modify_pr(self, msg, state):
+        time.sleep(4)
         data = {
             "title": msg,
             "state": state
         }
-        resp = requests.post(self.pr_api_link, json.dumps(data), headers=self.headers)
-        LOG.debug(resp.content)
+        resp = ApiManager.post(self.pr_api_link, self.headers, json.dumps(data))
+        print("ALice have auto closed the PR,", self.pr_api_link,resp["content"])
+        LOG.debug(resp["content"])
 
     def get_reviews(self):
         url = self.pr_api_link + "/" + EP_REVIEWS
         self.headers["Accept"] = API_GITHUB_REVIEW_ACCEPT_KEY
-        return requests.get(url, headers=self.headers)
+        return ApiManager.get(url, headers=self.headers)
 
     def get_files_requests(self):
         url = self.pr_api_link + "/files"

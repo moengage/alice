@@ -23,7 +23,7 @@ class Retry(object):
                     return func(*args, **kwargs)
                 except self.exceptions_to_catch:
                     if i == self.max_retries - 1 and self.default_value is None:
-                        raise sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2]
+                        raise(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
                     time.sleep(self.after)
                     #self.logger.info(task=func.__name__, message="retrying function")
                     # logger.debug(task=func.__name__, message="retrying function",

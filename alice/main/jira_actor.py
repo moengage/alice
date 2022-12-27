@@ -35,7 +35,7 @@ class JiraActor():
 
     def fetch_users(self):
         if self.parsed_data.comment:
-            self.tagged_users = re.findall("\[~(.*?)\]", self.parsed_data.comment)
+            self.tagged_users = re.findall("\[~(.*?)\]", str(self.parsed_data.comment))
             return self.tagged_users
         else:
             return []
@@ -61,9 +61,11 @@ class JiraActor():
     def slack_jira_map(self):
         if self.jira_dict:
             for item in self.jira_dict:
-                if self.slack_dict.has_key(self.jira_dict[item]):
+                if self.jira_dict[item] in self.slack_dict:
                     self.js_map_dict[item] = self.slack_dict[self.jira_dict[item]]
-        return self.js_map_dict
+                else:
+                    return False
+        return True
 
     def send_to_slack(self):
         final_text = str(self.parsed_data.comment)

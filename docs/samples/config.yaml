@@ -1,7 +1,12 @@
 ---
-organisation: '' #give your GITHUB organisation name
+organisation: 'Moengage' #give your GITHUB organisation name
+jenkins :
+  JENKINS_BASE: ""
+  username: ""
+  token: ""
 tokens:
   github: '' #give your local alice's GITHUB TOKEN
+  github_alternate : '' #Alternate token to be used when we get rate limiting through prev token
   slack: '' #give your local alice's slack TOKEN, make sure this token has access in your slack channels
   jenkins: '' #give your jekin's alice's jenkins TOKEN
   jira: '' #give your local alice's JIRA TOKEN
@@ -13,7 +18,9 @@ qa_team: "@p1 @p2"  #your QA team memebr slack names
 debug: true  #To test your setup with alice, set it false when you take live
 debug_alice: #in debug mode all the alerts to go in specific channel/person to avoid spamming any
   debug_channel: "#tmp"  #your slack channel name preceded by #
-  debug_folks: "@pooja" #your slack name so all alerts comes to you for debugging
+  debug_folk: ""
+  debug_folks:
+  - "" #your slack name so all alerts comes to you for debugging
 user_map:   #key value map GITHUB_NAME: SLACK_NAME of each member in team, used to notify them
   p00ja: pooja  #replace with your mapping, add more how many needed
   abhi: abhinav
@@ -30,7 +37,7 @@ repo_list:  #type:list ::all repo names for which alice should monitor
 #### Repo wise settings ####
 # Can keep adding repo specific input as per requirement
 repo:
-  REPO_1:  #your repo name
+  MoEngage:  #your repo name
     checks: #type:list ::add/remove these checks for REPO_1. if given none: will trigger all the checks
     - close_dangerous_pr #names are case sensitive
     - tech_review
@@ -41,6 +48,7 @@ repo:
     - notify_on_sensitive_files_touched
     - notify_qa_sign_off
     - remind_direct_release_guideline_on_merge
+    - trigger_task_on_pr
     sensitive_branches: #type:list ::the branches you want to prevent
     - dev #change/add/remove as per your need
     - qa
@@ -48,6 +56,10 @@ repo:
     sensitive_files: #type:list ::the files you want to protect
     - f1   #any change merged in these files, dev ops team would be notified
     - f2
+    shield:
+      -
+      -
+        -
     product_team: "@p1 @p2 @p3" # the slack names space separated (each name to start with @)
     product_plus_required_dir_pattern: 'dashboard' #give directory name/path for which product review is a must
     product_team_github_names: # the github names of all PM's whose plus+1 should be considered mandatory
@@ -71,6 +83,24 @@ repo:
     super_git_members: #GITHUB NAMES who can have super powers to break the rules in any tough circumstance (no alert for the crime)
     - p1
     - p2
+    valid_contributors: # List of valid contributor for this branch
+    - ajishnair
+    - shahp00ja
+    - vandanamoriwal
+    - geetima12
+    - akgoel-mo
+    - naveenkumarkokku
+    - prashanthegde9
+    - moeoperation
+    - BhuvanThejaChennuru
+    - kanikapuniya2
+    - siri-murthy
+    - gagana11
+    - madhurjyaparashar
+    - rkjas12
+    - Madhukirankm
+    shields_check:
+    -
   REPO_2:
     checks: #type:list ::add/remove these checks for REPO_1. if given none: will trigger all the checks
     - tech_review
