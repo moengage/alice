@@ -1,7 +1,8 @@
-import requests
 import json
-from alice.helper.api_manager import ApiManager
+
 from alice.config.config_provider import ConfigProvider
+from alice.helper.api_manager import ApiManager
+from alice.helper.constants import master_branch
 
 
 class JenkinsHelper(object):
@@ -40,10 +41,10 @@ class JenkinsHelper(object):
         if self.pr.base_branch == "qa":
             release_type = "minor"
             dashboard_job_name = job_dir + "dashboard_builder_staging"
-        elif self.pr.base_branch == "master" and self.pr.head_branch.startswith("patch"):
+        elif self.pr.base_branch in master_branch and self.pr.head_branch.startswith("patch"):
             release_type = "patch"
             dashboard_job_name = job_dir + "dashboard_builder_prod"
-        elif self.pr.base_branch == "master" and self.pr.head_branch == "qa":
+        elif self.pr.base_branch in master_branch and self.pr.head_branch == "qa":
             release_type = "major"
             dashboard_job_name = job_dir + "dashboard_builder_prod"
         else:

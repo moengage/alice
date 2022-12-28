@@ -55,7 +55,7 @@ job_name = job_dir + "CI_SyntaxValidator"
 context_description = "Syntax Validation"
 action_commit_to_investigate = ["opened", "open", "reopened", "synchronize"]
 
-sensitive_branches_default = ["develop", "release", "master", "qa", "dev"]
+sensitive_branches_default = ["develop", "release", "master", "qa", "dev", "master_py2"]
 
 bot_name = "Alice"
 applaud_list = ["Awesome", "Great Efforts", "Good work", "Appreciate your efforts", "Perfect"]
@@ -75,7 +75,7 @@ edited_action = ["edited"]
 open_action = ["open", "opened"]
 
 organization_repo = 'moengage'
-master_branch = 'master'
+master_branch = ['master', 'master_py2']
 staging_branch = 'qa'
 dev_branch = 'dev'
 dev_branch_commons = 'develop'
