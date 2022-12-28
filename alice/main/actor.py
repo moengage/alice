@@ -265,7 +265,7 @@ class Actor(Base):
         qa_branch = self.pr.config.testBranch
         head_branch = self.head_branch
 
-        if self.base_branch == master_branch and head_branch != qa_branch:
+        if self.base_branch in master_branch and head_branch != qa_branch:
 
             if head_branch.lower().startswith("patch") or head_branch.lower().startswith("hotfix") or head_branch.lower().startswith("Hotfix"):
                 print("*** SKIP closing, Its a patch from head_branch=", head_branch)
@@ -1008,7 +1008,7 @@ class Actor(Base):
 
         if repo == moengage_repo and self.pr.is_merged:
 
-            if self.pr.base_branch == master_branch and self.pr.head_branch == staging_branch:
+            if self.pr.base_branch in master_branch and self.pr.head_branch == staging_branch:
 
                 """ ********** Bump Version ************** """
                 print(":DEBUG: before hitting patch job is_ui_change=", ui_change)
@@ -1020,7 +1020,7 @@ class Actor(Base):
                 self.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token, job_name="VersionBumper_MoEngage",
                                      pr_link = self.pr.link_pretty, params_dict = bump_version_job_dict, pr_by_slack = pr_by_slack_uid)
 
-            if self.pr.base_branch == master_branch and (self.pr.head_branch.startswith("patch") or
+            if self.pr.base_branch in master_branch and (self.pr.head_branch.startswith("patch") or
                                                          self.pr.head_branch.startswith("hotfix") or self.pr.head_branch.startswith("Hotfix")):
                 msg = "MoEngage Repo: A patch came from head=" + self.pr.head_branch
                 print(msg)
@@ -1125,7 +1125,7 @@ class Actor(Base):
         version = 0
         changelog = 0
 
-        if self.pr.repo in RELEASE_CHECKLIST_REPOS and (self.pr.base_branch == master_branch):
+        if self.pr.repo in RELEASE_CHECKLIST_REPOS and (self.pr.base_branch in master_branch):
 
             if not self.file_content or "message" in self.file_content:
                 print(":DEBUG: no files found in the diff: SKIP shield, just update the status")
@@ -1153,7 +1153,7 @@ class Actor(Base):
         """
         ami_change_required = 0
 
-        if self.pr.repo == moengage_repo and (self.pr.base_branch == master_branch or
+        if self.pr.repo == moengage_repo and (self.pr.base_branch in master_branch or
                                               self.pr.base_branch == ally_master_branch):
 
             if not self.file_content or "message" in self.file_content:
@@ -1329,7 +1329,7 @@ class Actor(Base):
                     return ":SKIP: alice code changes on " + repo
 
                 elif repo.lower() == organization_repo and (
-                        (self.pr.base_branch == staging_branch and self.pr.head_branch == master_branch) or
+                        (self.pr.base_branch == staging_branch and self.pr.head_branch in master_branch) or
                         (self.pr.base_branch == dev_branch and self.pr.head_branch == staging_branch)):
 
                     print(":SKIP: back merge: checks call, repo={repo} pr={link_pr} title={title_pr}" \
