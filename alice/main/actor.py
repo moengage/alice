@@ -40,6 +40,7 @@ class PRFilesNotFoundException(Exception):
         super(PRFilesNotFoundException, self).__init__(str(self.pr_response))
 
 
+
 class Actor(Base):
 
     def __init__(self, pr):
@@ -262,6 +263,20 @@ class Actor(Base):
         close a Pull Request which is not supposed to be opened Ex. base=master head=feature
         :return: relevant response dict
         """
+
+        # if self.pr.is_opened or self.pr.is_reopened:
+        #     master_branch = self.pr.config.mainBranch
+        #     qa_branch = self.pr.config.testBranch
+        #     if self.base_branch in master_branch and self.head_branch != qa_branch:
+        #         msg = MSG_AUTO_CLOSE.format(tested_branch=qa_branch, main_branch=master_branch)
+        #         self.github.modify_pr(msg, "closed")
+        #         self.slack.postToSlack(self.pr.config.alertChannelName, "@" + self.created_by + ": " + msg)
+        #         LOG.info("closed dangerous PR %s" % self.pr.link_pretty)
+        #         return {"msg": "closed dangerous PR %s" % self.pr.link_pretty}
+        #     return {"msg": "skipped closing PR=%s because not raised to mainBranch %s" % (self.pr.link_pretty,
+        #                                                                                   master_branch)}
+        # return {"msg": "skipped closing PR because not a opened PR"}
+
         master_branch = self.pr.config.mainBranch
         qa_branch = self.pr.config.testBranch
         head_branch = self.head_branch
@@ -304,6 +319,22 @@ class Actor(Base):
         We only check for release note when merging into MASTER
         and changelog when merging into RELEASE
         """
+        # if self.pr.is_merged:
+        #     if self.sensitive_file_touched.get("is_found"):
+        #         msg = MSG_SENSITIVE_FILE_TOUCHED.format(
+        #             notify_folks=self.pr.config.devOpsTeamToBeNotified, file=self.sensitive_file_touched["file_name"],
+        #             pr=self.pr.link_pretty, pr_by=self.created_by, pr_number=self.pr.number)
+        #         self.slack.postToSlack(self.pr.config.alertChannelName, msg)
+        #         LOG.info("informed %s because sensitive files are touched in pr=%s" %
+        #                  (self.pr.config.devOpsTeamToBeNotified, self.pr.link_pretty))
+        #         return {
+        #             "msg": "informed %s because sensitive files are touched" % self.pr.config.devOpsTeamToBeNotified}
+        #     return {"msg": "Skipped sensitive files alerts because no sensitive file being touched"}
+        # return {
+        #     "msg": "Skipped sensitive files alerts because its not PR merge event %s" %
+        #            self.pr.config.devOpsTeamToBeNotified}
+
+
         if self.pr.action in action_commit_to_investigate and self.pr.repo != moengage_repo:
             print("Checking Sensitive Files")
             commit_id = self.pr.head_sha
@@ -343,6 +374,7 @@ class Actor(Base):
         Notify to respective folks when qa is passed and code is moved to main branch Eg. master
         :return:
         """
+        # if self.pr.is_merged and self.pr.base_branch in self.pr.config.mainBranch \
         if self.pr.action in close_action and self.pr.is_merged and self.pr.base_branch == self.pr.config.mainBranch \
                 and self.pr.head_branch == self.pr.config.testBranch:
             msg = MSG_QA_SIGN_OFF.format(person=self.get_slack_name_for_id(self.pr.config.personToBeNotified),
@@ -369,6 +401,7 @@ class Actor(Base):
         if self.pr.is_merged:
             LOG.debug("**** Repo=%s, new merge came to=%s, setting trace to=%s channel"
                       % (self.pr.repo, self.pr.base_branch, self.pr.config.codeChannelName))
+            # msg = MSG_CODE_CHANNEL.format(title=self.pr.title, desc=self.pr.description, pr=self.pr.link,
             msg = MSG_CODE_CHANNEL.format(title=self.pr.title, desc=self.pr.description, pr=self.pr.link_pr,
                                           head_branch=self.pr.head_branch, base_branch=self.pr.base_branch,
                                           pr_by=self.get_slack_name_for_git_name(self.created_by),
@@ -386,6 +419,7 @@ class Actor(Base):
         gathers accumulated data after last qa_signOff and send an attachment into channel announcing details of code freeze
         :return: relevant response dict
         """
+        # if self.pr.is_merged and (self.pr.base_branch == self.pr.config.testBranch \
         if self.pr.action in close_action and self.pr.is_merged and (self.pr.base_branch == self.pr.config.testBranch \
                                                                      and self.pr.head_branch == self.pr.config.devBranch):
             LOG.debug("*** PR merged from {dev_branch} to {qa_branch}, posting release items to slack".
@@ -882,7 +916,7 @@ class Actor(Base):
         if self.pr.is_sensitive_branch and self.pr.action in close_action:
             if (self.pr.base_branch == staging_branch and self.pr.head_branch in master_branch) or (
                     self.pr.base_branch == dev_branch and self.pr.head_branch == staging_branch) or \
-                    (self.pr.base_branch == staging_branch_commons and self.pr.head_branch in master_branch) \
+                    (self.pr.base_branch == staging_branch_commons and self.pr.head_branch in master_branch)\
                     or (self.pr.base_branch == dev_branch_commons and self.pr.head_branch == staging_branch_commons):
 
                 print(":SKIP: back merge: ignore status alert, repo={repo} pr={link_pr} title={title_pr}".
