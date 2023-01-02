@@ -75,4 +75,3 @@ class GithubHelper(object):
         comments_end_point = API_GITHUB_ISSUES.format(org=self.pr.config.organisation, repo=self.pr.repo) \
                              + "/" + str(self.pr.number) + "/" + EP_COMMENTS
         return ApiManager.get(comments_end_point, self.headers)
-

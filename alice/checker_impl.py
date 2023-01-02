@@ -7,6 +7,12 @@ class PRFilesNotFoundException(Exception):
         super(PRFilesNotFoundException, self).__init__(str(self.pr_response))
 
 
+class PRFilesNotFoundException(Exception):
+    def __init__(self, pr_response):
+        self.pr_response = pr_response
+        super(PRFilesNotFoundException, self).__init__(str(self.pr_response))
+
+
 class CheckImpl(Checks):
 
     def __init__(self, push_payload_parser):
@@ -99,4 +105,3 @@ class CheckImpl(Checks):
        self.pr.config.getSlackName(github_name)
 
     """
-

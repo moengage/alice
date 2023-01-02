@@ -55,6 +55,3 @@ class CheckNotFoundException(Exception):
     def __init__(self, method_name):
         super(CheckNotFoundException, self).__init__(DOC_CHECK_NOT_FOUND.format(check_name=method_name,
                                                                                 doc_link=EXTEND_ALICE))
-
-
-
