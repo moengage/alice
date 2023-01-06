@@ -175,7 +175,7 @@ class Actor(Base):
         """
         if self.pr.is_opened:
             if not self.pr.config.is_debug:
-                if self.pr.base_branch == self.pr.config.mainBranch:
+                if self.pr.base_branch in self.pr.config.mainBranch:
                     guideline_comment = SPECIAL_COMMENT
                     self.slack.postToSlack(self.pr.opened_by)
                 else:
@@ -194,7 +194,7 @@ class Actor(Base):
         """
         desired_action = self.pr.config.actionToBeNotifiedFor
         if self.pr.action == desired_action:
-            if self.pr.base_branch == self.pr.config.mainBranch:
+            if self.pr.base_branch in self.pr.config.mainBranch:
                 msg = MSG_OPENED_TO_MAIN_BRANCH.format(repo=self.pr.repo, pr_by=self.created_by,
                                                        main_branch=self.pr.config.mainBranch, title=self.pr.title,
                                                        pr=self.pr.link_pretty, action=self.pr.action)
@@ -237,14 +237,14 @@ class Actor(Base):
         if self.pr.is_opened or self.pr.is_reopened:
             master_branch = self.pr.config.mainBranch
             qa_branch = self.pr.config.testBranch
-            if self.base_branch == master_branch and self.head_branch != qa_branch:
+            if self.base_branch in master_branch and self.head_branch != qa_branch:
                 msg = MSG_AUTO_CLOSE.format(tested_branch=qa_branch, main_branch=master_branch)
                 self.github.modify_pr(msg, "closed")
                 self.slack.postToSlack(self.pr.config.alertChannelName, "@" + self.created_by + ": " + msg)
                 LOG.info("closed dangerous PR %s" % self.pr.link_pretty)
                 return {"msg": "closed dangerous PR %s" % self.pr.link_pretty}
-            return {"msg": "skipped closing PR=%s because not raised to mainBranch %s" %(self.pr.link_pretty,
-                                                                                         master_branch)}
+            return {"msg": "skipped closing PR={link_pretty} because not raised to mainBranch {master_branch}".format(link_pretty=self.pr.link_pretty,
+                                                                                         master_branch=master_branch)}
         return {"msg": "skipped closing PR because not a opened PR"}
 
     def notify_if_sensitive_modified(self):
@@ -272,7 +272,7 @@ class Actor(Base):
         Notify to respective folks when qa is passed and code is moved to main branch Eg. master
         :return:
         """
-        if self.pr.is_merged and self.pr.base_branch == self.pr.config.mainBranch \
+        if self.pr.is_merged and self.pr.base_branch in self.pr.config.mainBranch \
                 and self.pr.head_branch == self.pr.config.testBranch:
             msg = MSG_QA_SIGN_OFF.format(person=self.pr.config.personToBeNotified, pr=self.pr.link_pretty,
                                          dev_ops_team=self.pr.config.devOpsTeamToBeNotified,
