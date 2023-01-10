@@ -301,6 +301,7 @@ class Actor(Base):
         We only check for release note when merging into MASTER
         and changelog when merging into RELEASE
         """
+        master_branch = self.pr.config.mainBranch
         if self.pr.action in action_commit_to_investigate and self.pr.repo != moengage_repo:
             print("Checking Sensitive Files")
             commit_id = self.pr.head_sha
@@ -309,7 +310,7 @@ class Actor(Base):
             flag = 0
             channel_name = self.pr.config.constants.get('channel_name')
             commit_id_url = self.pr.link_pr + "/commits/%s"%commit_id
-            if self.pr.base_branch == master_branch:
+            if self.pr.base_branch in master_branch:
                 response = ApiManager.get(base_url, header)
                 data = json.loads(response["content"])
                 if "files" in data:
@@ -603,8 +604,9 @@ class Actor(Base):
         """
         Prepare for next release, Sending Slack message to product and qa team.
         """
+        master_branch = self.pr.config.mainBranch
         if self.pr.action.find("close") != -1 and self.pr.is_merged == True and (
-                self.pr.base_branch == master_branch and self.pr.head_branch == staging_branch):
+                self.pr.base_branch in master_branch and self.pr.head_branch == staging_branch):
 
             """ ********** Remind PM teams to update release notes for next release ************ """
             alice_product_team = json.loads(self.pr.config.constants.get('alice_product_team'))
@@ -725,8 +727,9 @@ class Actor(Base):
         """
         Alert when doing a release, when qa-> master it is release.
         """
+        master_branch = self.pr.config.mainBranch
         if self.pr.action.find("close") != -1 and self.pr.is_merged == True and (
-                self.pr.base_branch == master_branch and self.pr.head_branch == staging_branch):
+                self.pr.base_branch in master_branch and self.pr.head_branch == staging_branch):
             """ ************* inform channel *************** """
             product_notify_slack = json.loads(self.pr.config.constants.get('product_notify_slack'))
             tech_leads_to_notify_always_slack = json.loads(self.pr.config.constants.get('tech_leads_to_notify_always_slack'))
@@ -741,7 +744,7 @@ class Actor(Base):
                                    parseFull=False)
 
         if self.pr.action.find(
-                "open") != -1 and self.pr.base_branch == master_branch and self.pr.head_branch == staging_branch:
+                "open") != -1 and self.pr.base_branch in master_branch and self.pr.head_branch == staging_branch:
 
             pr_by_slack_uid = CommonUtils.get_slack_nicks_from_git(self.pr.opened_by)
             print(
@@ -870,11 +873,11 @@ class Actor(Base):
         """
         repo = self.pr.repo
         sha = self.pr.statuses_url.rsplit("/", 1)[1]
-
+        master_branch = self.pr.config.mainBranch
         if self.pr.is_sensitive_branch and self.pr.action in close_action:
-            if (self.pr.base_branch == staging_branch and self.pr.head_branch == master_branch) or (
+            if (self.pr.base_branch == staging_branch and self.pr.head_branch in master_branch) or (
                     self.pr.base_branch == dev_branch and self.pr.head_branch == staging_branch) or \
-                    (self.pr.base_branch == staging_branch_commons and self.pr.head_branch == master_branch)\
+                    (self.pr.base_branch == staging_branch_commons and self.pr.head_branch in master_branch)\
                     or (self.pr.base_branch == dev_branch_commons and self.pr.head_branch == staging_branch_commons):
 
                 print(":SKIP: back merge: ignore status alert, repo={repo} pr={link_pr} title={title_pr}".
@@ -1004,10 +1007,11 @@ class Actor(Base):
     def bump_version(self, pr_by_slack_uid, merged_by_slack_uid, jenkins_instance, token):
         repo = self.pr.repo
         sha = self.pr.statuses_url.rsplit("/", 1)[1]
+        master_branch = self.pr.config.mainBranch
 
         if repo == moengage_repo and self.pr.is_merged:
 
-            if self.pr.base_branch == master_branch and self.pr.head_branch == staging_branch:
+            if self.pr.base_branch in master_branch and self.pr.head_branch == staging_branch:
 
                 """ ********** Bump Version ************** """
                 print(":DEBUG: before hitting patch job is_ui_change=", ui_change)
@@ -1019,7 +1023,7 @@ class Actor(Base):
                 self.hit_jenkins_job(jenkins_instance=jenkins_instance, token=token, job_name="VersionBumper_MoEngage",
                                      pr_link = self.pr.link_pretty, params_dict = bump_version_job_dict, pr_by_slack = pr_by_slack_uid)
 
-            if self.pr.base_branch == master_branch and (self.pr.head_branch.startswith("patch") or
+            if self.pr.base_branch in master_branch and (self.pr.head_branch.startswith("patch") or
                                                          self.pr.head_branch.startswith("hotfix") or self.pr.head_branch.startswith("Hotfix")):
                 msg = "MoEngage Repo: A patch came from head=" + self.pr.head_branch
                 print(msg)
@@ -1123,8 +1127,8 @@ class Actor(Base):
         """
         version = 0
         changelog = 0
-
-        if self.pr.repo in RELEASE_CHECKLIST_REPOS and (self.pr.base_branch == master_branch):
+        master_branch = self.pr.config.mainBranch
+        if self.pr.repo in RELEASE_CHECKLIST_REPOS and (self.pr.base_branch in master_branch):
 
             if not self.file_content or "message" in self.file_content:
                 print(":DEBUG: no files found in the diff: SKIP shield, just update the status")
@@ -1151,8 +1155,8 @@ class Actor(Base):
         :return:
         """
         ami_change_required = 0
-
-        if self.pr.repo == moengage_repo and (self.pr.base_branch == master_branch or
+        master_branch = self.pr.config.mainBranch
+        if self.pr.repo == moengage_repo and (self.pr.base_branch in master_branch or
                                               self.pr.base_branch == ally_master_branch):
 
             if not self.file_content or "message" in self.file_content:
@@ -1222,7 +1226,7 @@ class Actor(Base):
         Moengage - we are checking whether there are some changes in certain location, we run api test
         Other repos - we take from config.yml and then run it ,
         """
-
+        master_branch = self.pr.config.mainBranch
         jenkins_setting = self.pr.global_config.config["jenkins"]
         token = jenkins_setting["token"]
         jenkins_instance = jenkins.Jenkins(jenkins_setting["JENKINS_BASE"],
@@ -1328,7 +1332,7 @@ class Actor(Base):
                     return ":SKIP: alice code changes on " + repo
 
                 elif repo.lower() == organization_repo and (
-                        (self.pr.base_branch == staging_branch and self.pr.head_branch == master_branch) or
+                        (self.pr.base_branch == staging_branch and self.pr.head_branch in master_branch) or
                         (self.pr.base_branch == dev_branch and self.pr.head_branch == staging_branch)):
 
                     print(":SKIP: back merge: checks call, repo={repo} pr={link_pr} title={title_pr}" \
