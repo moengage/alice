@@ -186,7 +186,7 @@ class Actor(Base):
         """
         if self.pr.is_opened:
             if not self.pr.config.is_debug:
-                if self.pr.base_branch == self.pr.config.mainBranch:
+                if self.pr.base_branch in self.pr.config.mainBranch:
                     guideline_comment = SPECIAL_COMMENT
                     guideline_comment = self.add_extra_comment(SPECIAL_COMMENT)
                     self.slack.postToSlack(self.pr.opened_by_slack, guideline_comment["body"])
@@ -214,7 +214,7 @@ class Actor(Base):
         """
         desired_action = self.pr.config.actionToBeNotifiedFor
         if self.pr.action == desired_action:
-            if self.pr.base_branch == self.pr.config.mainBranch:
+            if self.pr.base_branch in self.pr.config.mainBranch:
                 msg = MSG_OPENED_TO_MAIN_BRANCH.format(repo=self.pr.repo, pr_by=self.created_by,
                                                        main_branch=self.pr.config.mainBranch, title=self.pr.title,
                                                        pr=self.pr.link_pretty, action=self.pr.action)
@@ -265,7 +265,7 @@ class Actor(Base):
         qa_branch = self.pr.config.testBranch
         head_branch = self.head_branch
 
-        if self.base_branch == master_branch and head_branch != qa_branch:
+        if self.base_branch in master_branch and head_branch != qa_branch:
 
             if head_branch.lower().startswith("patch") or head_branch.lower().startswith("hotfix") or head_branch.lower().startswith("Hotfix"):
                 print("*** SKIP closing, Its a patch from head_branch=", head_branch)
@@ -340,7 +340,7 @@ class Actor(Base):
         Notify to respective folks when qa is passed and code is moved to main branch Eg. master
         :return:
         """
-        if self.pr.action in close_action and self.pr.is_merged and self.pr.base_branch == self.pr.config.mainBranch \
+        if self.pr.action in close_action and self.pr.is_merged and self.pr.base_branch in self.pr.config.mainBranch \
                 and self.pr.head_branch == self.pr.config.testBranch:
             msg = MSG_QA_SIGN_OFF.format(person=self.get_slack_name_for_id(self.pr.config.personToBeNotified),
                                          pr=self.pr.link_pretty,
@@ -831,7 +831,7 @@ class Actor(Base):
             head    base
             dev     qa                      staging build
             qa      master                  prod  build
-            patch   master                  prod  build               
+            patch   master                  prod  build
             feature qa                      staging
             feature master                  nothing
             feature dev                     nothing
@@ -1258,7 +1258,7 @@ class Actor(Base):
             """
             2) Begining of shield - Second task
             Shield runs for three repos -  Moengage, Dashboard_ui, Inap_rest_service
-            commons, segmentation, campaigns-core, 
+            commons, segmentation, campaigns-core,
             Basic working of shield - It first update status to pending , then get file content,
             if file content found, then move forward, else return and skip testing.
 
@@ -1317,8 +1317,8 @@ class Actor(Base):
             elif repo in python_repo:
                 """
                 2.2) for moengage repo and inap_rest_service
-                We have several cases, 
-                First case is for particular branches, we skip alice, 
+                We have several cases,
+                First case is for particular branches, we skip alice,
                 Second case is we bypass shield testing for back merge(from master to dev and all..)
                 Third case is when we run shield for moengage and python branch
                 """
@@ -1522,7 +1522,7 @@ class Actor(Base):
 
         elif self.pr.action in edited_action:
             """
-            Adding this code because, we can edit pr to change base branch from qa to master, 
+            Adding this code because, we can edit pr to change base branch from qa to master,
             thus want to check function of close pr in such case
             """
             check_dangerous_pr = self.close_dangerous_pr()
@@ -1537,7 +1537,7 @@ class Actor(Base):
                 1) Build dashboad
                 2) Broadcast message if pushed in sensitive branches
                 3) After pr is merged post to slack whether pr was merged correctly or not.
-            3) last task task, When pull request is merged/closed, 
+            3) last task task, When pull request is merged/closed,
             we run two checks.
             First, We alert if pull request is merged_by a person,
              who is not a valid contributor.
@@ -1618,4 +1618,3 @@ class Infra(object):
             SlackHelper(self.config).post_to_slack_infra(channel=issue["channel"], msg=msg, data=
                                                             CommonUtils.get_bot(issue["channel"],
                                                             issue["slack_nick_name_creator"]))
-
