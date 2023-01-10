@@ -75,7 +75,7 @@ edited_action = ["edited"]
 open_action = ["open", "opened"]
 
 organization_repo = 'moengage'
-master_branch = 'master'
+# master_branch = 'master'
 staging_branch = 'qa'
 dev_branch = 'dev'
 dev_branch_commons = 'develop'
