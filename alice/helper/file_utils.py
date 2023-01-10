@@ -2,6 +2,7 @@ import os
 import yaml
 import simplejson as json
 
+
 def get_dict_from_config_file(file_path):
     from alice.helper.log_utils import LOG
     if file_path.endswith(".yaml"):
@@ -23,7 +24,7 @@ def get_dict_from_yaml(file_path):
     data = {}
     with open(file_path, 'r') as stream:
         try:
-            data = yaml.load(stream)
+            data = yaml.load(stream, yaml.Loader)
         except yaml.YAMLError as exc:
             LOG.error("\nPlease validate your config file, if it is correct. Can use http://www.yamllint.com/ to debug quicker")
             raise (exc)
@@ -41,11 +42,13 @@ def write_to_file_from_top(file_path, msg):
         f.writelines(lines)
         f.close()
 
+
 def read_from_file(file_name):
     with open(file_name) as f:
         contents = f.read()
         f.close()
     return contents
+
 
 def append_to_file(file_path, msg):
     create_if_not_found()
@@ -66,6 +69,7 @@ def create_if_not_found(file_name):
 
 
 def clear_file(_file):
+    from alice.helper.log_utils import LOG
     LOG.debug("************** CLEARNING FILE=" +_file)
     open(_file, 'w').close()
 
